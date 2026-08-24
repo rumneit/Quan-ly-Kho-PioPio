@@ -3,15 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website của tôi</title>
+  <meta name="description" content="PioPio - Nền tảng quản lý bán hàng và kho hàng thông minh.">
+  <meta name="theme-color" content="#1769e0">
+  <title>PioPio | Quản lý bán hàng</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Xin chào từ Vercel</h1>
-    <p>Website đang chạy trên nền tảng vercel.app</p>
-  </main>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">P</span>
+      <div><strong>PioPio</strong><small>Quản lý bán hàng</small></div>
+    </div>
+    <nav class="main-nav" aria-label="Điều hướng chính">
+      <p class="nav-label">VẬN HÀNH</p>
+      <button class="nav-item active" data-page="Tổng quan"><span>⌂</span>Tổng quan</button>
+      <button class="nav-item" data-page="Bán hàng"><span>▣</span>Bán hàng</button>
+      <button class="nav-item" data-page="Đơn hàng"><span>▤</span>Đơn hàng<b>12</b></button>
+      <button class="nav-item" data-page="Sản phẩm"><span>◇</span>Sản phẩm</button>
+      <button class="nav-item" data-page="Kho hàng"><span>▧</span>Kho hàng<b class="warn">8</b></button>
+      <button class="nav-item" data-page="Khách hàng"><span>♙</span>Khách hàng</button>
+      <p class="nav-label">PHÂN TÍCH</p>
+      <button class="nav-item" data-page="Sổ quỹ"><span>◫</span>Sổ quỹ</button>
+      <button class="nav-item" data-page="Báo cáo"><span>↗</span>Báo cáo</button>
+      <button class="nav-item" data-page="Nhân viên"><span>♧</span>Nhân viên</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" data-page="Thiết lập"><span>⚙</span>Thiết lập</button>
+      <div class="support-card"><span>?</span><div><strong>Cần hỗ trợ?</strong><small>1900 6868 · 7:00–22:00</small></div></div>
+    </div>
+  </aside>
 
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-button menu-toggle" id="menuToggle" aria-label="Mở menu">☰</button>
+        <div><h1 id="pageTitle">Tổng quan</h1><p>Xin chào, chúc bạn một ngày kinh doanh hiệu quả!</p></div>
+      </div>
+      <div class="top-actions">
+        <label class="branch-select" aria-label="Chi nhánh"><span>⌖</span><select><option>Kho PioPio - Chi nhánh chính</option><option>Chi nhánh Quận 7</option></select></label>
+        <button class="icon-button notification" aria-label="Thông báo">♢<i></i></button>
+        <button class="profile" aria-label="Tài khoản"><span>PN</span><div><strong>Phạm Nam</strong><small>Quản trị viên</small></div><b>⌄</b></button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="welcome-row">
+        <div><p class="eyebrow">TỔNG QUAN KINH DOANH</p><h2>Hôm nay cửa hàng của bạn thế nào?</h2></div>
+        <div class="hero-actions">
+          <label class="date-filter"><span>□</span><select id="dateRange"><option value="today">Hôm nay, 25/08/2026</option><option value="week">7 ngày gần nhất</option><option value="month">Tháng này</option></select></label>
+          <button class="button secondary" id="addProductBtn">＋ Thêm sản phẩm</button>
+          <button class="button primary" id="openPosBtn">▣ Bán hàng</button>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Chỉ số kinh doanh">
+        <article class="metric-card blue"><div class="metric-icon">₫</div><div class="metric-head"><span>Doanh thu hôm nay</span><span class="trend up">↗ 12,5%</span></div><strong data-metric="revenue">18.640.000 ₫</strong><small>So với 16.570.000 ₫ hôm qua</small></article>
+        <article class="metric-card violet"><div class="metric-icon">▤</div><div class="metric-head"><span>Đơn hàng</span><span class="trend up">↗ 8,2%</span></div><strong data-metric="orders">42</strong><small>38 hoàn tất · 4 đang xử lý</small></article>
+        <article class="metric-card green"><div class="metric-icon">◎</div><div class="metric-head"><span>Lợi nhuận ước tính</span><span class="trend up">↗ 9,8%</span></div><strong data-metric="profit">6.324.000 ₫</strong><small>Biên lợi nhuận 33,9%</small></article>
+        <article class="metric-card orange"><div class="metric-icon">⚠</div><div class="metric-head"><span>Cảnh báo tồn kho</span><span class="trend down">8 mặt hàng</span></div><strong data-metric="stock">126</strong><small>Tổng 1.248 sản phẩm trong kho</small></article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel revenue-panel">
+          <div class="panel-head"><div><h3>Doanh thu thuần</h3><p>Biến động doanh thu trong 7 ngày</p></div><div class="legend"><span><i class="dot blue-dot"></i>Doanh thu</span><strong>124,8 triệu ₫</strong></div></div>
+          <div class="chart-wrap"><div class="y-axis"><span>30tr</span><span>20tr</span><span>10tr</span><span>0</span></div><div class="bar-chart" id="revenueChart">
+            <div class="bar-group"><i style="--h:48%"><em>14,4tr</em></i><span>19/08</span></div><div class="bar-group"><i style="--h:62%"><em>18,6tr</em></i><span>20/08</span></div><div class="bar-group"><i style="--h:57%"><em>17,1tr</em></i><span>21/08</span></div><div class="bar-group"><i style="--h:78%"><em>23,4tr</em></i><span>22/08</span></div><div class="bar-group"><i style="--h:69%"><em>20,7tr</em></i><span>23/08</span></div><div class="bar-group"><i style="--h:42%"><em>12,6tr</em></i><span>24/08</span></div><div class="bar-group active"><i style="--h:62%"><em>18,6tr</em></i><span>Hôm nay</span></div>
+          </div></div>
+        </article>
+        <article class="panel activity-panel">
+          <div class="panel-head"><div><h3>Hoạt động gần đây</h3><p>Cập nhật theo thời gian thực</p></div><button class="text-button">Xem tất cả</button></div>
+          <div class="activity-list">
+            <div class="activity"><span class="activity-icon order">▤</span><div><strong>Đơn hàng #HD00842 đã hoàn tất</strong><p>Nguyễn Minh Anh · 1.280.000 ₫</p></div><time>5 phút</time></div>
+            <div class="activity"><span class="activity-icon stock">▧</span><div><strong>Nhập kho thành công</strong><p>Phiếu nhập #PN00319 · 42 sản phẩm</p></div><time>18 phút</time></div>
+            <div class="activity"><span class="activity-icon customer">♙</span><div><strong>Khách hàng mới</strong><p>Trần Thị Ngọc · 0988 *** 215</p></div><time>34 phút</time></div>
+            <div class="activity"><span class="activity-icon alert">!</span><div><strong>Sắp hết hàng</strong><p>Áo thun basic trắng · Còn 3 sản phẩm</p></div><time>1 giờ</time></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel products-panel">
+        <div class="panel-head products-head"><div><h3>Sản phẩm bán chạy</h3><p>Xếp hạng theo doanh thu tháng này</p></div><div class="table-tools"><label class="search-box"><span>⌕</span><input id="productSearch" type="search" placeholder="Tìm sản phẩm..."></label><button class="text-button">Xem báo cáo →</button></div></div>
+        <div class="table-scroll"><table><thead><tr><th>SẢN PHẨM</th><th>MÃ HÀNG</th><th>ĐÃ BÁN</th><th>TỒN KHO</th><th>DOANH THU</th><th>TRẠNG THÁI</th><th></th></tr></thead><tbody id="productTable">
+          <tr><td><div class="product"><span class="product-thumb lavender">AT</span><div><strong>Áo thun Cotton Premium</strong><small>Thời trang nam · Size M</small></div></div></td><td>ATC-001-M</td><td><strong>128</strong></td><td>42</td><td><strong>31.872.000 ₫</strong></td><td><span class="status good">Đang kinh doanh</span></td><td><button class="more-btn">•••</button></td></tr>
+          <tr><td><div class="product"><span class="product-thumb peach">QV</span><div><strong>Quần vải ống suông</strong><small>Thời trang nữ · Màu be</small></div></div></td><td>QVS-021</td><td><strong>96</strong></td><td>18</td><td><strong>28.704.000 ₫</strong></td><td><span class="status good">Đang kinh doanh</span></td><td><button class="more-btn">•••</button></td></tr>
+          <tr><td><div class="product"><span class="product-thumb mint">SM</span><div><strong>Sơ mi Linen dài tay</strong><small>Thời trang nam · Màu xanh</small></div></div></td><td>SML-014-L</td><td><strong>84</strong></td><td>7</td><td><strong>26.376.000 ₫</strong></td><td><span class="status low">Sắp hết hàng</span></td><td><button class="more-btn">•••</button></td></tr>
+          <tr><td><div class="product"><span class="product-thumb sky">CV</span><div><strong>Chân váy chữ A</strong><small>Thời trang nữ · Màu đen</small></div></div></td><td>CVA-008</td><td><strong>72</strong></td><td>35</td><td><strong>17.928.000 ₫</strong></td><td><span class="status good">Đang kinh doanh</span></td><td><button class="more-btn">•••</button></td></tr>
+        </tbody></table></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="productModal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><form class="modal-card" id="productForm">
+    <div class="modal-head"><div><h3>Thêm sản phẩm mới</h3><p>Tạo nhanh sản phẩm trong danh mục</p></div><button type="button" class="close-btn" data-close-modal>×</button></div>
+    <div class="form-grid"><label class="full">Tên sản phẩm<input name="name" required placeholder="Ví dụ: Áo polo nam"></label><label>Mã hàng<input name="sku" required placeholder="SP-001"></label><label>Danh mục<select name="category"><option>Thời trang nam</option><option>Thời trang nữ</option><option>Phụ kiện</option></select></label><label>Giá bán<input name="price" type="number" min="0" required placeholder="250000"></label><label>Tồn kho ban đầu<input name="stock" type="number" min="0" value="0"></label></div>
+    <div class="modal-actions"><button type="button" class="button secondary" data-close-modal>Hủy</button><button class="button primary" type="submit">Lưu sản phẩm</button></div>
+  </form></div>
+
+  <div class="modal pos-modal" id="posModal" aria-hidden="true"><div class="modal-backdrop" data-close-pos></div><div class="pos-card">
+    <div class="pos-head"><div class="brand compact"><span class="brand-mark">P</span><strong>PioPio POS</strong></div><label class="pos-search"><span>⌕</span><input id="posSearch" placeholder="Tìm tên, mã hoặc quét mã vạch..."></label><button class="close-btn" data-close-pos>×</button></div>
+    <div class="pos-body"><div class="catalog"><div class="category-tabs"><button class="active">Tất cả</button><button>Áo</button><button>Quần</button><button>Phụ kiện</button></div><div class="product-grid" id="posProducts"></div></div><aside class="cart"><div class="cart-title"><h3>Đơn hàng mới</h3><span id="cartCount">0 sản phẩm</span></div><div class="cart-items" id="cartItems"><div class="empty-cart"><span>▤</span><strong>Chưa có sản phẩm</strong><p>Chọn sản phẩm để thêm vào đơn</p></div></div><div class="cart-summary"><div><span>Tạm tính</span><strong id="subtotal">0 ₫</strong></div><div><span>Giảm giá</span><strong>0 ₫</strong></div><div class="total"><span>Khách cần trả</span><strong id="cartTotal">0 ₫</strong></div><button class="button primary checkout" id="checkoutBtn" disabled>THANH TOÁN</button></div></aside></div>
+  </div></div>
+  <div class="toast" id="toast" role="status"><span>✓</span><div><strong>Thành công</strong><p id="toastMessage"></p></div></div>
   <script src="script.js"></script>
 </body>
 </html>
