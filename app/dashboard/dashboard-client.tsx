@@ -20,8 +20,6 @@ const menuGroups: MenuGroup[] = [
   { title: "Bán online", sections: [{ items: ["Bán online", "Website bán hàng"] }] },
   { title: "Thuế & Kế toán", badge: "Mới", sections: [{ items: ["Thuế & Kế toán", "Hóa đơn điện tử"] }] },
 ];
-const menuIcons: Record<string, string> = { "Tổng quan": "⌂", "Hàng hóa": "◇", "Mua hàng": "⇩", "Đơn hàng": "▤", "Khách hàng": "♙", "Nhân viên": "♧", "Sổ quỹ": "₫", "Báo cáo": "↗", "Bán online": "◎", "Thuế & Kế toán": "§" };
-
 export default function DashboardClient({ profile, products: initialProducts, metrics }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [query, setQuery] = useState("");
@@ -52,10 +50,10 @@ export default function DashboardClient({ profile, products: initialProducts, me
   return <div className="kv-shell">
     <header className="kv-header">
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo">♢<i /></button><button className="kv-round" aria-label="Cài đặt">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
+      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo">🔔<i /></button><button className="kv-round" aria-label="Cài đặt">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
     </header>
 
-    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items"><Link className="kv-top-item active" href="/dashboard"><span>{menuIcons["Tổng quan"]}</span>Tổng quan</Link>{menuGroups.map(group => <div className="kv-nav-dropdown" key={group.title}><button className="kv-top-item" aria-haspopup="true"><span>{menuIcons[group.title]}</span>{group.title}<b>⌄</b></button><div className="kv-submenu">{group.sections.map((section,index) => <section key={`${group.title}-${index}`}>{section.label && <h3>{section.label}</h3>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") setModal("staff"); if (item === "Danh sách hàng hóa") setModal("product"); }}><i>{menuIcons[group.title]}</i><span>{item}</span>{badge && <em>{badge}</em>}</button>; })}</section>)}</div></div>)}</div><Link className="kv-sale-link" href="/sales"><span>▣</span>Bán hàng</Link></nav>
+    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items"><Link className="kv-top-item active" href="/dashboard">Tổng quan</Link>{menuGroups.map(group => <div className="kv-nav-dropdown" key={group.title}><button className="kv-top-item" aria-haspopup="true">{group.title}<b>⌄</b></button><div className="kv-submenu">{group.sections.map((section,index) => <section key={`${group.title}-${index}`}>{section.label && <h3>{section.label}</h3>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") setModal("staff"); if (item === "Danh sách hàng hóa") setModal("product"); }}><span>{item}</span>{badge && <em>{badge}</em>}</button>; })}</section>)}</div></div>)}</div><Link className="kv-sale-link" href="/sales"><span>🛒</span>Bán hàng</Link></nav>
 
     <main className="kv-main">
       {message && <div className="kv-toast-message">✓ {message}</div>}
