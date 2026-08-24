@@ -96,6 +96,10 @@ revoke all on public.stores, public.profiles, public.products, public.customers,
 grant select on public.stores, public.profiles, public.products, public.customers, public.orders, public.order_items, public.inventory_movements to authenticated;
 grant insert, update on public.customers, public.orders, public.order_items to authenticated;
 grant insert, update, delete on public.products, public.profiles, public.inventory_movements to authenticated;
+grant all on public.stores, public.profiles, public.products, public.customers, public.orders, public.order_items, public.inventory_movements to service_role;
+grant usage, select on all sequences in schema public to authenticated, service_role;
+grant execute on function public.current_store_id() to authenticated, service_role;
+grant execute on function public.current_app_role() to authenticated, service_role;
 
 create policy "store members view store" on public.stores for select to authenticated using (id = (select public.current_store_id()));
 create policy "view own profile or manager team" on public.profiles for select to authenticated using (id = auth.uid() or (store_id = (select public.current_store_id()) and (select public.current_app_role()) = 'manager'));
