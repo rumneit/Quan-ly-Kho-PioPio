@@ -1,0 +1,26 @@
+:root {
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  background: #f9fafb;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  margin: 0;
+  place-items: center;
+}
+
+main {
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 0.75rem;
+}
+
+p {
+  margin: 0;
+  color: #4b5563;
+}
