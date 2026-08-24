@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./dashboard.css";
+import "./menu-overrides.css";
 import "./sales.css";
 import "../style.css";
 

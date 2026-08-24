@@ -6,15 +6,19 @@ import type { Profile } from "@/lib/auth";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
 type Props = { profile: Profile; products: Product[]; metrics: { revenue: number; orders: number; customers: number; lowStock: number } };
+type MenuGroup = { title: string; badge?: string; sections: Array<{ label?: string; items: string[] }> };
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 
-const menuGroups = [
-  { title: "Hàng hóa", items: ["Danh sách hàng hóa", "Thiết lập giá", "Kiểm kho", "Xuất dùng nội bộ"] },
-  { title: "Mua hàng", items: ["Nhà cung cấp", "Nhập hàng", "Trả hàng nhập", "Hóa đơn đầu vào"] },
-  { title: "Đơn hàng", items: ["Đặt hàng", "Hóa đơn", "Trả hàng", "Vận đơn"] },
-  { title: "Khách hàng", items: ["Danh sách khách hàng", "Nhóm khách hàng", "Kênh tiếp cận"] },
-  { title: "Nhân viên", items: ["Danh sách nhân viên", "Lịch làm việc", "Bảng chấm công", "Bảng lương"] },
-  { title: "Báo cáo", items: ["Cuối ngày", "Bán hàng", "Hàng hóa", "Tài chính"] },
+const menuGroups: MenuGroup[] = [
+  { title: "Hàng hóa", sections: [{ label: "Hàng hóa", items: ["Danh sách hàng hóa", "Thiết lập giá"] }, { label: "Kho hàng", items: ["Kiểm kho", "Xuất dùng nội bộ", "Xuất hủy"] }] },
+  { title: "Mua hàng", sections: [{ label: "Nhà cung cấp", items: ["Nhà cung cấp", "Hóa đơn đầu vào|Mới"] }, { label: "Mua hàng", items: ["Nhập hàng", "Trả hàng nhập"] }, { label: "Mua dịch vụ", items: ["Mua dịch vụ|Mới"] }] },
+  { title: "Đơn hàng", sections: [{ items: ["Đặt hàng", "Hóa đơn", "Trả hàng", "Đối tác giao hàng", "Vận đơn"] }] },
+  { title: "Khách hàng", sections: [{ label: "Khách hàng", items: ["Khách hàng"] }, { label: "Kênh tiếp cận", items: ["Cửa hàng online trên Zalo|Mới"] }] },
+  { title: "Nhân viên", sections: [{ items: ["Danh sách nhân viên", "Lịch làm việc", "Bảng chấm công", "Bảng lương", "Bảng hoa hồng", "Thiết lập nhân viên"] }] },
+  { title: "Sổ quỹ", sections: [{ items: ["Sổ quỹ"] }] },
+  { title: "Báo cáo", sections: [{ label: "Báo cáo", items: ["Cuối ngày", "Bán hàng", "Đặt hàng", "Hàng hóa", "Khách hàng", "Nhà cung cấp", "Nhân viên", "Kênh bán hàng", "Tài chính"] }] },
+  { title: "Bán online", sections: [{ items: ["Bán online", "Website bán hàng"] }] },
+  { title: "Thuế & Kế toán", badge: "Mới", sections: [{ items: ["Thuế & Kế toán", "Hóa đơn điện tử"] }] },
 ];
 
 export default function DashboardClient({ profile, products: initialProducts, metrics }: Props) {
@@ -49,13 +53,12 @@ export default function DashboardClient({ profile, products: initialProducts, me
     <header className="kv-header">
       <button className={`kv-menu-button ${menuOpen ? "active" : ""}`} aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)}><i /><i /><i /></button>
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <nav className="kv-quick-nav" aria-label="Điều hướng chính"><button onClick={() => setMenuOpen(true)}>Hàng hóa</button><button onClick={() => setMenuOpen(true)}>Đơn hàng</button><button onClick={() => setMenuOpen(true)}>Khách hàng</button><button onClick={() => setMenuOpen(true)}>Báo cáo</button></nav>
       <div className="kv-header-actions"><button className="kv-language"><span>🇻🇳</span> Tiếng Việt⌄</button><button className="kv-round" aria-label="Chi nhánh">⌖</button><button className="kv-round" aria-label="Thông báo">♢<i /></button><button className="kv-round" aria-label="Thiết lập">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
     </header>
 
     <div className={`kv-drawer ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
       <button className="kv-drawer-backdrop" aria-label="Đóng menu" onClick={() => setMenuOpen(false)} />
-      <aside><div className="kv-drawer-head"><span>Danh mục quản lý</span><button onClick={() => setMenuOpen(false)}>×</button></div><div className="kv-menu-grid">{menuGroups.map(group => <section key={group.title}><h3>{group.title}</h3>{group.items.map(item => <button key={item}>{item}</button>)}</section>)}</div><div className="kv-drawer-actions"><button onClick={() => { setMenuOpen(false); setModal("product"); }}>＋ Thêm hàng hóa</button><button onClick={() => { setMenuOpen(false); setModal("staff"); }}>＋ Thêm nhân viên</button><Link href="/sales">▣ Mở Bán hàng</Link></div></aside>
+      <aside><div className="kv-drawer-head"><strong>Tổng quan</strong><button onClick={() => setMenuOpen(false)}>←</button></div><nav className="kv-menu-list">{menuGroups.map(group => <section key={group.title}><h3>{group.title}{group.badge && <em>{group.badge}</em>}</h3>{group.sections.map((section,index) => <div key={`${group.title}-${index}`}>{section.label && <p>{section.label}</p>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") { setMenuOpen(false); setModal("staff"); } }}>{item}{badge && <em>{badge}</em>}</button>; })}</div>)}</section>)}</nav><div className="kv-drawer-actions"><Link href="/sales">▣ Bán hàng</Link></div></aside>
     </div>
 
     <main className="kv-main">
