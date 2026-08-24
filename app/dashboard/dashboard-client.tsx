@@ -20,6 +20,7 @@ const menuGroups: MenuGroup[] = [
   { title: "Bán online", sections: [{ items: ["Bán online", "Website bán hàng"] }] },
   { title: "Thuế & Kế toán", badge: "Mới", sections: [{ items: ["Thuế & Kế toán", "Hóa đơn điện tử"] }] },
 ];
+const horizontalItems = ["Tổng quan", "Hàng hóa", "Mua hàng", "Đơn hàng", "Khách hàng", "Nhân viên", "Sổ quỹ", "Báo cáo", "Bán online", "Thuế & Kế toán"];
 
 export default function DashboardClient({ profile, products: initialProducts, metrics }: Props) {
   const [products, setProducts] = useState(initialProducts);
@@ -53,8 +54,10 @@ export default function DashboardClient({ profile, products: initialProducts, me
     <header className="kv-header">
       <button className={`kv-menu-button ${menuOpen ? "active" : ""}`} aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)}><i /><i /><i /></button>
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-language"><span>🇻🇳</span> Tiếng Việt⌄</button><button className="kv-round" aria-label="Chi nhánh">⌖</button><button className="kv-round" aria-label="Thông báo">♢<i /></button><button className="kv-round" aria-label="Thiết lập">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
+      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo">♢<i /></button><button className="kv-round" aria-label="Cài đặt">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
     </header>
+
+    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div>{horizontalItems.map(item => <button key={item} className={item === "Tổng quan" ? "active" : ""} onClick={() => item !== "Tổng quan" && setMenuOpen(true)}>{item}</button>)}</div><Link href="/sales"><span>▣</span>Bán hàng</Link></nav>
 
     <div className={`kv-drawer ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
       <button className="kv-drawer-backdrop" aria-label="Đóng menu" onClick={() => setMenuOpen(false)} />
@@ -71,7 +74,6 @@ export default function DashboardClient({ profile, products: initialProducts, me
           <section className="kv-card kv-products-card"><div className="kv-card-title"><div><h2>Hàng hóa trong kho</h2><p>{products.length} mặt hàng · {metrics.lowStock} sắp hết</p></div><label className="kv-search">⌕<input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm hàng hóa..." /></label></div><div className="kv-table-wrap"><table><thead><tr><th>Hàng hóa</th><th>Mã hàng</th><th>Giá bán</th><th>Tồn kho</th><th>Trạng thái</th></tr></thead><tbody>{filteredProducts.map(product => <tr key={product.id}><td><span className="kv-product-name"><i>{product.name.slice(0,2).toUpperCase()}</i><b>{product.name}</b></span></td><td>{product.sku}</td><td>{money(Number(product.price))}</td><td>{product.stock_quantity}</td><td><span className={product.stock_quantity <= 5 ? "kv-low" : "kv-good"}>{product.stock_quantity <= 5 ? "Sắp hết hàng" : "Đang kinh doanh"}</span></td></tr>)}{!filteredProducts.length && <tr><td colSpan={5} className="kv-table-empty">Chưa có hàng hóa. Hãy thêm sản phẩm đầu tiên.</td></tr>}</tbody></table></div></section>
         </div>
         <aside className="kv-side-column">
-          <section className="kv-card kv-services kv-enter"><Link href="/sales"><span className="kv-service-icon pay">▣</span><div><strong>Thanh toán</strong><small>Mở màn hình bán hàng nhanh</small></div><b>›</b></Link><button onClick={() => setModal("product")}><span className="kv-service-icon stock">◇</span><div><strong>Hàng hóa</strong><small>Thêm và quản lý tồn kho</small></div><b>›</b></button></section>
           <section className="kv-card kv-security kv-enter delay-1"><span>▧</span><div><strong>Dữ liệu đang được bảo vệ</strong><small>Đăng nhập và phân quyền đang hoạt động</small></div></section>
           <section className="kv-card kv-activity kv-enter delay-2"><div className="kv-card-title"><h2>Hoạt động gần đây</h2></div><div className="kv-activity-list">{products.slice(0,6).map((product,index) => <article key={product.id}><span>{index % 2 ? "⇩" : "▱"}</span><p><b>{profile.username}</b> vừa thêm hàng hóa <strong>{product.name}</strong><small>{index ? `${index + 1} ngày trước` : "gần đây"}</small></p></article>)}{!products.length && <div className="kv-empty activity-empty"><span>◷</span><p>Chưa có hoạt động gần đây</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</div></section>
           <section className="kv-card kv-employee"><div className="kv-empty"><span>♙</span><p>Chưa có dữ liệu hiệu suất nhân viên</p><small>Thêm nhân viên để xem doanh thu và đánh giá hiệu quả làm việc</small><button onClick={() => setModal("staff")}>Thêm nhân viên</button></div></section>
