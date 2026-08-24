@@ -4,7 +4,7 @@ import DashboardClient from "./dashboard-client";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const { supabase, profile } = await requireProfile();
+  const { supabase, profile } = await requireProfile("manager");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [productsResult, ordersResult, customersResult] = await Promise.all([

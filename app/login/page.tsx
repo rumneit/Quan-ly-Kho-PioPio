@@ -10,6 +10,7 @@ function authEmail(username: string) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<"manager" | "sales">("manager");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,13 +26,30 @@ export default function LoginPage() {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     );
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email: authEmail(username), password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email: authEmail(username), password });
     if (signInError) {
       setError("Tên đăng nhập hoặc mật khẩu không đúng.");
       setLoading(false);
       return;
     }
-    router.push("/dashboard");
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role,active")
+      .eq("id", signInData.user.id)
+      .single();
+    if (profileError || !profile?.active) {
+      await supabase.auth.signOut();
+      setError("Tài khoản chưa được kích hoạt hoặc không có hồ sơ hợp lệ.");
+      setLoading(false);
+      return;
+    }
+    if (mode === "manager" && profile.role !== "manager") {
+      await supabase.auth.signOut();
+      setError("Tài khoản này chỉ có quyền Bán hàng. Hãy chọn Bán hàng để đăng nhập.");
+      setLoading(false);
+      return;
+    }
+    router.push(mode === "manager" ? "/dashboard" : "/sales");
     router.refresh();
   }
 
@@ -40,14 +58,18 @@ export default function LoginPage() {
       <section className="auth-panel">
         <div className="auth-brand"><span className="brand-mark">P</span>PioPio</div>
         <div className="auth-form-wrap">
-          <p className="auth-kicker">QUẢN LÝ CỬA HÀNG</p>
+          <p className="auth-kicker">{mode === "manager" ? "QUẢN LÝ CỬA HÀNG" : "MÀN HÌNH BÁN HÀNG"}</p>
           <h1>Đăng nhập PioPio</h1>
-          <p className="auth-intro">Truy cập hệ thống bán hàng, quản lý kho và theo dõi hoạt động cửa hàng của bạn.</p>
+          <p className="auth-intro">Chọn khu vực làm việc, sau đó nhập tài khoản của bạn.</p>
           <form className="auth-form" onSubmit={handleSubmit}>
             <label>Tên đăng nhập<input name="username" autoComplete="username" required placeholder="Nhập tên đăng nhập" /></label>
             <label><span className="password-row"><span>Mật khẩu</span><button type="button" onClick={() => setShowPassword(value => !value)}>{showPassword ? "Ẩn" : "Hiện"}</button></span><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required placeholder="Nhập mật khẩu" /></label>
+            <div className="login-mode" role="group" aria-label="Chọn khu vực làm việc">
+              <button type="button" className={mode === "manager" ? "active" : ""} aria-pressed={mode === "manager"} onClick={() => { setMode("manager"); setError(""); }}><span>▦</span><strong>Quản lý</strong><small>Kho, báo cáo, nhân viên</small></button>
+              <button type="button" className={mode === "sales" ? "active" : ""} aria-pressed={mode === "sales"} onClick={() => { setMode("sales"); setError(""); }}><span>▣</span><strong>Bán hàng</strong><small>POS và thanh toán</small></button>
+            </div>
             {error && <p className="auth-error" role="alert">{error}</p>}
-            <button className="auth-submit" disabled={loading}>{loading ? "Đang đăng nhập..." : "Đăng nhập"}</button>
+            <button className="auth-submit" disabled={loading}>{loading ? "Đang đăng nhập..." : `Vào ${mode === "manager" ? "Quản lý" : "Bán hàng"}`}</button>
           </form>
           <p className="auth-note">Tài khoản nhân viên do Quản lý cửa hàng cấp. Nếu quên mật khẩu, hãy liên hệ người quản lý để được đặt lại.</p>
         </div>

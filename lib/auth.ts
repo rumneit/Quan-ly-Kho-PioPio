@@ -21,6 +21,7 @@ export async function requireProfile(requiredRole?: AppRole) {
   if (!user) redirect("/login");
   const { data: profile } = await supabase.from("profiles").select("id,username,full_name,role,active,store_id").eq("id", user.id).single();
   if (!profile?.active) redirect("/login?error=inactive");
-  if (requiredRole && profile.role !== requiredRole) redirect("/dashboard");
+  if (requiredRole === "manager" && profile.role !== "manager") redirect("/sales");
+  if (requiredRole === "sales" && profile.role !== "sales") redirect("/dashboard");
   return { supabase, user, profile: profile as Profile };
 }
