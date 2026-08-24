@@ -20,12 +20,11 @@ const menuGroups: MenuGroup[] = [
   { title: "Bán online", sections: [{ items: ["Bán online", "Website bán hàng"] }] },
   { title: "Thuế & Kế toán", badge: "Mới", sections: [{ items: ["Thuế & Kế toán", "Hóa đơn điện tử"] }] },
 ];
-const horizontalItems = ["Tổng quan", "Hàng hóa", "Mua hàng", "Đơn hàng", "Khách hàng", "Nhân viên", "Sổ quỹ", "Báo cáo", "Bán online", "Thuế & Kế toán"];
+const menuIcons: Record<string, string> = { "Tổng quan": "⌂", "Hàng hóa": "◇", "Mua hàng": "⇩", "Đơn hàng": "▤", "Khách hàng": "♙", "Nhân viên": "♧", "Sổ quỹ": "₫", "Báo cáo": "↗", "Bán online": "◎", "Thuế & Kế toán": "§" };
 
 export default function DashboardClient({ profile, products: initialProducts, metrics }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [query, setQuery] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<"product" | "staff" | null>(null);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -52,17 +51,11 @@ export default function DashboardClient({ profile, products: initialProducts, me
 
   return <div className="kv-shell">
     <header className="kv-header">
-      <button className={`kv-menu-button ${menuOpen ? "active" : ""}`} aria-label="Mở menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)}><i /><i /><i /></button>
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
       <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo">♢<i /></button><button className="kv-round" aria-label="Cài đặt">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
     </header>
 
-    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div>{horizontalItems.map(item => <button key={item} className={item === "Tổng quan" ? "active" : ""} onClick={() => item !== "Tổng quan" && setMenuOpen(true)}>{item}</button>)}</div><Link href="/sales"><span>▣</span>Bán hàng</Link></nav>
-
-    <div className={`kv-drawer ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
-      <button className="kv-drawer-backdrop" aria-label="Đóng menu" onClick={() => setMenuOpen(false)} />
-      <aside><div className="kv-drawer-head"><strong>Tổng quan</strong><button onClick={() => setMenuOpen(false)}>←</button></div><nav className="kv-menu-list">{menuGroups.map(group => <section key={group.title}><h3>{group.title}{group.badge && <em>{group.badge}</em>}</h3>{group.sections.map((section,index) => <div key={`${group.title}-${index}`}>{section.label && <p>{section.label}</p>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") { setMenuOpen(false); setModal("staff"); } }}>{item}{badge && <em>{badge}</em>}</button>; })}</div>)}</section>)}</nav><div className="kv-drawer-actions"><Link href="/sales">▣ Bán hàng</Link></div></aside>
-    </div>
+    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items"><Link className="kv-top-item active" href="/dashboard"><span>{menuIcons["Tổng quan"]}</span>Tổng quan</Link>{menuGroups.map(group => <div className="kv-nav-dropdown" key={group.title}><button className="kv-top-item" aria-haspopup="true"><span>{menuIcons[group.title]}</span>{group.title}<b>⌄</b></button><div className="kv-submenu">{group.sections.map((section,index) => <section key={`${group.title}-${index}`}>{section.label && <h3>{section.label}</h3>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") setModal("staff"); if (item === "Danh sách hàng hóa") setModal("product"); }}><i>{menuIcons[group.title]}</i><span>{item}</span>{badge && <em>{badge}</em>}</button>; })}</section>)}</div></div>)}</div><Link className="kv-sale-link" href="/sales"><span>▣</span>Bán hàng</Link></nav>
 
     <main className="kv-main">
       {message && <div className="kv-toast-message">✓ {message}</div>}

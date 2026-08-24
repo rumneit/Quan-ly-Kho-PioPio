@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./dashboard.css";
 import "./menu-overrides.css";
+import "./dropdown-menu.css";
 import "./sales.css";
 import "../style.css";
 
