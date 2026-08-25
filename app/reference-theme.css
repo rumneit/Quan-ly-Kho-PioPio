@@ -114,3 +114,38 @@ textarea {
   color: var(--pio-neutral-600);
   background: var(--pio-neutral-50);
 }
+
+/* Final typography layer: legacy component rules must not override 14px. */
+body :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  span,
+  small,
+  strong,
+  b,
+  em,
+  th,
+  td,
+  li
+) {
+  font-size: 14px !important;
+}
+
+.kv-horizontal-nav :where(.kv-top-item, .kv-sale-link),
+.kv-horizontal-nav .kv-submenu :where(h3, button),
+.kv-menu-list :where(h3, button),
+.main-nav .nav-item {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
