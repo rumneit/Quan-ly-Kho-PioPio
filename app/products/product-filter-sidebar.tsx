@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, GripVertical, Plus, Search } from "lucide-react";
 import DateFilter from "./date-filter";
 import FilterPopover from "./filter-popover";
-import { DEFAULT_FILTERS, FilterOption, ProductFilters } from "./product-types";
+import { FilterOption, ProductFilters } from "./product-types";
 
 type Props = {
   filters: ProductFilters;
@@ -54,7 +54,7 @@ export default function ProductFilterSidebar({ filters, categories, suppliers, c
 
   if (collapsed) return <button type="button" className="sidebar-collapse collapsed" aria-label="Mở bộ lọc" onClick={() => onCollapsedChange(false)}><ChevronRight size={20} /></button>;
   return <aside className="product-filter-sidebar">
-    <div className="filter-sidebar-title"><h1>Hàng hóa</h1><button type="button" onClick={() => onChange(DEFAULT_FILTERS)}>Đặt lại</button></div>
+    <div className="filter-sidebar-title"><h1>Hàng hóa</h1></div>
     <section><h2>Nhóm hàng <button type="button" onClick={() => setShowCategoryModal(true)}>Tạo mới</button></h2><FilterSelect label="Chọn nhóm hàng" value={selectedCategoryLabel} expanded={active === "category"} onClick={(element) => open("category", element)} /></section>
     <section><h2>Tồn kho</h2><span className="filter-caption">Tiêu chí tồn</span><FilterSelect label="Tất cả" value={inventoryLabel} expanded={active === "inventory"} onClick={(element) => open("inventory", element)} />{filters.inventoryCriteria === "custom" && <div className="inventory-custom"><select value={filters.inventoryOperator} onChange={(event) => set("inventoryOperator", event.target.value as ProductFilters["inventoryOperator"])}><option>=</option><option>&gt;</option><option>&gt;=</option><option>&lt;</option><option>&lt;=</option><option value="between">Khoảng</option></select><input type="number" aria-label="Giá trị tồn tối thiểu" value={filters.inventoryMin ?? ""} onChange={(event) => set("inventoryMin", event.target.value ? Number(event.target.value) : undefined)} />{filters.inventoryOperator === "between" && <input type="number" aria-label="Giá trị tồn tối đa" value={filters.inventoryMax ?? ""} onChange={(event) => set("inventoryMax", event.target.value ? Number(event.target.value) : undefined)} />}</div>}</section>
     <section><h2>Dự kiến hết hàng</h2><DateFilter mode="future" value={{ preset: filters.expectedPreset, from: filters.expectedFrom, to: filters.expectedTo }} onChange={(value) => onChange({ ...filters, expectedPreset: value.preset, expectedFrom: value.from, expectedTo: value.to })} /></section>
