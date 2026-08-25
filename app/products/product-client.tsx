@@ -102,11 +102,33 @@ export default function ProductClient({ profile, initialProducts }: { profile: P
     setNotice(`Đã xuất ${filtered.length} hàng hóa.`);
   }
 
-  function selectImportFile() {
+  async function selectImportFile() {
     const file = importInput.current?.files?.[0];
     if (!file) return;
+    const text = await file.text();
+    const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter(Boolean);
+    if (lines.length < 2) { setNotice("Tệp CSV chưa có dữ liệu hàng hóa."); return; }
+    const readRow = (line: string) => Array.from(line.matchAll(/(?:^|,)(\"(?:\"\"|[^\"])*\"|[^,]*)/g)).map((item) => item[1].replace(/^\"|\"$/g, "").replaceAll("\"\"", "\""));
+    const headers = readRow(lines[0]);
+    const col = (name: string, fallback: number) => Math.max(headers.indexOf(name), fallback);
+    const nameIndex = col("Tên hàng", 1), skuIndex = col("Mã hàng", 0), priceIndex = col("Giá bán", 2), stockIndex = col("Tồn kho", 3);
+    const toNumber = (value: string) => Number(value.replaceAll(".", "").replaceAll(",", ".")) || 0;
+    setSaving(true);
+    const added: Product[] = [];
+    let failed = 0;
+    for (const line of lines.slice(1)) {
+      const cells = readRow(line);
+      const name = cells[nameIndex]?.trim();
+      if (!name) continue;
+      const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, sku: cells[skuIndex]?.trim() || `HH-${Date.now().toString().slice(-6)}`, price: toNumber(cells[priceIndex] || "0"), stock: toNumber(cells[stockIndex] || "0") }) });
+      const result = await response.json();
+      if (response.ok) added.push(result.product); else failed += 1;
+    }
+    setSaving(false);
     setShowImport(false);
-    setNotice(`Đã chọn ${file.name}. Tính năng đọc và đồng bộ dữ liệu sẽ dùng API import khi bạn kết nối API.`);
+    if (added.length) setProducts((current) => [...added, ...current]);
+    setPage(1);
+    setNotice(`Đã import ${added.length} hàng hóa${failed ? `; ${failed} dòng không hợp lệ hoặc trùng mã.` : "."}`);
   }
 
   const chips = (value: string, setValue: (value: string) => void) => (
@@ -154,6 +176,6 @@ export default function ProductClient({ profile, initialProducts }: { profile: P
     <a className="kv-help" href="tel:0704040044"><i>💬</i><span>0704 04 0044</span></a>
 
     {showCreate && <div className="modal-backdrop" role="presentation"><form className="product-modal" onSubmit={createProduct}><header><div><h2>Thêm hàng hóa</h2><p>Hàng hóa được lưu vào cơ sở dữ liệu</p></div><button type="button" onClick={() => setShowCreate(false)}>×</button></header><div className="product-form"><label>Tên hàng hóa<input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} /></label><div className="form-row"><label>Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} /></label><label>Giá bán<input type="number" min="0" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} /></label></div><label>Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} /></label></div><footer><button type="button" onClick={() => setShowCreate(false)}>Hủy</button><button className="primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></footer></form></div>}
-    {showImport && <div className="modal-backdrop" role="presentation"><section className="product-modal import-modal"><header><div><h2>Import hàng hóa</h2><p>Chọn tệp CSV để chuẩn bị đồng bộ hàng hóa</p></div><button type="button" onClick={() => setShowImport(false)}>×</button></header><div className="product-form"><input ref={importInput} type="file" accept=".csv,text/csv" /><p className="import-hint">Tệp sẽ được kết nối tới API import khi bạn bổ sung API. Hiện tại bạn có thể dùng Xuất file để tải mẫu dữ liệu.</p></div><footer><button type="button" onClick={() => setShowImport(false)}>Hủy</button><button className="primary" type="button" onClick={selectImportFile}>Xác nhận</button></footer></section></div>}
+    {showImport && <div className="modal-backdrop" role="presentation"><section className="product-modal import-modal"><header><div><h2>Import hàng hóa</h2><p>Chọn tệp CSV để thêm hàng hóa vào kho</p></div><button type="button" onClick={() => setShowImport(false)}>×</button></header><div className="product-form"><input ref={importInput} type="file" accept=".csv,text/csv" /><p className="import-hint">Dùng tệp CSV được tạo bởi nút Xuất file: Mã hàng, Tên hàng, Giá bán, Tồn kho và Trạng thái.</p></div><footer><button type="button" onClick={() => setShowImport(false)}>Hủy</button><button className="primary" type="button" disabled={saving} onClick={selectImportFile}>{saving ? "Đang import..." : "Xác nhận"}</button></footer></section></div>}
   </div>;
 }
