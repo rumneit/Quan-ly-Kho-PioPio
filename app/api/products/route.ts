@@ -20,3 +20,13 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error: error.code === "23505" ? "Mã hàng đã tồn tại." : "Không thể thêm sản phẩm." }, { status: 400 });
   return NextResponse.json({ product: data }, { status: 201 });
 }
+
+export async function PATCH(request: Request) {
+  const { supabase } = await requireProfile("manager");
+  const body = await request.json();
+  const ids = Array.isArray(body.ids) ? body.ids.map(String).filter(Boolean) : [];
+  if (!ids.length || typeof body.active !== "boolean") return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
+  const { error } = await supabase.from("products").update({ active: body.active }).in("id", ids);
+  if (error) return NextResponse.json({ error: "Không thể cập nhật hàng hóa." }, { status: 400 });
+  return NextResponse.json({ updated: ids.length });
+}
