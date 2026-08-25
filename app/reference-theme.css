@@ -1,0 +1,30 @@
+:root {
+  --blue: #0070f4;
+  --blue-dark: #004392;
+  --text: #15171a;
+  --muted: #525d6a;
+  --line: #e1e3e6;
+  --bg: #f5f6f7;
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.product-page {
+  --product-primary: #0070f4;
+  --product-primary-hover: #004392;
+  --product-text: #15171a;
+  --product-secondary: #525d6a;
+  --product-selected: #e6f1fe;
+}
+
+.filter-popover {
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.12);
+}

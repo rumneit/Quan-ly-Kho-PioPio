@@ -6,6 +6,7 @@ import "./dropdown-menu.css";
 import "./sales.css";
 import "./products.css";
 import "../style.css";
+import "./reference-theme.css";
 
 export const metadata: Metadata = {
   title: "PioPio | Quản lý bán hàng",
