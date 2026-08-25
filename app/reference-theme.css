@@ -51,12 +51,17 @@
 }
 
 html,
-body,
+body {
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
 button,
 input,
 select,
 textarea {
   font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+  font-size: inherit;
 }
 
 .product-page {
