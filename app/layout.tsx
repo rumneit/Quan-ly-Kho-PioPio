@@ -4,6 +4,7 @@ import "./dashboard.css";
 import "./menu-overrides.css";
 import "./dropdown-menu.css";
 import "./sales.css";
+import "./products.css";
 import "../style.css";
 
 export const metadata: Metadata = {
