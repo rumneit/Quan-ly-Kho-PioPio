@@ -52,7 +52,7 @@ function filtersFromUrl(): ProductFilters {
   };
 }
 
-export default function ProductClient({ profile, initialProducts, initialCategories, initialSuppliers }: { profile: Profile; initialProducts: Product[]; initialCategories: FilterOption[]; initialSuppliers: FilterOption[] }) {
+export default function ProductClient({ profile, initialProducts, initialCategories = [], initialSuppliers = [] }: { profile: Profile; initialProducts: Product[]; initialCategories?: FilterOption[]; initialSuppliers?: FilterOption[] }) {
   const [products, setProducts] = useState(initialProducts);
   const [categoryOptions, setCategoryOptions] = useState(initialCategories);
   const [supplierOptions] = useState(initialSuppliers);
