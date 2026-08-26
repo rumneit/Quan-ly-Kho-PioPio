@@ -11,13 +11,83 @@ export async function GET() {
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
   const body = await request.json();
+
+  // Support both single and bulk (import) payloads
+  if (Array.isArray(body.items)) {
+    const items = body.items as Array<Record<string, unknown>>;
+    if (!items.length) return NextResponse.json({ error: "Không có dữ liệu import." }, { status: 400 });
+    const mode = body.mode === "update" ? "update" : "skip";
+    let inserted = 0, updated = 0, skipped = 0;
+    const errors: Array<{ row: number; error: string }> = [];
+    const products: unknown[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const row = items[i];
+      const name = String(row.name || "").trim();
+      const sku = String(row.sku || "").trim().toUpperCase() || `HH-${Date.now().toString().slice(-6)}-${i}`;
+      const price = Number(row.price ?? 0);
+      const cost = Number(row.cost ?? 0);
+      const stock = Number(row.stock ?? row.stock_quantity ?? 0);
+      if (!name) { errors.push({ row: i + 2, error: "Thiếu tên hàng" }); skipped++; continue; }
+      if (!Number.isFinite(price) || price < 0 || !Number.isFinite(cost) || cost < 0 || !Number.isFinite(stock) || stock < 0) { errors.push({ row: i + 2, error: "Giá/tồn không hợp lệ" }); skipped++; continue; }
+      const payload: Record<string, unknown> = {
+        store_id: profile.store_id, name, sku, price, cost, stock_quantity: Math.trunc(stock),
+        category_id: row.category_id || null, supplier_id: row.supplier_id || null,
+        product_type: ["product","service","combo"].includes(String(row.product_type)) ? row.product_type : "product",
+        direct_sale: row.direct_sale !== false, linked_sale_channel: Boolean(row.linked_sale_channel),
+        description: row.description || null, created_by: profile.id,
+      };
+      // Check duplicate sku within store
+      const { data: existing } = await supabase.from("products").select("id").eq("store_id", profile.store_id).eq("sku", sku).maybeSingle();
+      if (existing) {
+        if (mode === "skip") { skipped++; continue; }
+        let { data, error } = await supabase.from("products").update(payload).eq("id", existing.id).select().single();
+        if (error && (error as { code?: string }).code === "42703") {
+          const { description: _d, ...fallback } = payload;
+          const retry = await supabase.from("products").update(fallback).eq("id", existing.id).select().single();
+          data = retry.data; error = retry.error;
+        }
+        if (error) errors.push({ row: i + 2, error: error.message });
+        else { updated++; if (data) products.push(data); }
+      } else {
+        let { data, error } = await supabase.from("products").insert(payload).select().single();
+        if (error && (error as { code?: string }).code === "42703") {
+          const { description: _d, ...fallback } = payload;
+          const retry = await supabase.from("products").insert(fallback).select().single();
+          data = retry.data; error = retry.error;
+        }
+        if (error) {
+          if ((error as { code?: string }).code === "23505") { errors.push({ row: i + 2, error: "Mã hàng đã tồn tại" }); skipped++; }
+          else errors.push({ row: i + 2, error: error.message });
+        } else { inserted++; if (data) products.push(data); }
+      }
+    }
+    return NextResponse.json({ inserted, updated, skipped, errors, products }, { status: 200 });
+  }
+
   const name = String(body.name || "").trim();
   const sku = String(body.sku || "").trim().toUpperCase();
   const price = Number(body.price);
-  const stock = Number(body.stock || 0);
-  if (!name || !sku || !Number.isFinite(price) || price < 0 || stock < 0) return NextResponse.json({ error: "Dữ liệu sản phẩm không hợp lệ." }, { status: 400 });
-  const { data, error } = await supabase.from("products").insert({ store_id: profile.store_id, name, sku, price, stock_quantity: stock, created_by: profile.id }).select().single();
-  if (error) return NextResponse.json({ error: error.code === "23505" ? "Mã hàng đã tồn tại." : "Không thể thêm sản phẩm." }, { status: 400 });
+  const cost = Number(body.cost ?? 0);
+  const stock = Number(body.stock ?? body.stock_quantity ?? 0);
+  const category_id = body.category_id ? String(body.category_id) : null;
+  const supplier_id = body.supplier_id ? String(body.supplier_id) : null;
+  const product_type = ["product","service","combo"].includes(String(body.product_type)) ? body.product_type : "product";
+  if (!name || !sku || !Number.isFinite(price) || price < 0 || !Number.isFinite(cost) || cost < 0 || stock < 0) return NextResponse.json({ error: "Dữ liệu sản phẩm không hợp lệ." }, { status: 400 });
+  const basePayload: Record<string, unknown> = {
+    store_id: profile.store_id, name, sku, price, cost, stock_quantity: Math.trunc(stock),
+    category_id, supplier_id, product_type,
+    direct_sale: body.direct_sale !== false, linked_sale_channel: Boolean(body.linked_sale_channel),
+    description: body.description || body.note || null,
+    created_by: profile.id
+  };
+  let { data, error } = await supabase.from("products").insert(basePayload).select().single();
+  // Fallback nếu DB chưa chạy migration 003 (thiếu cột description)
+  if (error && (error as { code?: string }).code === "42703") {
+    const { description: _d, note: _n, brand: _b, location: _l, min_stock: _min, max_stock: _max, ...fallbackPayload } = basePayload;
+    const retry = await supabase.from("products").insert(fallbackPayload).select().single();
+    data = retry.data as typeof data; error = retry.error as typeof error;
+  }
+  if (error) return NextResponse.json({ error: (error as { code?: string }).code === "23505" ? "Mã hàng đã tồn tại." : `Không thể thêm sản phẩm: ${(error as { message?: string }).message || ""}` }, { status: 400 });
   return NextResponse.json({ product: data }, { status: 201 });
 }
 
