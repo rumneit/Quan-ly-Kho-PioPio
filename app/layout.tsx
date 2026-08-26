@@ -5,6 +5,7 @@ import "./menu-overrides.css";
 import "./dropdown-menu.css";
 import "./sales.css";
 import "./products.css";
+import "./pricebook.css";
 import "../style.css";
 import "./reference-theme.css";
 

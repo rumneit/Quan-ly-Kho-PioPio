@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Bell, CheckSquare, Columns3, Download, FileUp, ImageIcon, Search, Settings, ShoppingCart } from "lucide-react";
+import { CheckSquare, Columns3, Download, FileUp, ImageIcon, Search, Settings } from "lucide-react";
 import type { Profile } from "@/lib/auth";
+import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
 import { DEFAULT_FILTERS, FilterOption, Product, ProductFilters } from "./product-types";
 
@@ -11,7 +11,6 @@ type NewProduct = { name: string; sku: string; price: string; stock: string };
 type ColumnKey = "image" | "sku" | "name" | "category" | "type" | "linked" | "price" | "cost" | "stock" | "reserved" | "created" | "expected" | "status";
 type SortKey = "sku" | "name" | "price" | "stock_quantity";
 const PAGE_SIZE = 10;
-const NAV_ITEMS = ["Mua hàng", "Đơn hàng", "Khách hàng", "Nhân viên", "Sổ quỹ", "Báo cáo", "Bán online", "Thuế & Kế toán"];
 const COLUMNS: Array<{ key: ColumnKey; label: string }> = [
   { key: "image", label: "Hình ảnh" }, { key: "sku", label: "Mã hàng" }, { key: "name", label: "Tên hàng" }, { key: "category", label: "Nhóm hàng" },
   { key: "type", label: "Loại hàng" }, { key: "linked", label: "Liên kết kênh bán" }, { key: "price", label: "Giá bán" }, { key: "cost", label: "Giá vốn" },
@@ -108,7 +107,6 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const rows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const initials = profile.full_name.split(" ").map((item) => item[0]).slice(-2).join("");
   const updateFilters = (next: ProductFilters) => { setFilters(next); setPage(1); setSelected([]); };
   const sortBy = (key: SortKey) => setSort((current) => ({ key, direction: current.key === key && current.direction === "asc" ? "desc" : "asc" }));
   const sortMark = (key: SortKey) => sort.key === key ? (sort.direction === "asc" ? " ↑" : " ↓") : "";
@@ -146,8 +144,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
 
   const checkedAll = rows.length > 0 && rows.every((item) => selected.includes(item.id));
   return <div className="kv-shell product-page">
-    <header className="kv-header"><Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link><div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><button className="kv-round" aria-label="Cài đặt"><Settings size={20} /></button><button className="kv-avatar">{initials}</button></div></header>
-    <nav className="kv-horizontal-nav"><div className="kv-horizontal-items"><Link className="kv-top-item" href="/dashboard">Tổng quan</Link><Link className="kv-top-item active" href="/products">Hàng hóa</Link>{NAV_ITEMS.map((item) => <span className="kv-top-item" key={item}>{item}</span>)}</div><Link className="kv-sale-link" href="/sales"><ShoppingCart size={20} />Bán hàng</Link></nav>
+    <ManagementHeader profile={profile} active="products" />
     <div className="product-actions">
       <h1>Hàng hóa</h1>
       <div className="product-toolbar">
