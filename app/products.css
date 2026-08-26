@@ -62,6 +62,42 @@
 .product-modal footer .primary:hover{background:#0077c7!important;border-color:#0077c7!important}
 .product-modal footer .primary:disabled{opacity:.6;cursor:not-allowed}
 .kv-import-box{border:1px dashed #c9d1db!important;border-radius:6px!important;background:#fbfdff!important;padding:16px!important}
+/* ===== KiotViet 100% cho modal Tạo mới / Import - bên trong ===== */
+.kv-field{font-weight:400!important;color:#2e3541!important}
+.kv-field .kv-req{color:#e53935;margin-left:2px;font-weight:700}
+.kv-create-modal{width:560px!important}
+.kv-modal-close{width:28px!important;height:28px!important;border:0!important;background:transparent!important;color:#8a96a7!important;font-size:20px!important;line-height:1!important}
+.kv-modal-close:hover{color:#2e3541!important;background:#f2f4f7!important;border-radius:4px!important}
+.kv-import-modal{width:640px!important}
+.kv-import-template{display:flex!important;align-items:center!important;gap:10px!important;margin-bottom:14px!important}
+.kv-import-template-hint{font-size:12px!important;color:#6b7a8d!important;line-height:16px!important}
+.kv-import-template-hint .kv-req{color:#e53935}
+.kv-dropzone{border:1.5px dashed #b9c9dc!important;border-radius:6px!important;background:#fbfdff!important;padding:18px 16px!important;display:grid!important;place-items:center!important;gap:6px!important;text-align:center!important;cursor:pointer!important;transition:border-color .15s,background .15s}
+.kv-dropzone:hover{border-color:#8fb4e8!important;background:#f3f8ff!important}
+.kv-dropzone-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#eaf4ff;color:#008ae6}
+.kv-dropzone-title{font-size:13px!important;font-weight:600!important;color:#2e3541!important}
+.kv-dropzone-sub{font-size:12px!important;color:#8a96a7!important;max-width:520px;line-height:16px}
+.kv-dropzone-file{margin-top:4px;font-size:12px!important;color:#008ae6!important;background:#eaf4ff;padding:3px 8px;border-radius:10px;font-weight:500}
+.kv-btn-outline-blue{border-color:#008ae6!important;color:#008ae6!important;background:#fff!important;height:30px!important;padding:0 14px!important;border-radius:4px!important;font-weight:500!important;font-size:13px!important}
+.kv-btn-outline-blue:hover{background:#eaf4ff!important}
+.kv-preview{margin-top:14px!important;border:1px solid #dfe4ea!important;border-radius:6px!important;overflow:hidden!important;background:#fff!important}
+.kv-preview-head{padding:8px 12px!important;background:#f7f9fb!important;border-bottom:1px solid #e6ebf0!important;font-size:12px!important;font-weight:700!important;color:#1a2332!important;text-transform:uppercase;letter-spacing:.3px}
+.kv-preview table{width:100%!important;border-collapse:collapse!important;font-size:12px!important}
+.kv-preview th{text-align:left!important;padding:7px 10px!important;border-bottom:1px solid #e6ebf0!important;background:#fff!important;color:#6b7a8d!important;font-weight:600!important;font-size:12px!important}
+.kv-preview td{padding:7px 10px!important;border-bottom:1px solid #f0f2f5!important;color:#2e3541!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.kv-import-options{margin-top:16px!important;padding:12px!important;background:#f7f9fb!important;border:1px solid #e6ebf0!important;border-radius:6px!important}
+.kv-import-options-title{font-size:12px!important;font-weight:700!important;color:#1a2332!important;margin-bottom:8px!important}
+.kv-radio{display:flex!important;align-items:center!important;gap:8px!important;padding:8px 10px!important;border:1px solid #dfe4ea!important;border-radius:6px!important;background:#fff!important;cursor:pointer!important;margin-bottom:8px!important}
+.kv-radio:last-child{margin-bottom:0}
+.kv-radio.active{border-color:#008ae6!important;background:#eaf4ff!important}
+.kv-radio input{width:16px!important;height:16px!important;accent-color:#008ae6!important;margin:0!important}
+.kv-radio i{width:16px;height:16px;border:1.5px solid #8a96a7;border-radius:50%;position:relative;flex:0 0 auto;display:none}
+.kv-radio span{font-size:13px!important;font-weight:500!important;color:#1a2332!important}
+.kv-radio small{margin-left:auto;font-size:11px!important;color:#6b7a8d!important}
+.kv-note{margin-top:10px!important;font-size:12px!important;color:#6b7a8d!important;line-height:16px!important;background:#fffbe6!important;border:1px solid #ffeaa7!important;border-radius:4px!important;padding:8px 10px!important}
+.kv-btn-primary{border-color:#008ae6!important;background:#008ae6!important;color:#fff!important;font-weight:500!important;height:32px!important;padding:0 16px!important;border-radius:4px!important}
+.kv-btn-primary:hover{background:#0077c7!important;border-color:#0077c7!important}
+.kv-btn-primary:disabled{opacity:.55!important;cursor:not-allowed!important}
 .product-table{border:1px solid #dfe4ea!important;border-radius:6px!important;overflow:hidden!important;background:#fff!important}
 .product-table th{height:36px!important;background:#e8f0fe!important;background-color:#eef3ff!important;color:#1a2332!important;font-size:12px!important;font-weight:600!important;border-bottom:1px solid #dfe4ea!important;padding:0 10px!important}
 .product-table td{height:40px!important;font-size:13px!important;padding:8px 10px!important;border-bottom:1px solid #eef1f4!important}

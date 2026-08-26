@@ -163,11 +163,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     else setNotice(result.error || "Không thể tạo nhóm hàng.");
   }
 
-  // === XUẤT FILE (giống KiotViet: xuất theo bộ lọc, đầy đủ cột, UTF-8 BOM) ===
+  // === XUẤT FILE (giống 100% KiotViet: xuất theo bộ lọc, UTF-8 BOM, toast xanh) ===
   function exportCsv() {
     if (!filtered.length) { setNotice("Không có dữ liệu để xuất."); return; }
+    setNotice("Đang chuẩn bị file xuất..."); // KiotViet: toast "Đang xuất file"
     const headers = ["Mã hàng", "Tên hàng", "Nhóm hàng", "Loại hàng", "Giá bán", "Giá vốn", "Tồn kho", "Nhà cung cấp", "Mô tả", "Trạng thái", "Ngày tạo"];
-    const typeLabel = (t?: string) => t === "service" ? "Dịch vụ" : t === "combo" ? "Combo" : "Hàng hóa";
+    const typeLabel = (t?: string) => t === "service" ? "Dịch vụ" : t === "combo" ? "Combo - đóng gói" : "Hàng hóa";
     const lines = [
       headers.map(csvEscape).join(","),
       ...filtered.map((p) => [
@@ -180,9 +181,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     link.href = url;
     const stamp = new Date().toISOString().slice(0, 10);
     link.download = `hang-hoa-${stamp}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    setNotice(`Đã xuất ${filtered.length} hàng hóa ra CSV (UTF-8). Mở bằng Excel sẽ hiển thị tiếng Việt đúng.`);
+    // Delay 350ms để hiện toast "Đang chuẩn bị" giống KiotViet rồi tải
+    setTimeout(() => {
+      link.click();
+      URL.revokeObjectURL(url);
+      setNotice(`Đã xuất ${filtered.length} hàng hóa ra file CSV (UTF-8). Mở bằng Excel sẽ hiển thị tiếng Việt đúng — giống KiotViet.`);
+    }, 350);
   }
 
   function downloadTemplate() {
@@ -348,36 +352,38 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       </section>
     </main>
     <a className="kv-help" href="tel:0704040044">💬 <span>0704 04 0044</span></a>
-    {showCreate && <div className="modal-backdrop" onClick={() => setShowCreate(false)}><form className="product-modal" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}><header><div><h2>{newProduct.product_type === "service" ? "Thêm dịch vụ" : newProduct.product_type === "combo" ? "Thêm combo" : "Thêm hàng hóa"}</h2><p>Hàng hóa được lưu vào cơ sở dữ liệu — giống KiôtViệt</p></div><button type="button" onClick={() => setShowCreate(false)}>×</button></header><div className="product-form">
-      <label>Tên hàng hóa *<input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="VD: Cà phê đen" /></label>
-      <div className="form-row"><label>Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} placeholder="Tự sinh nếu để trống" /></label><label>Loại hàng<select value={newProduct.product_type} onChange={(e) => setNewProduct({ ...newProduct, product_type: e.target.value as NewProduct["product_type"] })}><option value="product">Hàng hóa</option><option value="service">Dịch vụ</option><option value="combo">Combo - đóng gói</option></select></label></div>
-      <div className="form-row"><label>Nhóm hàng<select value={newProduct.category_id} onChange={(e) => setNewProduct({ ...newProduct, category_id: e.target.value })}><option value="">— Chọn nhóm —</option>{categoryOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>Nhà cung cấp<select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}><option value="">— Chọn NCC —</option>{supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label></div>
-      <div className="form-row"><label>Giá bán<input type="number" min="0" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} placeholder="0" /></label><label>Giá vốn<input type="number" min="0" value={newProduct.cost} onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })} placeholder="0" /></label></div>
-      <label>Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} /></label>
-      <label>Mô tả / Ghi chú<textarea rows={2} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Ghi chú nội bộ..." style={{ height: 72, padding: 10, border: "1px solid #d5dde6", borderRadius: 9 }} /></label>
-    </div><footer><button type="button" onClick={() => setShowCreate(false)}>Hủy</button><button className="primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></footer></form></div>}
-    {showImport && <div className="modal-backdrop" onClick={() => setShowImport(false)}><section className="product-modal" onClick={(e) => e.stopPropagation()} style={{ width: "min(720px, 100%)" }}><header><div><h2>Import hàng hóa</h2><p>Nhập hàng loạt từ file — tương tự KiotViet (CSV UTF-8, hỗ trợ Excel lưu thành CSV)</p></div><button type="button" onClick={() => setShowImport(false)}>×</button></header><div className="product-form">
-      <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-        <button type="button" onClick={downloadTemplate} style={{ display: "flex", alignItems: "center", gap: 7, height: 42, padding: "0 14px", border: "1px solid #d5dde6", borderRadius: 8, background: "#fff", fontWeight: 600 }}><FileDown size={16} /> Tải file mẫu</button>
-        <span style={{ alignSelf: "center", color: "#677482", fontSize: 13 }}>Mẫu gồm: Mã hàng, Tên hàng*, Nhóm hàng, Loại hàng, Giá bán, Giá vốn, Tồn kho, Mô tả</span>
+    {showCreate && <div className="modal-backdrop" onClick={() => setShowCreate(false)}><form className="product-modal kv-create-modal" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}><header><div><h2>{newProduct.product_type === "service" ? "Thêm dịch vụ" : newProduct.product_type === "combo" ? "Thêm combo - đóng gói" : "Thêm hàng hóa"}</h2><p>Thông tin cơ bản — giống 100% KiotViet</p></div><button type="button" className="kv-modal-close" onClick={() => setShowCreate(false)} aria-label="Đóng">×</button></header><div className="product-form">
+      <label className="kv-field">Tên hàng<span className="kv-req">*</span><input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="VD: Cà phê đen đá" /></label>
+      <div className="form-row"><label className="kv-field">Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} placeholder="Tự sinh nếu để trống" /></label><label className="kv-field">Loại hàng<select value={newProduct.product_type} onChange={(e) => setNewProduct({ ...newProduct, product_type: e.target.value as NewProduct["product_type"] })}><option value="product">Hàng hóa</option><option value="service">Dịch vụ</option><option value="combo">Combo - đóng gói</option></select></label></div>
+      <div className="form-row"><label className="kv-field">Nhóm hàng<select value={newProduct.category_id} onChange={(e) => setNewProduct({ ...newProduct, category_id: e.target.value })}><option value="">— Chọn nhóm —</option>{categoryOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label className="kv-field">Nhà cung cấp<select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}><option value="">— Chọn NCC —</option>{supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label></div>
+      <div className="form-row"><label className="kv-field">Giá bán<input type="number" min="0" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} placeholder="0" /></label><label className="kv-field">Giá vốn<input type="number" min="0" value={newProduct.cost} onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })} placeholder="0" /></label></div>
+      <label className="kv-field">Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} /></label>
+      <label className="kv-field">Mô tả / Ghi chú<textarea rows={3} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Ghi chú nội bộ..." /></label>
+    </div><footer><button type="button" className="kv-btn kv-btn-file" onClick={() => setShowCreate(false)}>Bỏ qua</button><button className="kv-btn kv-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></footer></form></div>}
+    {showImport && <div className="modal-backdrop" onClick={() => setShowImport(false)}><section className="product-modal kv-import-modal" onClick={(e) => e.stopPropagation()} style={{ width: "min(680px, 100%)" }}><header><div><h2>Nhập hàng hóa từ file</h2><p>Chọn file Excel/CSV — giống 100% KiotViet</p></div><button type="button" className="kv-modal-close" onClick={() => setShowImport(false)} aria-label="Đóng">×</button></header><div className="product-form">
+      <div className="kv-import-template">
+        <button type="button" className="kv-btn kv-btn-file" onClick={downloadTemplate}><FileDown size={13} strokeWidth={2} /> Tải file mẫu</button>
+        <span className="kv-import-template-hint">Mẫu gồm: Mã hàng, Tên hàng<span className="kv-req">*</span>, Nhóm hàng, Loại hàng, Giá bán, Giá vốn, Tồn kho, Mô tả</span>
       </div>
-      <label style={{ border: "1.5px dashed #b9c4d2", borderRadius: 10, padding: 18, display: "grid", placeItems: "center", gap: 8, background: "#fbfcfd", cursor: "pointer" }}>
-        <Upload size={22} color="#0878f9" />
-        <span style={{ fontWeight: 600 }}>{importFileName || "Kéo thả hoặc bấm để chọn file"}</span>
-        <span style={{ color: "#8b96a5", fontSize: 13 }}>Chấp nhận .csv (khuyến nghị UTF-8). File .xlsx vui lòng Save As → CSV UTF-8 trước khi import</span>
-        <input ref={importInput} type="file" accept=".csv,.xlsx,.xls,text/csv" style={{ display: "none" }} onChange={(e) => handleFileChange(e.target.files?.[0])} />
-        <button type="button" onClick={() => importInput.current?.click()} style={{ marginTop: 6, height: 36, padding: "0 14px", border: "1px solid #0878f9", borderRadius: 7, background: "#fff", color: "#0878f9", fontWeight: 600 }}>Chọn file</button>
+      <label className="kv-dropzone" onClick={(e) => { const t = e.target as HTMLElement; if (t.closest("button")) return; importInput.current?.click(); }}>
+        <span className="kv-dropzone-icon"><Upload size={20} strokeWidth={1.8} color="#008ae6" /></span>
+        <span className="kv-dropzone-title">{importFileName || "Kéo thả file vào đây hoặc bấm để chọn"}</span>
+        <span className="kv-dropzone-sub">Chấp nhận .csv (UTF-8) / .xlsx . File Excel sẽ được đọc như CSV — khuyến nghị lưu CSV UTF-8</span>
+        <input ref={importInput} type="file" accept=".csv,.xlsx,.xls,text/csv" hidden onChange={(e) => handleFileChange(e.target.files?.[0])} />
+        <button type="button" className="kv-btn kv-btn-outline-blue" onClick={() => importInput.current?.click()}>Chọn file</button>
+        {importFileName && <span className="kv-dropzone-file">{importFileName}</span>}
       </label>
-      {importPreview.length > 0 && <div style={{ marginTop: 14, border: "1px solid #e3e7ec", borderRadius: 9, overflow: "hidden" }}>
-        <div style={{ padding: "9px 12px", background: "#f5f7f9", fontWeight: 700, fontSize: 13 }}>Xem trước 5 dòng đầu</div>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}><thead><tr style={{ background: "#fff" }}><th style={{ textAlign: "left", padding: "7px 10px", borderBottom: "1px solid #e8edf2" }}>Mã</th><th style={{ textAlign: "left", padding: "7px 10px", borderBottom: "1px solid #e8edf2" }}>Tên</th><th style={{ textAlign: "left", padding: "7px 10px", borderBottom: "1px solid #e8edf2" }}>Nhóm</th><th style={{ textAlign: "right", padding: "7px 10px", borderBottom: "1px solid #e8edf2" }}>Giá</th><th style={{ textAlign: "right", padding: "7px 10px", borderBottom: "1px solid #e8edf2" }}>Tồn</th></tr></thead><tbody>{importPreview.map((r, i) => <tr key={i}><td style={{ padding: "6px 10px" }}>{r.sku}</td><td style={{ padding: "6px 10px" }}>{r.name}</td><td style={{ padding: "6px 10px" }}>{r.category}</td><td style={{ padding: "6px 10px", textAlign: "right" }}>{r.price}</td><td style={{ padding: "6px 10px", textAlign: "right" }}>{r.stock}</td></tr>)}</tbody></table>
+      {importPreview.length > 0 && <div className="kv-preview">
+        <div className="kv-preview-head">Xem trước 5 dòng đầu</div>
+        <table><thead><tr><th>Mã hàng</th><th>Tên hàng</th><th>Nhóm hàng</th><th style={{ textAlign: "right" }}>Giá bán</th><th style={{ textAlign: "right" }}>Tồn kho</th></tr></thead><tbody>{importPreview.map((r, i) => <tr key={i}><td>{r.sku || "—"}</td><td>{r.name}</td><td>{r.category || "—"}</td><td style={{ textAlign: "right" }}>{r.price || "0"}</td><td style={{ textAlign: "right" }}>{r.stock || "0"}</td></tr>)}</tbody></table>
       </div>}
-      <div style={{ marginTop: 14, display: "flex", gap: 16, fontSize: 14 }}>
-        <label style={{ display: "flex", alignItems: "center", gap: 7, fontWeight: 400 }}><input type="radio" checked={importMode === "skip"} onChange={() => setImportMode("skip")} /> Bỏ qua hàng trùng mã</label>
-        <label style={{ display: "flex", alignItems: "center", gap: 7, fontWeight: 400 }}><input type="radio" checked={importMode === "update"} onChange={() => setImportMode("update")} /> Cập nhật hàng trùng mã</label>
+      <div className="kv-import-options">
+        <div className="kv-import-options-title">Xử lý khi trùng mã hàng</div>
+        <label className={`kv-radio ${importMode === "skip" ? "active" : ""}`}><input type="radio" name="kvImportMode" checked={importMode === "skip"} onChange={() => setImportMode("skip")} /><i /><span>Bỏ qua</span><small>Giữ nguyên hàng cũ, bỏ qua dòng trùng</small></label>
+        <label className={`kv-radio ${importMode === "update" ? "active" : ""}`}><input type="radio" name="kvImportMode" checked={importMode === "update"} onChange={() => setImportMode("update")} /><i /><span>Cập nhật</span><small>Ghi đè thông tin theo file</small></label>
       </div>
-      <p className="import-hint" style={{ marginTop: 10 }}>Lưu ý: Cột <b>Tên hàng</b> là bắt buộc. Nhóm hàng phải khớp tên đã có trong hệ thống, nếu không sẽ để trống.</p>
-    </div><footer><button type="button" onClick={() => setShowImport(false)}>Hủy</button><button className="primary" type="button" disabled={saving || !importFileName} onClick={importCsv}>{saving ? "Đang import..." : `Nhập ${importPreview.length ? `(${importPreview.length}+ dòng)` : "file"}`}</button></footer></section></div>}
+      <p className="kv-note">Lưu ý: Cột <b>Tên hàng</b> là bắt buộc. Nhóm hàng phải khớp tên đã có, nếu không sẽ để trống. Giá trị số không hợp lệ sẽ về 0.</p>
+    </div><footer><button type="button" className="kv-btn kv-btn-file" onClick={() => setShowImport(false)}>Bỏ qua</button><button className="kv-btn kv-btn-primary" type="button" disabled={saving || !importFileName} onClick={importCsv}>{saving ? "Đang xử lý..." : "Nhập file"}</button></footer></section></div>}
   </div>;
 }
 
