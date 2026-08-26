@@ -1,42 +1,119 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { Clock3, DollarSign, PackageOpen, RotateCcw, ShieldAlert, ShoppingBag } from "lucide-react";
+import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
-type Props = { profile: Profile; products: Product[]; metrics: { revenue: number; orders: number; customers: number; lowStock: number } };
-type MenuGroup = { title: string; badge?: string; sections: Array<{ label?: string; items: string[] }> };
-const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+type Customer = { id: string; name: string; total_spent: number };
+type OrderItem = { quantity: number; line_total: number; products?: { id?: string; name?: string; sku?: string } | null };
+type Order = {
+  id: string;
+  order_number: number;
+  customer_id?: string | null;
+  status: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+  created_at: string;
+  customers?: { name?: string } | null;
+  order_items?: OrderItem[];
+};
+type Props = { profile: Profile; products: Product[]; customers: Customer[]; orders: Order[] };
+type DateRange = "Hôm nay" | "Hôm qua" | "7 ngày qua" | "Tháng này" | "Tháng trước";
 
-const menuGroups: MenuGroup[] = [
-  { title: "Hàng hóa", sections: [{ label: "Hàng hóa", items: ["Danh sách hàng hóa", "Thiết lập giá"] }, { label: "Kho hàng", items: ["Kiểm kho", "Xuất dùng nội bộ", "Xuất hủy"] }] },
-  { title: "Mua hàng", sections: [{ label: "Nhà cung cấp", items: ["Nhà cung cấp", "Hóa đơn đầu vào|Mới"] }, { label: "Mua hàng", items: ["Nhập hàng", "Trả hàng nhập"] }, { label: "Mua dịch vụ", items: ["Mua dịch vụ|Mới"] }] },
-  { title: "Đơn hàng", sections: [{ items: ["Đặt hàng", "Hóa đơn", "Trả hàng", "Đối tác giao hàng", "Vận đơn"] }] },
-  { title: "Khách hàng", sections: [{ label: "Khách hàng", items: ["Khách hàng"] }, { label: "Kênh tiếp cận", items: ["Cửa hàng online trên Zalo|Mới"] }] },
-  { title: "Nhân viên", sections: [{ items: ["Danh sách nhân viên", "Lịch làm việc", "Bảng chấm công", "Bảng lương", "Bảng hoa hồng", "Thiết lập nhân viên"] }] },
-  { title: "Sổ quỹ", sections: [{ items: ["Sổ quỹ"] }] },
-  { title: "Báo cáo", sections: [{ label: "Báo cáo", items: ["Cuối ngày", "Bán hàng", "Đặt hàng", "Hàng hóa", "Khách hàng", "Nhà cung cấp", "Nhân viên", "Kênh bán hàng", "Tài chính"] }] },
-  { title: "Bán online", sections: [{ items: ["Bán online", "Website bán hàng"] }] },
-  { title: "Thuế & Kế toán", badge: "Mới", sections: [{ items: ["Thuế & Kế toán", "Hóa đơn điện tử"] }] },
-];
-export default function DashboardClient({ profile, products: initialProducts, metrics }: Props) {
+const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+function inRange(value: string, range: DateRange) {
+  const now = new Date();
+  const date = new Date(value);
+  const today = startOfDay(now);
+  const target = startOfDay(date);
+  if (range === "Hôm nay") return target.getTime() === today.getTime();
+  if (range === "Hôm qua") return target.getTime() === today.getTime() - 86400000;
+  if (range === "7 ngày qua") return target <= today && target >= new Date(today.getTime() - 6 * 86400000);
+  if (range === "Tháng này") return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  const previous = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return date.getMonth() === previous.getMonth() && date.getFullYear() === previous.getFullYear();
+}
+
+function timeAgo(value: string) {
+  const diff = Math.max(0, Date.now() - new Date(value).getTime());
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "vừa xong";
+  if (minutes < 60) return `${minutes} phút trước`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} giờ trước`;
+  return `${Math.floor(hours / 24)} ngày trước`;
+}
+
+export default function DashboardClient({ profile, products: initialProducts, customers, orders }: Props) {
   const [products, setProducts] = useState(initialProducts);
-  const [query, setQuery] = useState("");
   const [modal, setModal] = useState<"product" | "staff" | null>(null);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
-  const [dateRange, setDateRange] = useState("Tháng này");
+  const [dateRange, setDateRange] = useState<DateRange>("Tháng này");
   const [chartMode, setChartMode] = useState<"day" | "hour" | "weekday">("day");
-  const [rankingMetric, setRankingMetric] = useState("Doanh thu thuần");
-  const [rankingRange, setRankingRange] = useState("Tháng này");
-  const filteredProducts = useMemo(() => products.filter(product => `${product.name} ${product.sku}`.toLowerCase().includes(query.toLowerCase())), [products, query]);
-  const initials = profile.full_name.split(" ").map(part => part[0]).slice(-2).join("");
+  const [rankingMetric, setRankingMetric] = useState<"Doanh thu thuần" | "Số lượng">("Doanh thu thuần");
+  const [rankingRange, setRankingRange] = useState<DateRange>("Tháng này");
+  const [customerRange, setCustomerRange] = useState<DateRange>("Tháng này");
+  const [activityOpen, setActivityOpen] = useState(true);
+
+  const todayOrders = useMemo(() => orders.filter((order) => inRange(order.created_at, "Hôm nay")), [orders]);
+  const todayRevenue = todayOrders.filter((order) => order.status === "paid").reduce((sum, order) => sum + Number(order.total), 0);
+  const todayReturns = todayOrders.filter((order) => order.status === "refunded").reduce((sum, order) => sum + Number(order.total), 0);
+  const todayInvoiceCount = todayOrders.filter((order) => order.status === "paid").length;
+
+  const chartOrders = useMemo(() => orders.filter((order) => inRange(order.created_at, dateRange)), [orders, dateRange]);
   const chartData = useMemo(() => {
-    if (chartMode === "hour") return { labels: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"], values: [12, 28, 42, 65, 48, 72] };
-    if (chartMode === "weekday") return { labels: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"], values: [28, 44, 35, 56, 62, 48, 24] };
-    return { labels: ["1", "5", "10", "15", "20", "25", "30"], values: [20, 38, 27, 52, 34, 66, 43] };
-  }, [chartMode]);
+    const revenueOf = (items: Order[]) => items.reduce((sum, order) => sum + (order.status === "paid" ? Number(order.total) : order.status === "refunded" ? -Number(order.total) : 0), 0);
+    if (chartMode === "hour") {
+      const labels = Array.from({ length: 24 }, (_, index) => `${String(index).padStart(2, "0")}:00`);
+      return { labels, values: labels.map((_, hour) => revenueOf(chartOrders.filter((order) => new Date(order.created_at).getHours() === hour))) };
+    }
+    if (chartMode === "weekday") {
+      const labels = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+      return { labels, values: labels.map((_, index) => revenueOf(chartOrders.filter((order) => (new Date(order.created_at).getDay() + 6) % 7 === index))) };
+    }
+    const grouped = new Map<string, number>();
+    for (const order of chartOrders) {
+      const key = order.created_at.slice(0, 10);
+      grouped.set(key, (grouped.get(key) || 0) + (order.status === "paid" ? Number(order.total) : order.status === "refunded" ? -Number(order.total) : 0));
+    }
+    const entries = Array.from(grouped.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return { labels: entries.map(([key]) => String(new Date(`${key}T00:00:00`).getDate())), values: entries.map(([, value]) => value) };
+  }, [chartMode, chartOrders]);
+  const chartTotal = chartData.values.reduce((sum, value) => sum + value, 0);
+  const chartMax = Math.max(1, ...chartData.values.map((value) => Math.abs(value)));
+  const hasChartData = chartData.values.some(Boolean);
+
+  const topProducts = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; sku: string; revenue: number; quantity: number }>();
+    for (const order of orders.filter((item) => item.status === "paid" && inRange(item.created_at, rankingRange))) {
+      for (const item of order.order_items || []) {
+        const id = item.products?.id || item.products?.sku || "unknown";
+        const current = map.get(id) || { id, name: item.products?.name || "Hàng hóa", sku: item.products?.sku || "", revenue: 0, quantity: 0 };
+        current.revenue += Number(item.line_total || 0);
+        current.quantity += Number(item.quantity || 0);
+        map.set(id, current);
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => rankingMetric === "Số lượng" ? b.quantity - a.quantity : b.revenue - a.revenue).slice(0, 10);
+  }, [orders, rankingMetric, rankingRange]);
+
+  const topCustomers = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; revenue: number; orders: number }>();
+    for (const order of orders.filter((item) => item.status === "paid" && inRange(item.created_at, customerRange))) {
+      if (!order.customer_id) continue;
+      const current = map.get(order.customer_id) || { id: order.customer_id, name: order.customers?.name || "Khách lẻ", revenue: 0, orders: 0 };
+      current.revenue += Number(order.total || 0);
+      current.orders += 1;
+      map.set(order.customer_id, current);
+    }
+    return Array.from(map.values()).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+  }, [orders, customerRange]);
 
   async function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaving(true); setMessage("");
@@ -44,7 +121,7 @@ export default function DashboardClient({ profile, products: initialProducts, me
     const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const result = await response.json(); setSaving(false);
     if (!response.ok) { setMessage(result.error); return; }
-    setProducts(current => [result.product, ...current]); setModal(null); setMessage("Đã thêm sản phẩm thành công.");
+    setProducts((current) => [result.product, ...current]); setModal(null); setMessage("Đã thêm sản phẩm thành công.");
   }
 
   async function addStaff(event: FormEvent<HTMLFormElement>) {
@@ -56,26 +133,22 @@ export default function DashboardClient({ profile, products: initialProducts, me
     setModal(null); setMessage(`Đã tạo tài khoản ${result.user.username}.`);
   }
 
-  return <div className="kv-shell">
-    <header className="kv-header">
-      <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo">🔔<i /></button><button className="kv-round" aria-label="Cài đặt">⚙</button><button className="kv-avatar" aria-label={profile.full_name}>{initials}</button></div>
-    </header>
-
-    <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items"><Link className="kv-top-item active" href="/dashboard">Tổng quan</Link>{menuGroups.map(group => <div className="kv-nav-dropdown" key={group.title}><button className="kv-top-item" aria-haspopup="true">{group.title}</button><div className="kv-submenu">{group.sections.map((section,index) => <section key={`${group.title}-${index}`}>{section.label && <h3>{section.label}</h3>}{section.items.map(rawItem => { const [item,badge] = rawItem.split("|"); return <button key={rawItem} onClick={() => { if (item === "Danh sách nhân viên") setModal("staff"); const reportPaths: Record<string,string> = { "Cuối ngày":"/end-of-day-report", "Bán hàng":"/sale-report", "Đặt hàng":"/order-report", "Hàng hóa":"/product-report", "Khách hàng":"/customer-report", "Nhà cung cấp":"/supplier-report", "Kênh bán hàng":"/sale-channel-report" }; const paths: Record<string,string> = { "Danh sách hàng hóa":"/products", "Thiết lập giá":"/pricebook", "Kiểm kho":"/stocktakes", "Xuất dùng nội bộ":"/internal-use", "Xuất hủy":"/damage-items", "Nhà cung cấp":"/suppliers", "Nhập hàng":"/purchase-orders", "Trả hàng nhập":"/purchase-returns", "Đặt hàng":"/orders", "Hóa đơn":"/invoices", "Trả hàng":"/returns", "Đối tác giao hàng":"/delivery-partners", "Vận đơn":"/waybills", "Khách hàng":"/customers", "Sổ quỹ":"/cashflow" }; const target = group.title === "Báo cáo" ? reportPaths[item] : paths[item]; if (target) window.location.assign(target); }}><span>{item}</span>{badge && <em>{badge}</em>}</button>; })}</section>)}</div></div>)}</div><Link className="kv-sale-link" href="/sales"><span>🛒</span>Bán hàng</Link></nav>
-
+  return <div className="kv-shell dashboard-page">
+    <ManagementHeader profile={profile} active="dashboard" />
     <main className="kv-main">
       {message && <div className="kv-toast-message">✓ {message}</div>}
       <div className="kv-dashboard-grid">
         <div className="kv-main-column">
-          <section className="kv-card kv-today-card kv-enter kv-full-width"><h2>Kết quả bán hàng hôm nay</h2><div className="kv-today-stats"><article><span className="kv-stat-icon blue">$</span><div><small>Doanh thu</small><strong>{money(metrics.revenue)}</strong><p>{metrics.orders} hóa đơn</p></div></article><article><span className="kv-stat-icon orange">↩</span><div><small>Trả hàng</small><strong>0</strong></div></article></div></section>
-          <section className="kv-card kv-chart-card kv-enter delay-1 kv-full-width"><div className="kv-card-title"><h2>Doanh thu thuần <b>{money(metrics.revenue)}</b></h2><select aria-label="Khoảng thời gian" value={dateRange} onChange={event => setDateRange(event.target.value)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div><div className="kv-tabs"><button className={chartMode === "day" ? "active" : ""} onClick={() => setChartMode("day")}>Theo ngày</button><button className={chartMode === "hour" ? "active" : ""} onClick={() => setChartMode("hour")}>Theo giờ</button><button className={chartMode === "weekday" ? "active" : ""} onClick={() => setChartMode("weekday")}>Theo thứ</button></div><div className="kv-chart"><div className="kv-y-axis"><span>10tr</span><span>7,5tr</span><span>5tr</span><span>2,5tr</span><span>0</span></div><div className="kv-bars">{chartData.values.map((height,index) => <i key={index} style={{ height: metrics.revenue ? `${height}%` : "2px" }}><span>{chartData.labels[index]}</span></i>)}</div>{!metrics.revenue && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()}</div>}</div></section>
-          <div className="kv-rank-grid kv-full-width"><section className="kv-card kv-rank-card kv-enter delay-2"><div className="kv-card-title"><h2>Top 10 hàng bán chạy</h2><div className="kv-rank-filters"><select aria-label="Tiêu chí xếp hạng" value={rankingMetric} onChange={event => setRankingMetric(event.target.value)}><option>Doanh thu thuần</option><option>Số lượng</option></select><select aria-label="Khoảng thời gian hàng bán chạy" value={rankingRange} onChange={event => setRankingRange(event.target.value)}><option>Hôm nay</option><option>Hôm qua</option><option>Tuần này</option><option>Tháng này</option><option>Tháng trước</option></select></div></div>{products.length ? <div className="kv-top-products">{products.slice(0,5).map((product,index) => <div key={product.id}><b>{index + 1}</b><span>{product.name}<small>{product.sku}</small></span><strong>{rankingMetric === "Số lượng" ? `${product.stock_quantity} sản phẩm` : money(Number(product.price))}</strong></div>)}</div> : <div className="kv-empty"><span>▤</span><p>Chưa có dữ liệu</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</section><section className="kv-card kv-rank-card kv-enter delay-3"><div className="kv-card-title"><h2>Top 10 khách mua nhiều nhất</h2><select aria-label="Khoảng thời gian khách hàng"><option>Tháng này</option><option>Tháng trước</option></select></div><div className="kv-empty"><span>♙</span><p>Chưa có dữ liệu</p></div></section></div>
+          <section className="kv-card kv-today-card kv-enter"><h2>Kết quả bán hàng hôm nay</h2><div className="kv-today-stats"><article><span className="kv-stat-icon blue"><DollarSign size={18} /></span><div><small>Doanh thu</small><strong>{money(todayRevenue)}</strong>{todayInvoiceCount > 0 && <p>{todayInvoiceCount} hóa đơn</p>}</div></article><article><span className="kv-stat-icon orange"><RotateCcw size={17} /></span><div><small>Trả hàng</small><strong>{money(todayReturns)}</strong></div></article></div></section>
+          <section className="kv-card kv-chart-card kv-enter delay-1"><div className="kv-card-title"><h2>Doanh thu thuần <b>{money(chartTotal)}</b></h2><select aria-label="Khoảng thời gian" value={dateRange} onChange={(event) => setDateRange(event.target.value as DateRange)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div><div className="kv-tabs"><button className={chartMode === "day" ? "active" : ""} onClick={() => setChartMode("day")}>Theo ngày</button><button className={chartMode === "hour" ? "active" : ""} onClick={() => setChartMode("hour")}>Theo giờ</button><button className={chartMode === "weekday" ? "active" : ""} onClick={() => setChartMode("weekday")}>Theo thứ</button></div><div className="kv-chart"><div className="kv-y-axis">{hasChartData ? <><span>{money(chartMax)}</span><span>{money(chartMax * .75)}</span><span>{money(chartMax * .5)}</span><span>{money(chartMax * .25)}</span></> : <><span /><span /><span /><span /></>}<span>0</span></div><div className="kv-bars">{chartData.values.map((value, index) => <i key={`${chartData.labels[index]}-${index}`} title={`${chartData.labels[index]}: ${money(value)}`} style={{ height: value ? `${Math.max(2, Math.abs(value) / chartMax * 100)}%` : "1px" }}><span>{chartData.labels[index]}</span></i>)}</div>{!hasChartData && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()}</div>}</div></section>
+          <div className="kv-rank-grid">
+            <section className="kv-card kv-rank-card kv-enter delay-2"><div className="kv-card-title"><h2>Top 10 hàng bán chạy</h2><div className="kv-rank-filters"><select aria-label="Tiêu chí xếp hạng" value={rankingMetric} onChange={(event) => setRankingMetric(event.target.value as typeof rankingMetric)}><option>Doanh thu thuần</option><option>Số lượng</option></select><select aria-label="Khoảng thời gian hàng bán chạy" value={rankingRange} onChange={(event) => setRankingRange(event.target.value as DateRange)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div></div>{topProducts.length ? <div className="kv-top-products">{topProducts.map((product, index) => <div key={product.id}><b>{index + 1}</b><span>{product.name}<small>{product.sku}</small></span><strong>{rankingMetric === "Số lượng" ? `${money(product.quantity)} sản phẩm` : money(product.revenue)}</strong></div>)}</div> : <div className="kv-empty"><PackageOpen size={42} /><p>Chưa có dữ liệu</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</section>
+            <section className="kv-card kv-rank-card kv-enter delay-3"><div className="kv-card-title"><h2>Top 10 khách mua nhiều nhất</h2><select aria-label="Khoảng thời gian khách hàng" value={customerRange} onChange={(event) => setCustomerRange(event.target.value as DateRange)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div>{topCustomers.length ? <div className="kv-top-products">{topCustomers.map((customer, index) => <div key={customer.id}><b>{index + 1}</b><span>{customer.name}<small>{customer.orders} hóa đơn</small></span><strong>{money(customer.revenue)}</strong></div>)}</div> : <div className="kv-empty"><ShoppingBag size={42} /><p>Chưa có dữ liệu</p></div>}</section>
+          </div>
         </div>
         <aside className="kv-side-column">
-          <section className="kv-card kv-alert-card kv-enter delay-1"><span>▣</span><div><strong>Hoạt động đăng nhập</strong><p>Không có cảnh báo mới cần kiểm tra.</p></div><b>⌄</b></section>
-          <section className="kv-card kv-activity kv-enter delay-2"><div className="kv-card-title"><h2>Hoạt động gần đây</h2></div><div className="kv-activity-list">{products.slice(0,6).map((product,index) => <article key={product.id}><span>{index % 2 ? "⇩" : "▱"}</span><p><b>{profile.username}</b> vừa thêm hàng hóa <strong>{product.name}</strong><small>{index ? `${index + 1} ngày trước` : "gần đây"}</small></p></article>)}{!products.length && <div className="kv-empty activity-empty"><span>◷</span><p>Chưa có hoạt động gần đây</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</div></section>
-          <section className="kv-card kv-employee"><div className="kv-empty"><span>♙</span><p>Chưa có dữ liệu hiệu suất nhân viên</p><small>Thêm nhân viên để xem doanh thu và đánh giá hiệu quả làm việc</small><button onClick={() => setModal("staff")}>Thêm nhân viên</button></div></section>
+          <section className="kv-card kv-alert-card kv-enter delay-1"><span><ShieldAlert size={20} /></span><div><strong>Có <b>1 hoạt động đăng nhập khác thường</b> cần kiểm tra.</strong></div><button aria-label={activityOpen ? "Thu gọn" : "Mở rộng"} onClick={() => setActivityOpen((value) => !value)}>⌄</button></section>
+          {activityOpen && <section className="kv-card kv-activity kv-enter delay-2"><div className="kv-card-title"><h2>Hoạt động gần đây</h2></div><div className="kv-activity-list">{orders.slice(0, 18).map((order) => <article key={order.id}><span>{order.status === "refunded" ? <RotateCcw size={16} /> : <ShoppingBag size={16} />}</span><p><b>{profile.full_name}</b> vừa <strong>{order.status === "refunded" ? "trả hàng" : "bán đơn hàng"}</strong> <a href={`/invoices?code=HD${String(order.order_number).padStart(6, "0")}`}>HD{String(order.order_number).padStart(6, "0")}</a> với giá trị <strong>{money(Number(order.total))}</strong><small>{timeAgo(order.created_at)}</small></p></article>)}{!orders.length && <div className="kv-empty activity-empty"><Clock3 size={42} /><p>Chưa có hoạt động gần đây</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</div></section>}
         </aside>
       </div>
     </main>
