@@ -8,16 +8,22 @@ import ProductFilterSidebar from "./product-filter-sidebar";
 import { DEFAULT_FILTERS, FilterOption, Product, ProductFilters } from "./product-types";
 
 type NewProduct = { name: string; sku: string; price: string; stock: string };
-type ColumnKey = "image" | "sku" | "name" | "category" | "type" | "price" | "cost" | "stock" | "reserved" | "sellable" | "status";
+type ColumnKey = "image" | "sku" | "name" | "category" | "type" | "linked" | "price" | "cost" | "stock" | "reserved" | "created" | "expected" | "status";
 type SortKey = "sku" | "name" | "price" | "stock_quantity";
 const PAGE_SIZE = 10;
 const NAV_ITEMS = ["Mua hàng", "Đơn hàng", "Khách hàng", "Nhân viên", "Sổ quỹ", "Báo cáo", "Bán online", "Thuế & Kế toán"];
 const COLUMNS: Array<{ key: ColumnKey; label: string }> = [
-  { key: "image", label: "Ảnh" }, { key: "sku", label: "Mã hàng" }, { key: "name", label: "Tên hàng" }, { key: "category", label: "Nhóm hàng" },
-  { key: "type", label: "Loại hàng" }, { key: "price", label: "Giá bán" }, { key: "cost", label: "Giá vốn" }, { key: "stock", label: "Tồn kho" },
-  { key: "reserved", label: "Khách đặt" }, { key: "sellable", label: "Có thể bán" }, { key: "status", label: "Trạng thái" },
+  { key: "image", label: "Hình ảnh" }, { key: "sku", label: "Mã hàng" }, { key: "name", label: "Tên hàng" }, { key: "category", label: "Nhóm hàng" },
+  { key: "type", label: "Loại hàng" }, { key: "linked", label: "Liên kết kênh bán" }, { key: "price", label: "Giá bán" }, { key: "cost", label: "Giá vốn" },
+  { key: "stock", label: "Tồn kho" }, { key: "reserved", label: "Khách đặt" }, { key: "created", label: "Thời gian tạo" },
+  { key: "expected", label: "Dự kiến hết hàng" }, { key: "status", label: "Trạng thái" },
 ];
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+const dateTime = (value?: string | null) => {
+  if (!value) return "---";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? "---" : new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(parsed);
+};
 
 function matchesInventory(product: Product, filters: ProductFilters) {
   const value = product.stock_quantity;
@@ -70,7 +76,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [expanded, setExpanded] = useState<string | null>(null);
   const [urlReady, setUrlReady] = useState(false);
   const [newProduct, setNewProduct] = useState<NewProduct>({ name: "", sku: "", price: "", stock: "0" });
-  const [visible, setVisible] = useState<Record<ColumnKey, boolean>>({ image: true, sku: true, name: true, category: true, type: true, price: true, cost: true, stock: true, reserved: true, sellable: true, status: true });
+  const [visible, setVisible] = useState<Record<ColumnKey, boolean>>({ image: true, sku: true, name: true, category: true, type: false, linked: false, price: true, cost: true, stock: true, reserved: true, created: true, expected: true, status: false });
   const importInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => { setFilters(filtersFromUrl()); setUrlReady(true); }, []);
@@ -142,18 +148,21 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   return <div className="kv-shell product-page">
     <header className="kv-header"><Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link><div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><button className="kv-round" aria-label="Cài đặt"><Settings size={20} /></button><button className="kv-avatar">{initials}</button></div></header>
     <nav className="kv-horizontal-nav"><div className="kv-horizontal-items"><Link className="kv-top-item" href="/dashboard">Tổng quan</Link><Link className="kv-top-item active" href="/products">Hàng hóa</Link>{NAV_ITEMS.map((item) => <span className="kv-top-item" key={item}>{item}</span>)}</div><Link className="kv-sale-link" href="/sales"><ShoppingCart size={20} />Bán hàng</Link></nav>
+    <div className="product-actions">
+      <h1>Hàng hóa</h1>
+      <div className="product-toolbar">
+        <label className="product-query"><Search size={20} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /><Settings size={17} /></label>
+        <button className="primary" type="button" onClick={() => setShowCreate(true)}>＋ Tạo mới</button><button type="button" onClick={() => setShowImport(true)}><FileUp size={18} />Import file</button><button type="button" onClick={exportCsv}><Download size={18} />Xuất file</button>
+        <div className="column-control"><button type="button" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={19} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
+        <button type="button" aria-label="Cài đặt bảng"><Settings size={19} /></button>
+      </div>
+    </div>
     <main className={`product-workspace ${sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>
       <ProductFilterSidebar filters={filters} categories={categories} suppliers={suppliers} collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed} onChange={updateFilters} onCreateCategory={createCategory} />
       <section className="product-content">
         {notice && <div className="product-notice" role="status">{notice}<button type="button" onClick={() => setNotice("")}>×</button></div>}
-        <div className="product-toolbar">
-          <label className="product-query"><Search size={22} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /><Settings size={19} /></label>
-          <button className="primary" type="button" onClick={() => setShowCreate(true)}>＋ Tạo mới</button><button type="button" onClick={() => setShowImport(true)}><FileUp size={20} />Import file</button><button type="button" onClick={exportCsv}><Download size={20} />Xuất file</button>
-          <div className="column-control"><button type="button" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={21} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
-          <button type="button" aria-label="Cài đặt bảng"><Settings size={21} /></button>
-        </div>
         {selected.length > 0 && <div className="bulk-bar"><CheckSquare size={19} /><b>{selected.length} hàng đã chọn</b><button type="button" onClick={() => bulkStatus(true)}>Đang kinh doanh</button><button type="button" onClick={() => bulkStatus(false)}>Ngừng kinh doanh</button><button type="button" onClick={() => setSelected([])}>Bỏ chọn</button></div>}
-        <div className="product-table"><table><thead><tr><th><input aria-label="Chọn tất cả hàng trên trang" type="checkbox" checked={checkedAll} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...rows.map((item) => item.id)])) : selected.filter((id) => !rows.some((item) => item.id === id)))} /></th>{visible.image && <th>Ảnh</th>}{visible.sku && <th><button onClick={() => sortBy("sku")}>Mã hàng{sortMark("sku")}</button></th>}{visible.name && <th><button onClick={() => sortBy("name")}>Tên hàng{sortMark("name")}</button></th>}{visible.category && <th>Nhóm hàng</th>}{visible.type && <th>Loại hàng</th>}{visible.price && <th><button onClick={() => sortBy("price")}>Giá bán{sortMark("price")}</button></th>}{visible.cost && <th>Giá vốn</th>}{visible.stock && <th><button onClick={() => sortBy("stock_quantity")}>Tồn kho{sortMark("stock_quantity")}</button></th>}{visible.reserved && <th>Khách đặt</th>}{visible.sellable && <th>Có thể bán</th>}{visible.status && <th>Trạng thái</th>}</tr></thead><tbody>
+        <div className="product-table"><table><thead><tr><th><input aria-label="Chọn tất cả hàng trên trang" type="checkbox" checked={checkedAll} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...rows.map((item) => item.id)])) : selected.filter((id) => !rows.some((item) => item.id === id)))} /></th>{visible.image && <th>Hình ảnh</th>}{visible.sku && <th><button onClick={() => sortBy("sku")}>Mã hàng{sortMark("sku")}</button></th>}{visible.name && <th><button onClick={() => sortBy("name")}>Tên hàng{sortMark("name")}</button></th>}{visible.category && <th>Nhóm hàng</th>}{visible.type && <th>Loại hàng</th>}{visible.linked && <th>Liên kết kênh bán</th>}{visible.price && <th><button onClick={() => sortBy("price")}>Giá bán{sortMark("price")}</button></th>}{visible.cost && <th>Giá vốn</th>}{visible.stock && <th><button onClick={() => sortBy("stock_quantity")}>Tồn kho{sortMark("stock_quantity")}</button></th>}{visible.reserved && <th>Khách đặt</th>}{visible.created && <th>Thời gian tạo</th>}{visible.expected && <th>Dự kiến hết hàng</th>}{visible.status && <th>Trạng thái</th>}</tr></thead><tbody>
           {rows.map((product) => <ProductRow key={product.id} product={product} visible={visible} selected={selected.includes(product.id)} expanded={expanded === product.id} onSelect={() => setSelected((current) => current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id])} onExpand={() => setExpanded(expanded === product.id ? null : product.id)} />)}
           {!rows.length && <tr><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><div className="product-empty"><ImageIcon size={48} /><strong>Không có hàng hóa phù hợp bộ lọc</strong><p>Thử thay đổi điều kiện tìm kiếm hoặc đặt lại bộ lọc.</p><button type="button" onClick={() => updateFilters(DEFAULT_FILTERS)}>Xóa bộ lọc</button></div></td></tr>}
         </tbody></table></div>
@@ -168,5 +177,5 @@ export default function ProductClient({ profile, initialProducts, initialCategor
 
 function ProductRow({ product, visible, selected, expanded, onSelect, onExpand }: { product: Product; visible: Record<ColumnKey, boolean>; selected: boolean; expanded: boolean; onSelect: () => void; onExpand: () => void }) {
   const typeName = product.product_type === "service" ? "Dịch vụ" : product.product_type === "combo" ? "Combo - đóng gói" : "Hàng hóa";
-  return <><tr className="product-row"><td><input type="checkbox" aria-label={`Chọn ${product.name}`} checked={selected} onChange={onSelect} /></td>{visible.image && <td><span className="product-thumb"><ImageIcon size={20} /></span></td>}{visible.sku && <td>{product.sku}</td>}{visible.name && <td><button className="product-name" onClick={onExpand}>{product.name}</button></td>}{visible.category && <td>{product.category_name || "—"}</td>}{visible.type && <td>{typeName}</td>}{visible.price && <td>{money(Number(product.price))}</td>}{visible.cost && <td>{money(Number(product.cost || 0))}</td>}{visible.stock && <td>{product.stock_quantity}</td>}{visible.reserved && <td>0</td>}{visible.sellable && <td>{Math.max(0, product.stock_quantity)}</td>}{visible.status && <td><span className={product.active ? "status-active" : "status-inactive"}>{product.active ? "Đang kinh doanh" : "Ngừng kinh doanh"}</span></td>}</tr>{expanded && <tr className="product-detail"><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><nav><button className="active">Thông tin</button><button>Mô tả, ghi chú</button><button>Thẻ kho</button><button>Tồn kho</button></nav><div><p><b>Mã hàng:</b> {product.sku}</p><p><b>Giá bán:</b> {money(Number(product.price))}</p><p><b>Tồn kho:</b> {product.stock_quantity}</p></div></td></tr>}</>;
+  return <><tr className="product-row"><td><input type="checkbox" aria-label={`Chọn ${product.name}`} checked={selected} onChange={onSelect} /></td>{visible.image && <td><span className="product-thumb"><ImageIcon size={20} /></span></td>}{visible.sku && <td>{product.sku}</td>}{visible.name && <td><button className="product-name" onClick={onExpand}>{product.name}</button></td>}{visible.category && <td>{product.category_name || "—"}</td>}{visible.type && <td>{typeName}</td>}{visible.linked && <td>{product.linked_sale_channel ? "Có" : "Không"}</td>}{visible.price && <td>{money(Number(product.price))}</td>}{visible.cost && <td>{money(Number(product.cost || 0))}</td>}{visible.stock && <td>{product.stock_quantity}</td>}{visible.reserved && <td>0</td>}{visible.created && <td>{dateTime(product.created_at)}</td>}{visible.expected && <td>{dateTime(product.expected_out_of_stock_at)}</td>}{visible.status && <td><span className={product.active ? "status-active" : "status-inactive"}>{product.active ? "Đang kinh doanh" : "Ngừng kinh doanh"}</span></td>}</tr>{expanded && <tr className="product-detail"><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><nav><button className="active">Thông tin</button><button>Mô tả, ghi chú</button><button>Thẻ kho</button><button>Tồn kho</button></nav><div><p><b>Mã hàng:</b> {product.sku}</p><p><b>Giá bán:</b> {money(Number(product.price))}</p><p><b>Tồn kho:</b> {product.stock_quantity}</p></div></td></tr>}</>;
 }
