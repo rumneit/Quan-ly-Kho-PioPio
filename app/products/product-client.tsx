@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CheckSquare, Columns3, Download, FileDown, FileUp, ImageIcon, Search, Settings, SlidersHorizontal, Upload } from "lucide-react";
+import { CheckSquare, ChevronDown, Columns3, Download, FileDown, FileUp, HelpCircle, ImageIcon, Plus, Search, Settings, SlidersHorizontal, Upload } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
@@ -301,23 +301,38 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   }
 
   const checkedAll = rows.length > 0 && rows.every((item) => selected.includes(item.id));
+  // close create dropdown when clicking outside - KiotViet behavior
+  useEffect(() => {
+    if (!showCreateMenu) return;
+    const onDocClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".kv-create-wrap")) setShowCreateMenu(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [showCreateMenu]);
+
   return <div className="kv-shell product-page">
     <ManagementHeader profile={profile} active="products" />
     <div className="product-actions">
       <h1>Hàng hóa</h1>
-      <div className="product-toolbar">
-        <div className="product-query-wrap"><label className="product-query"><Search size={20} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /></label><button className={`advanced-search-toggle ${showAdvancedSearch ? "active" : ""}`} type="button" aria-label="Tìm kiếm nâng cao" aria-expanded={showAdvancedSearch} onClick={() => setShowAdvancedSearch((value) => !value)}><SlidersHorizontal size={18} /></button>{showAdvancedSearch && <div className="advanced-search-popover"><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Theo mã, tên hàng" /><input value={noteQuery} onChange={(event) => setNoteQuery(event.target.value)} placeholder="Theo ghi chú, mô tả hàng hóa" /><footer><button type="button" onClick={() => { setPage(1); setShowAdvancedSearch(false); }}>Tìm kiếm</button></footer></div>}</div>
-        <div style={{ position: "relative" }}>
-          <button className="primary" type="button" onClick={() => setShowCreateMenu((v) => !v)}>＋ Tạo mới ▾</button>
-          {showCreateMenu && <div style={{ position: "absolute", top: 52, left: 0, zIndex: 50, minWidth: 190, background: "#fff", border: "1px solid #d6dce4", borderRadius: 9, boxShadow: "0 8px 24px rgba(0,0,0,.12)", overflow: "hidden" }}>
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "product" })); setShowCreate(true); setShowCreateMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", border: 0, background: "#fff" }}>Hàng hóa</button>
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "service" })); setShowCreate(true); setShowCreateMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", border: 0, background: "#fff" }}>Dịch vụ</button>
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", border: 0, background: "#fff" }}>Combo - đóng gói</button>
+      <div className="product-actions-center">
+        <div className="product-query-wrap"><label className="product-query"><Search size={16} strokeWidth={2} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /></label><button className={`advanced-search-toggle ${showAdvancedSearch ? "active" : ""}`} type="button" aria-label="Tìm kiếm nâng cao" aria-expanded={showAdvancedSearch} onClick={() => setShowAdvancedSearch((value) => !value)}><SlidersHorizontal size={14} /></button>{showAdvancedSearch && <div className="advanced-search-popover"><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Theo mã, tên hàng" /><input value={noteQuery} onChange={(event) => setNoteQuery(event.target.value)} placeholder="Theo ghi chú, mô tả hàng hóa" /><footer><button type="button" onClick={() => { setPage(1); setShowAdvancedSearch(false); }}>Tìm kiếm</button></footer></div>}</div>
+      </div>
+      <div className="product-toolbar kv-toolbar-100">
+        <div className="kv-create-wrap">
+          <button className="kv-btn kv-btn-create" type="button" aria-expanded={showCreateMenu} onClick={() => setShowCreateMenu((v) => !v)}><Plus size={13} strokeWidth={2.4} /><span>Tạo mới</span><ChevronDown size={13} strokeWidth={2.2} className={`kv-caret ${showCreateMenu ? "open" : ""}`} /></button>
+          {showCreateMenu && <div className="kv-dropdown">
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "product" })); setShowCreate(true); setShowCreateMenu(false); }}>Hàng hóa</button>
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "service" })); setShowCreate(true); setShowCreateMenu(false); }}>Dịch vụ</button>
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); }}>Combo - đóng gói</button>
           </div>}
         </div>
-        <button type="button" onClick={() => { setShowImport(true); setImportPreview([]); setImportFileName(""); }}><FileUp size={18} />Import file</button><button type="button" onClick={exportCsv}><Download size={18} />Xuất file</button>
-        <div className="column-control"><button type="button" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={19} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
-        <button type="button" aria-label="Cài đặt bảng"><Settings size={19} /></button>
+        <button type="button" className="kv-btn kv-btn-file" onClick={() => { setShowImport(true); setImportPreview([]); setImportFileName(""); }}><FileUp size={13} strokeWidth={2} />Import file</button>
+        <button type="button" className="kv-btn kv-btn-file" onClick={exportCsv}><Download size={13} strokeWidth={2} />Xuất file</button>
+        <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
+        <button type="button" className="kv-btn-icon" aria-label="Cài đặt bảng"><Settings size={14} strokeWidth={2} /></button>
+        <button type="button" className="kv-btn-icon" aria-label="Trợ giúp"><HelpCircle size={14} strokeWidth={2} /></button>
       </div>
     </div>
     <main className={`product-workspace ${sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>

@@ -11,3 +11,59 @@
 .small-modal select{width:100%;height:48px;padding:0 12px;border:1px solid #d5dde6;border-radius:9px;background:#fff;outline-color:var(--product-primary)}
 .product-query-wrap{position:relative;display:flex;min-width:260px;max-width:720px;flex:1}.product-query-wrap .product-query{min-width:0;max-width:none;padding-right:44px}.advanced-search-toggle{position:absolute;right:5px;top:50%;display:grid!important;width:26px!important;height:26px!important;min-height:26px!important;padding:0!important;place-items:center;border:0!important;border-radius:50%!important;background:#e8ebee!important;color:#26313d!important;transform:translateY(-50%)}.advanced-search-toggle.active,.advanced-search-toggle:hover{background:#dcecff!important;color:var(--product-primary)!important}.advanced-search-popover{position:absolute;z-index:110;top:38px;left:0;width:100%;min-width:520px;padding:16px 22px 0;border:1px solid #e1e3e6;border-radius:10px;background:#fff;box-shadow:var(--pio-popup-shadow)}.advanced-search-popover>input{display:block;width:100%;height:48px;padding:0 14px;border:1px solid #c2c7ce;border-radius:8px;outline:0}.advanced-search-popover>input+input{margin-top:12px}.advanced-search-popover>input:focus{border-color:var(--product-primary);box-shadow:var(--pio-focus-shadow)}.advanced-search-popover footer{display:flex;justify-content:flex-end;margin:16px -22px 0;padding:14px 22px;border-top:1px solid #e1e3e6}.advanced-search-popover footer button{height:40px;padding:0 20px;border:0;border-radius:8px;background:var(--product-primary);color:#fff;font-weight:700}.columns-popover{display:grid;grid-auto-flow:column;grid-template-rows:repeat(9,40px);grid-template-columns:repeat(2,minmax(250px,1fr));width:610px;padding:12px 14px;column-gap:24px}.columns-popover label{min-width:0;padding:6px 10px;font-family:Inter,Roboto,Arial,sans-serif;font-size:14px!important}.columns-popover input{flex:0 0 auto}.product-table th,.product-table th button{font-family:Inter,Roboto,Arial,sans-serif!important;font-size:14px!important;font-weight:700!important;line-height:20px!important}.sidebar-collapse,.sidebar-collapse.collapsed,.product-filter-sidebar .sidebar-collapse{top:50%;transform:translateY(-50%)}.sidebar-collapse svg{display:block;margin:auto}.filter-popover.date-preset{overflow:visible}.date-preset .preset-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;padding:22px 26px}.date-preset .preset-panel section{margin:0}.date-preset .preset-panel section>div{display:flex;align-items:flex-start;flex-direction:column;gap:8px}.date-preset .preset-panel button{min-width:0;height:36px;margin:0;padding:0 14px;white-space:nowrap}.date-preset .preset-panel .all{grid-column:1/-1;justify-self:end;width:auto;min-width:150px;margin:0;background:var(--product-primary);color:#fff;font-weight:700}.date-preset.past .preset-panel{grid-template-columns:repeat(3,minmax(170px,1fr))}.date-preset:before{position:absolute;top:34px;left:-8px;width:15px;height:15px;border-left:1px solid #e1e3e6;border-bottom:1px solid #e1e3e6;background:#fff;content:"";transform:rotate(45deg)}
 @media(max-width:768px){.product-query-wrap{max-width:none;flex-basis:100%}.advanced-search-popover{min-width:0;width:calc(100vw - 24px)}.columns-popover{position:fixed;right:12px;left:12px;width:auto;grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;max-height:70vh;overflow:auto}.date-preset .preset-panel,.date-preset.past .preset-panel{grid-template-columns:1fr 1fr}.date-preset .preset-panel .all{grid-column:1/-1}}
+/* ===== 100% KiotViet replica for Tạo mới / Import / Xuất - font, khung, màu - theo https://rumneit.kiotviet.vn/man/#/Products & screenshot 2025-10 ===== */
+.product-page{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;font-size:13px!important;line-height:18px!important;color:#334150!important;background:#f2f4f7!important}
+.product-page .kv-shell{background:#f2f4f7!important}
+.product-page .product-actions h1{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;font-size:16px!important;font-weight:700!important;color:#0f2232!important;margin:0!important;line-height:22px!important;white-space:nowrap}
+.product-actions{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 16px!important;background:#f2f4f7!important;border-bottom:0!important;min-height:48px}
+.product-actions-center{flex:1!important;display:flex!important;justify-content:center!important;min-width:0}
+.product-query-wrap{position:relative!important;display:flex!important;min-width:280px!important;max-width:420px!important;flex:1!important}
+.product-query{height:32px!important;border:1px solid #d9dee3!important;border-radius:6px!important;background:#fff!important;font-size:13px!important;color:#334150!important;box-shadow:none!important}
+.product-query input{font-size:13px!important;color:#2e3541!important}
+.product-query input::placeholder{color:#8a96a7!important}
+.product-query:focus-within{border-color:#008ae6!important;box-shadow:0 0 0 2px rgba(0,138,230,.15)!important}
+.advanced-search-toggle{width:22px!important;height:22px!important;right:6px!important;background:#eef1f4!important}
+.kv-toolbar-100{display:flex!important;align-items:center!important;gap:8px!important;flex-shrink:0}
+.kv-create-wrap{position:relative!important}
+.kv-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;height:32px!important;padding:0 12px!important;border:1px solid #d0d7de!important;border-radius:6px!important;background:#fff!important;color:#2e3541!important;font-size:13px!important;font-weight:400!important;line-height:1!important;white-space:nowrap!important;cursor:pointer;transition:border-color .14s,background .14s,color .14s}
+.kv-btn:hover{border-color:#b8c0cc!important;background:#f7f9fb!important;color:#1a2332!important}
+.kv-btn:focus-visible{outline:0!important;box-shadow:0 0 0 2px rgba(0,138,230,.2)!important}
+.kv-btn-create{border-color:#008ae6!important;color:#008ae6!important;background:#fff!important;font-weight:500!important;padding:0 10px 0 11px!important}
+.kv-btn-create:hover{border-color:#008ae6!important;background:#eaf4ff!important;color:#008ae6!important}
+.kv-btn-create:active{background:#d9ecff!important}
+.kv-btn-create .kv-caret{margin-left:1px;transition:transform .15s}
+.kv-btn-create .kv-caret.open{transform:rotate(180deg)}
+.kv-btn-file svg{color:#3d4754;flex:0 0 auto}
+.kv-btn-file:hover svg{color:#1a2332}
+.kv-btn-icon{width:32px!important;height:32px!important;min-width:32px!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid #d0d7de!important;border-radius:6px!important;background:#fff!important;color:#5a6577!important}
+.kv-btn-icon:hover{border-color:#b8c0cc!important;background:#f7f9fb!important;color:#2e3541!important}
+.column-control>button.kv-btn-icon{height:32px!important;border-radius:6px!important}
+/* Dropdown Tạo mới - y hệt KiotViet */
+.kv-dropdown{position:absolute!important;top:36px!important;left:0!important;z-index:50!important;min-width:176px!important;background:#fff!important;border:1px solid #dfe4ea!important;border-radius:6px!important;box-shadow:0 8px 24px rgba(16,30,54,.14)!important;overflow:hidden!important;padding:4px 0!important}
+.kv-dropdown button{display:block!important;width:100%!important;text-align:left!important;padding:8px 12px!important;border:0!important;background:#fff!important;font-size:13px!important;font-weight:400!important;color:#2e3541!important;line-height:18px!important;cursor:pointer}
+.kv-dropdown button:hover{background:#f2f5f8!important;color:#1a2332!important}
+.kv-dropdown button:active{background:#e9eef4!important}
+/* Import / Xuất file popup giữ kiểu KiotViet modal */
+.modal-backdrop{background:rgba(0,0,0,.42)!important}
+.product-modal{width:620px!important;max-width:96vw!important;border-radius:4px!important;box-shadow:0 10px 36px rgba(0,0,0,.22)!important;border:1px solid #c2cdd8!important;overflow:hidden!important;background:#fff!important}
+.product-modal header{padding:14px 16px!important;background:#fff!important;border-bottom:1px solid #e6ebf0!important}
+.product-modal header h2{font-size:14px!important;font-weight:700!important;color:#1a2332!important;line-height:20px!important}
+.product-modal header p{font-size:12px!important;color:#6b7a8d!important;margin:3px 0 0!important}
+.product-modal header>button{width:28px!important;height:28px!important;background:transparent!important;color:#8a96a7!important;font-size:18px!important;border:0!important}
+.product-form{padding:16px!important}
+.product-form label{font-size:13px!important;font-weight:500!important;color:#2e3541!important;gap:5px!important}
+.product-form input,.product-form select,.product-form textarea{height:32px!important;border:1px solid #d0d7de!important;border-radius:4px!important;font-size:13px!important;padding:0 10px!important;background:#fff!important;color:#2e3541!important}
+.product-form textarea{height:auto!important;padding:8px 10px!important;min-height:64px}
+.product-form input:focus,.product-form select:focus,.product-form textarea:focus{border-color:#008ae6!important;outline:0!important;box-shadow:0 0 0 2px rgba(0,138,230,.15)!important}
+.form-row{gap:12px!important;margin:10px 0!important}
+.product-modal footer{padding:10px 16px!important;background:#f7f9fb!important;border-top:1px solid #e6ebf0!important;gap:8px!important}
+.product-modal footer button{height:32px!important;padding:0 14px!important;border:1px solid #d0d7de!important;border-radius:4px!important;font-size:13px!important;font-weight:500!important;background:#fff!important;color:#2e3541!important}
+.product-modal footer .primary{height:32px!important;border-color:#008ae6!important;background:#008ae6!important;color:#fff!important}
+.product-modal footer .primary:hover{background:#0077c7!important;border-color:#0077c7!important}
+.product-modal footer .primary:disabled{opacity:.6;cursor:not-allowed}
+.kv-import-box{border:1px dashed #c9d1db!important;border-radius:6px!important;background:#fbfdff!important;padding:16px!important}
+.product-table{border:1px solid #dfe4ea!important;border-radius:6px!important;overflow:hidden!important;background:#fff!important}
+.product-table th{height:36px!important;background:#e8f0fe!important;background-color:#eef3ff!important;color:#1a2332!important;font-size:12px!important;font-weight:600!important;border-bottom:1px solid #dfe4ea!important;padding:0 10px!important}
+.product-table td{height:40px!important;font-size:13px!important;padding:8px 10px!important;border-bottom:1px solid #eef1f4!important}
+.product-notice{border-radius:6px!important;font-size:13px!important;border:1px solid #b9e2c9!important;background:#eaf8ee!important}
+.bulk-bar{border-radius:6px!important;font-size:13px!important;background:#eaf2ff!important;border:1px solid #c0d7ff!important}
