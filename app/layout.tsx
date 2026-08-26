@@ -9,6 +9,7 @@ import "./pricebook.css";
 import "./stocktakes.css";
 import "./internal-use.css";
 import "./damage-items.css";
+import "./purchasing.css";
 import "../style.css";
 import "./reference-theme.css";
 
