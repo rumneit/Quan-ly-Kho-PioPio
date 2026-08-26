@@ -358,10 +358,11 @@ body :where(
 }
 
 .product-filter-sidebar .sidebar-collapse {
-  top: 176px;
+  top: 50%;
   left: 234px;
   width: 32px;
   height: 32px;
+  transform: translateY(-50%);
 }
 
 .product-filter-sidebar .sidebar-collapse svg,
@@ -371,10 +372,11 @@ body :where(
 }
 
 .sidebar-collapse.collapsed {
-  top: 176px;
+  top: 50%;
   left: 8px;
   width: 32px;
   height: 32px;
+  transform: translateY(-50%);
 }
 
 .product-content {
@@ -393,9 +395,10 @@ body :where(
   border-bottom-color: #cce2fd;
   background: #e6f1fe;
   color: #15171a;
-  font-size: 12px !important;
-  font-weight: 600;
-  line-height: 16px;
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700;
+  line-height: 20px;
 }
 
 .product-table td {
@@ -471,12 +474,12 @@ body :where(
   }
 
   .product-filter-sidebar .sidebar-collapse {
-    top: 220px;
+    top: 50%;
     left: min(234px, calc(100vw - 44px));
   }
 
   .sidebar-collapse.collapsed {
-    top: 220px;
+    top: 50%;
     left: 8px;
   }
 

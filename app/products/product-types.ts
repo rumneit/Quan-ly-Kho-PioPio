@@ -15,6 +15,12 @@ export type Product = {
   direct_sale?: boolean;
   linked_sale_channel?: boolean;
   expected_out_of_stock_at?: string | null;
+  description?: string | null;
+  note?: string | null;
+  brand?: string | null;
+  location?: string | null;
+  min_stock?: number | null;
+  max_stock?: number | null;
 };
 
 export type ProductFilters = {
@@ -42,4 +48,3 @@ export const DEFAULT_FILTERS: ProductFilters = {
   categoryIds: [], inventoryCriteria: "all", inventoryOperator: "=", expectedPreset: "all", createdPreset: "all",
   supplierIds: [], productType: "all", directSale: "all", linkedSaleChannel: "all", status: "active",
 };
-

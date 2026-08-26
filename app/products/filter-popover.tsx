@@ -30,7 +30,7 @@ export default function FilterPopover({ anchor, open, onClose, children, classNa
   }, [anchor, onClose, open]);
 
   if (!open || !anchor || !rect || typeof document === "undefined") return null;
-  const width = className.includes("date-range") ? Math.min(900, window.innerWidth - 32) : className.includes("category") ? Math.min(600, window.innerWidth - 32) : Math.min(370, window.innerWidth - 32);
+  const width = className.includes("date-range") ? Math.min(900, window.innerWidth - 32) : className.includes("date-preset") ? Math.min(className.includes("future") ? 570 : 760, window.innerWidth - 32) : className.includes("category") ? Math.min(600, window.innerWidth - 32) : Math.min(370, window.innerWidth - 32);
   const leftPreferred = rect.right + 12;
   const left = Math.min(Math.max(16, leftPreferred), window.innerWidth - width - 16);
   const top = className.includes("date-range") ? 16 : Math.min(Math.max(16, rect.top), window.innerHeight - 360);
