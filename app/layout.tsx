@@ -7,6 +7,7 @@ import "./sales.css";
 import "./products.css";
 import "./pricebook.css";
 import "./stocktakes.css";
+import "./internal-use.css";
 import "../style.css";
 import "./reference-theme.css";
 
