@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CheckSquare, ChevronDown, Columns3, Download, FileDown, FileUp, HelpCircle, ImageIcon, Plus, Search, Settings, SlidersHorizontal, Upload } from "lucide-react";
+import { CheckSquare, ChevronDown, ChevronUp, Columns3, Download, FileDown, FileUp, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, Upload, X } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
@@ -70,6 +70,17 @@ function normalizeHeader(h: string) {
   return h.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+// Mock gợi ý - y hệt ảnh 4
+const SUGGESTED_PRODUCTS = [
+  { id: "NSTP00051", name: "Xì dầu càng cua Nhất phẩm 500ml", group: "Thực phẩm khô>Gia vị", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00050", name: "Nước mắm Thanh Hà 520ml", group: "Thực phẩm khô>Gia vị", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00049", name: "Bột chiên giòn Miwon 100g", group: "Thực phẩm khô>Bột các loại", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00048", name: "Măng nứa tươi Kim Bôi 500g", group: "Thực phẩm khô>Thực phẩm đóng gói", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00047", name: "Thịt chưng mắm tép 400g", group: "Thực phẩm khô>Thực phẩm đóng gói", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00026", name: "Há cảo heo thả lẩu Manwah Icook 500gr", group: "Thực phẩm đông lạnh", price: 0, cost: 0, stock: 0 },
+  { id: "NSTP00025", name: "Bề bề bóc nõn 300gr", group: "Hải sản", price: 0, cost: 0, stock: 0 },
+];
+
 export default function ProductClient({ profile, initialProducts, initialCategories = [], initialSuppliers = [] }: { profile: Profile; initialProducts: Product[]; initialCategories?: FilterOption[]; initialSuppliers?: FilterOption[] }) {
   const [products, setProducts] = useState(initialProducts);
   const [categoryOptions, setCategoryOptions] = useState(initialCategories);
@@ -83,7 +94,11 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showColumns, setShowColumns] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  const [showImport, setShowImport] = useState(false);
+  const [createTab, setCreateTab] = useState<"info" | "desc">("info");
+  const [priceOpen, setPriceOpen] = useState(true);
+  const [stockOpen, setStockOpen] = useState(true);
+  const [directSale, setDirectSale] = useState(true);
+  const [createImages, setCreateImages] = useState<string[]>([]);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState("");
@@ -96,6 +111,17 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [importPreview, setImportPreview] = useState<Array<Record<string, string>>>([]);
   const [importFileName, setImportFileName] = useState("");
   const importInput = useRef<HTMLInputElement>(null);
+  // Import 3-step flow y hệt KiotViet
+  const [showImportChooser, setShowImportChooser] = useState(false);
+  const [showImportExcel, setShowImportExcel] = useState(false);
+  const [showSuggested, setShowSuggested] = useState(false);
+  const [importExcelOpt1, setImportExcelOpt1] = useState<"error" | "replace">("error");
+  const [importExcelOpt2, setImportExcelOpt2] = useState<"error" | "replace">("error");
+  const [importExcelOpt3, setImportExcelOpt3] = useState<"no" | "yes">("no");
+  const [suggestedQuery, setSuggestedQuery] = useState("");
+  const [suggestedCategory, setSuggestedCategory] = useState("all");
+  const [selectedSuggested, setSelectedSuggested] = useState<Set<string>>(new Set());
+  const [suggestedInputs, setSuggestedInputs] = useState<Record<string, { price: string; cost: string; stock: string }>>({});
 
   useEffect(() => { setFilters(filtersFromUrl()); setUrlReady(true); }, []);
   useEffect(() => {
@@ -131,8 +157,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const sortBy = (key: SortKey) => setSort((current) => ({ key, direction: current.key === key && current.direction === "asc" ? "desc" : "asc" }));
   const sortMark = (key: SortKey) => sort.key === key ? (sort.direction === "asc" ? " ↑" : " ↓") : "";
 
-  async function createProduct(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setSaving(true); setNotice("");
+  async function createProduct(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault(); setSaving(true); setNotice("");
     const payload = {
       name: newProduct.name.trim(),
       sku: newProduct.sku.trim() || `HH-${Date.now().toString().slice(-6)}`,
@@ -144,16 +170,25 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       product_type: newProduct.product_type,
       description: newProduct.description.trim() || null,
     };
+    if (!payload.name) { setSaving(false); setNotice("Tên hàng là bắt buộc (giống KiotViet)."); return; }
+    if (newProduct.product_type === "product" && !payload.category_id) { setSaving(false); setNotice("Vui lòng chọn nhóm hàng (Bắt buộc) — giống KiotViet."); return; }
     const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const result = await response.json(); setSaving(false);
     if (!response.ok) { setNotice(result.error || "Không thể lưu hàng hóa."); return; }
     const enriched = result.product as Product;
-    // hydrate category_name/supplier_name for table
     const cat = categoryOptions.find((c) => c.id === newProduct.category_id)?.name || null;
     const sup = supplierOptions.find((s) => s.id === newProduct.supplier_id)?.name || null;
     setProducts((current) => [{ ...enriched, category_name: cat, supplier_name: sup } as Product, ...current]);
     setNewProduct({ name: "", sku: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", product_type: "product", description: "" });
-    setShowCreate(false); setPage(1); setNotice("Đã tạo hàng hóa mới.");
+    setCreateImages([]); setShowCreate(false); setPage(1); setNotice("Đã tạo hàng hóa mới.");
+  }
+
+  async function createProductAndAddMore() {
+    await createProduct();
+    // keep modal open for adding more - KiotViet "Lưu & Tạo thêm hàng"
+    setShowCreate(true);
+    setNewProduct({ name: "", sku: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", product_type: "product", description: "" });
+    setCreateImages([]);
   }
 
   async function createCategory(name: string, parentId?: string, description?: string) {
@@ -163,10 +198,9 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     else setNotice(result.error || "Không thể tạo nhóm hàng.");
   }
 
-  // === XUẤT FILE (giống 100% KiotViet: xuất theo bộ lọc, UTF-8 BOM, toast xanh) ===
   function exportCsv() {
     if (!filtered.length) { setNotice("Không có dữ liệu để xuất."); return; }
-    setNotice("Đang chuẩn bị file xuất..."); // KiotViet: toast "Đang xuất file"
+    setNotice("Đang chuẩn bị file xuất...");
     const headers = ["Mã hàng", "Tên hàng", "Nhóm hàng", "Loại hàng", "Giá bán", "Giá vốn", "Tồn kho", "Nhà cung cấp", "Mô tả", "Trạng thái", "Ngày tạo"];
     const typeLabel = (t?: string) => t === "service" ? "Dịch vụ" : t === "combo" ? "Combo - đóng gói" : "Hàng hóa";
     const lines = [
@@ -181,11 +215,10 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     link.href = url;
     const stamp = new Date().toISOString().slice(0, 10);
     link.download = `hang-hoa-${stamp}.csv`;
-    // Delay 350ms để hiện toast "Đang chuẩn bị" giống KiotViet rồi tải
     setTimeout(() => {
       link.click();
       URL.revokeObjectURL(url);
-      setNotice(`Đã xuất ${filtered.length} hàng hóa ra file CSV (UTF-8). Mở bằng Excel sẽ hiển thị tiếng Việt đúng — giống KiotViet.`);
+      setNotice(`Đã xuất ${filtered.length} hàng hóa ra file CSV (UTF-8) — giống KiotViet.`);
     }, 350);
   }
 
@@ -204,21 +237,18 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     URL.revokeObjectURL(url);
   }
 
-  // === IMPORT FILE ===
   async function handleFileChange(file: File | undefined) {
     if (!file) return;
     setImportFileName(file.name);
-    // If xlsx/xls, hint user - but try to read as text if possible
     const isExcel = /\.(xlsx|xls)$/i.test(file.name);
     if (isExcel) {
-      setNotice("File Excel (.xlsx/.xls): vui lòng mở bằng Excel và Lưu thành CSV UTF-8 rồi chọn lại, hoặc hệ thống sẽ cố gắng đọc như CSV.");
+      setNotice("File Excel: hệ thống sẽ cố gắng đọc như CSV. Khuyến nghị lưu CSV UTF-8.");
     }
     try {
       const text = (await file.text()).replace(/^\uFEFF/, "");
       const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
       if (lines.length < 2) { setNotice("Tệp chưa có dữ liệu (cần dòng tiêu đề + ít nhất 1 dòng)."); return; }
       const headers = parseCsvLine(lines[0]).map(normalizeHeader);
-      // map flexible headers
       const idx = {
         sku: headers.findIndex((h) => ["mã hàng", "ma hang", "sku", "mã"].includes(h)),
         name: headers.findIndex((h) => ["tên hàng", "ten hang", "tên hàng*", "name"].includes(h)),
@@ -242,7 +272,6 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         });
       }
       setImportPreview(preview);
-      // store parsed for later import via dataset attribute
       (importInput.current as unknown as { _parsed?: unknown })!._parsed = { headers: idx, lines: lines.slice(1) };
     } catch (e) {
       setNotice("Không đọc được file. Hãy đảm bảo file là CSV UTF-8.");
@@ -257,7 +286,6 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     const { headers: idx, lines } = parsed;
     const items: Array<Record<string, unknown>> = [];
     const catMap = new Map(categoryOptions.map((c) => [c.name.toLowerCase(), c.id]));
-    const supMap = new Map(supplierOptions.map((s) => [s.name.toLowerCase(), s.id]));
     for (const line of lines) {
       if (!line.trim()) continue;
       const cells = parseCsvLine(line);
@@ -277,7 +305,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         cost: Number.isFinite(cost) ? cost : 0,
         stock: Number.isFinite(stock) ? Math.trunc(stock) : 0,
         category_id: catName ? (catMap.get(catName.toLowerCase()) || null) : null,
-        supplier_id: null, // can extend mapping if needed
+        supplier_id: null,
         product_type: ["service", "combo", "product"].includes(typeRaw) ? typeRaw : "product",
         description: desc || null,
       });
@@ -289,13 +317,39 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     setSaving(false);
     if (!res.ok) { setNotice(result.error || "Import thất bại."); return; }
     const newProds = (result.products || []) as Product[];
-    // enrich category names
     const catReverse = new Map(categoryOptions.map((c) => [c.id, c.name] as const));
     const enriched = newProds.map((p) => ({ ...p, category_name: p.category_id ? (catReverse.get(p.category_id) || null) : null } as Product));
     setProducts((cur) => [...enriched, ...cur]);
-    setShowImport(false); setImportPreview([]); setImportFileName(""); if (importInput.current) importInput.current.value = "";
+    setShowImportExcel(false); setShowImportChooser(false); setImportPreview([]); setImportFileName(""); if (importInput.current) importInput.current.value = "";
     const msg = `Import xong: thêm ${result.inserted}, cập nhật ${result.updated}, bỏ qua ${result.skipped}.` + (result.errors?.length ? ` Lỗi ${result.errors.length} dòng.` : "");
     setNotice(msg);
+  }
+
+  async function handleSuggestedAdd() {
+    const selected = Array.from(selectedSuggested);
+    if (!selected.length) { setNotice("Vui lòng chọn ít nhất 1 hàng hóa gợi ý."); return; }
+    const items = selected.map((id) => {
+      const s = SUGGESTED_PRODUCTS.find((x) => x.id === id)!;
+      const inp = suggestedInputs[id] || { price: "0", cost: "0", stock: "0" };
+      return {
+        sku: s.id,
+        name: s.name,
+        price: Number(inp.price || 0),
+        cost: Number(inp.cost || 0),
+        stock: Number(inp.stock || 0),
+        category_id: null,
+        product_type: "product",
+        description: s.group,
+      };
+    });
+    setSaving(true);
+    const res = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items, mode: "skip" }) });
+    const result = await res.json();
+    setSaving(false);
+    if (!res.ok) { setNotice(result.error || "Không thể thêm hàng gợi ý."); return; }
+    const newProds = (result.products || []) as Product[];
+    setProducts((cur) => [...(newProds as Product[]), ...cur]);
+    setShowSuggested(false); setSelectedSuggested(new Set()); setNotice(`Đã thêm ${newProds.length} hàng hóa gợi ý.`);
   }
 
   async function bulkStatus(active: boolean) {
@@ -305,7 +359,6 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   }
 
   const checkedAll = rows.length > 0 && rows.every((item) => selected.includes(item.id));
-  // close create dropdown when clicking outside - KiotViet behavior
   useEffect(() => {
     if (!showCreateMenu) return;
     const onDocClick = (e: MouseEvent) => {
@@ -315,6 +368,13 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [showCreateMenu]);
+
+  const filteredSuggested = SUGGESTED_PRODUCTS.filter((p) => {
+    const q = suggestedQuery.trim().toLowerCase();
+    const matchQ = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+    const matchCat = suggestedCategory === "all" || p.group.toLowerCase().includes(suggestedCategory.toLowerCase());
+    return matchQ && matchCat;
+  });
 
   return <div className="kv-shell product-page">
     <ManagementHeader profile={profile} active="products" />
@@ -327,12 +387,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         <div className="kv-create-wrap">
           <button className="kv-btn kv-btn-create" type="button" aria-expanded={showCreateMenu} onClick={() => setShowCreateMenu((v) => !v)}><Plus size={13} strokeWidth={2.4} /><span>Tạo mới</span><ChevronDown size={13} strokeWidth={2.2} className={`kv-caret ${showCreateMenu ? "open" : ""}`} /></button>
           {showCreateMenu && <div className="kv-dropdown">
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "product" })); setShowCreate(true); setShowCreateMenu(false); }}>Hàng hóa</button>
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "service" })); setShowCreate(true); setShowCreateMenu(false); }}>Dịch vụ</button>
-            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); }}>Combo - đóng gói</button>
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "product" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Hàng hóa</button>
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "service" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Dịch vụ</button>
+            <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Combo - đóng gói</button>
           </div>}
         </div>
-        <button type="button" className="kv-btn kv-btn-file" onClick={() => { setShowImport(true); setImportPreview([]); setImportFileName(""); }}><FileUp size={13} strokeWidth={2} />Import file</button>
+        <button type="button" className="kv-btn kv-btn-file" onClick={() => setShowImportChooser(true)}><FileUp size={13} strokeWidth={2} />Import file</button>
         <button type="button" className="kv-btn kv-btn-file" onClick={exportCsv}><Download size={13} strokeWidth={2} />Xuất file</button>
         <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
         <button type="button" className="kv-btn-icon" aria-label="Cài đặt bảng"><Settings size={14} strokeWidth={2} /></button>
@@ -352,38 +412,206 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       </section>
     </main>
     <a className="kv-help" href="tel:0704040044">💬 <span>0704 04 0044</span></a>
-    {showCreate && <div className="modal-backdrop" onClick={() => setShowCreate(false)}><form className="product-modal kv-create-modal" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}><header><div><h2>{newProduct.product_type === "service" ? "Thêm dịch vụ" : newProduct.product_type === "combo" ? "Thêm combo - đóng gói" : "Thêm hàng hóa"}</h2><p>Thông tin cơ bản — giống 100% KiotViet</p></div><button type="button" className="kv-modal-close" onClick={() => setShowCreate(false)} aria-label="Đóng">×</button></header><div className="product-form">
-      <label className="kv-field">Tên hàng<span className="kv-req">*</span><input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="VD: Cà phê đen đá" /></label>
-      <div className="form-row"><label className="kv-field">Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} placeholder="Tự sinh nếu để trống" /></label><label className="kv-field">Loại hàng<select value={newProduct.product_type} onChange={(e) => setNewProduct({ ...newProduct, product_type: e.target.value as NewProduct["product_type"] })}><option value="product">Hàng hóa</option><option value="service">Dịch vụ</option><option value="combo">Combo - đóng gói</option></select></label></div>
-      <div className="form-row"><label className="kv-field">Nhóm hàng<select value={newProduct.category_id} onChange={(e) => setNewProduct({ ...newProduct, category_id: e.target.value })}><option value="">— Chọn nhóm —</option>{categoryOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label className="kv-field">Nhà cung cấp<select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}><option value="">— Chọn NCC —</option>{supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label></div>
-      <div className="form-row"><label className="kv-field">Giá bán<input type="number" min="0" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} placeholder="0" /></label><label className="kv-field">Giá vốn<input type="number" min="0" value={newProduct.cost} onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })} placeholder="0" /></label></div>
-      <label className="kv-field">Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} /></label>
-      <label className="kv-field">Mô tả / Ghi chú<textarea rows={3} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Ghi chú nội bộ..." /></label>
-    </div><footer><button type="button" className="kv-btn kv-btn-file" onClick={() => setShowCreate(false)}>Bỏ qua</button><button className="kv-btn kv-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></footer></form></div>}
-    {showImport && <div className="modal-backdrop" onClick={() => setShowImport(false)}><section className="product-modal kv-import-modal" onClick={(e) => e.stopPropagation()} style={{ width: "min(680px, 100%)" }}><header><div><h2>Nhập hàng hóa từ file</h2><p>Chọn file Excel/CSV — giống 100% KiotViet</p></div><button type="button" className="kv-modal-close" onClick={() => setShowImport(false)} aria-label="Đóng">×</button></header><div className="product-form">
-      <div className="kv-import-template">
-        <button type="button" className="kv-btn kv-btn-file" onClick={downloadTemplate}><FileDown size={13} strokeWidth={2} /> Tải file mẫu</button>
-        <span className="kv-import-template-hint">Mẫu gồm: Mã hàng, Tên hàng<span className="kv-req">*</span>, Nhóm hàng, Loại hàng, Giá bán, Giá vốn, Tồn kho, Mô tả</span>
+
+    {/* ===== Tạo hàng hóa - 100% KiotViet ảnh 1 ===== */}
+    {showCreate && <div className="modal-backdrop kv-backdrop" onClick={() => setShowCreate(false)}><form className="kv-modal-large" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}>
+      <header className="kv-modal-header">
+        <h2>Tạo hàng hóa</h2>
+        <button type="button" className="kv-modal-close" onClick={() => setShowCreate(false)} aria-label="Đóng"><X size={18} /></button>
+      </header>
+      <div className="kv-modal-tabs">
+        <button type="button" className={createTab === "info" ? "active" : ""} onClick={() => setCreateTab("info")}>Thông tin</button>
+        <button type="button" className={createTab === "desc" ? "active" : ""} onClick={() => setCreateTab("desc")}>Mô tả</button>
       </div>
-      <label className="kv-dropzone" onClick={(e) => { const t = e.target as HTMLElement; if (t.closest("button")) return; importInput.current?.click(); }}>
-        <span className="kv-dropzone-icon"><Upload size={20} strokeWidth={1.8} color="#008ae6" /></span>
-        <span className="kv-dropzone-title">{importFileName || "Kéo thả file vào đây hoặc bấm để chọn"}</span>
-        <span className="kv-dropzone-sub">Chấp nhận .csv (UTF-8) / .xlsx . File Excel sẽ được đọc như CSV — khuyến nghị lưu CSV UTF-8</span>
-        <input ref={importInput} type="file" accept=".csv,.xlsx,.xls,text/csv" hidden onChange={(e) => handleFileChange(e.target.files?.[0])} />
-        <button type="button" className="kv-btn kv-btn-outline-blue" onClick={() => importInput.current?.click()}>Chọn file</button>
-        {importFileName && <span className="kv-dropzone-file">{importFileName}</span>}
-      </label>
-      {importPreview.length > 0 && <div className="kv-preview">
-        <div className="kv-preview-head">Xem trước 5 dòng đầu</div>
-        <table><thead><tr><th>Mã hàng</th><th>Tên hàng</th><th>Nhóm hàng</th><th style={{ textAlign: "right" }}>Giá bán</th><th style={{ textAlign: "right" }}>Tồn kho</th></tr></thead><tbody>{importPreview.map((r, i) => <tr key={i}><td>{r.sku || "—"}</td><td>{r.name}</td><td>{r.category || "—"}</td><td style={{ textAlign: "right" }}>{r.price || "0"}</td><td style={{ textAlign: "right" }}>{r.stock || "0"}</td></tr>)}</tbody></table>
+      <div className="kv-modal-body">
+        {createTab === "info" ? <>
+          <div className="kv-create-grid">
+            <div className="kv-create-main">
+              <label className="kv-field">Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} placeholder="Tự động" /></label>
+              <label className="kv-field">Tên hàng<span className="kv-req">*</span><input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="Bắt buộc" /></label>
+              <div className="kv-create-row2">
+                <label className="kv-field">Nhóm hàng<span style={{ color: "#666", fontWeight: 400, marginLeft: 4 }}></span>
+                  <div className="kv-select-wrap">
+                    <select value={newProduct.category_id} onChange={(e) => setNewProduct({ ...newProduct, category_id: e.target.value })}>
+                      <option value="">Chọn nhóm hàng (Bắt buộc)</option>
+                      {categoryOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                    <ChevronDown size={14} className="kv-select-chevron" />
+                  </div>
+                </label>
+                <button type="button" className="kv-link" onClick={() => { const n = prompt("Tên nhóm mới:"); if (n) createCategory(n); }} style={{ alignSelf: "end", marginBottom: 8 }}>Tạo mới</button>
+                <label className="kv-field">Thương hiệu
+                  <div className="kv-select-wrap">
+                    <select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}>
+                      <option value="">Chọn thương hiệu</option>
+                      {supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                    <ChevronDown size={14} className="kv-select-chevron" />
+                  </div>
+                </label>
+                <button type="button" className="kv-link" style={{ alignSelf: "end", marginBottom: 8 }}>Tạo mới</button>
+              </div>
+            </div>
+            <div className="kv-create-images">
+              <div className="kv-image-main">
+                {createImages[0] ? <img src={createImages[0]} alt="preview" /> : <div className="kv-image-placeholder"><ImageIcon size={28} color="#b9c4d2" /></div>}
+                <label className="kv-image-add">
+                  <input type="file" accept="image/*" hidden onChange={(e) => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    if (f.size > 2 * 1024 * 1024) { setNotice("Mỗi ảnh không quá 2 MB — giống KiotViet."); return; }
+                    const url = URL.createObjectURL(f); setCreateImages((prev) => [url, ...prev].slice(0, 5));
+                  }} />
+                  <span>Thêm ảnh</span>
+                </label>
+                <small>Mỗi ảnh không quá 2 MB</small>
+              </div>
+              <div className="kv-image-thumbs">
+                {[0, 1, 2, 3].map((i) => <div key={i} className="kv-thumb">
+                  {createImages[i + 1] ? <img src={createImages[i + 1]} alt="" /> : <ImageIcon size={18} color="#cbd5e1" />}
+                </div>)}
+              </div>
+            </div>
+          </div>
+
+          <div className={`kv-collapse ${priceOpen ? "open" : ""}`}>
+            <button type="button" className="kv-collapse-head" onClick={() => setPriceOpen((v) => !v)}>
+              <span>Giá vốn, giá bán</span>
+              {priceOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {priceOpen && <div className="kv-collapse-body">
+              <div className="kv-price-grid">
+                <label className="kv-field">Giá vốn<input type="number" min="0" value={newProduct.cost} onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })} placeholder="0" /></label>
+                <label className="kv-field">Giá bán
+                  <div className="kv-input-with-link">
+                    <input type="number" min="0" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} placeholder="0" />
+                    <button type="button" className="kv-link" style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 12 }}><Tag size={12} /> Thiết lập giá</button>
+                  </div>
+                </label>
+              </div>
+            </div>}
+          </div>
+
+          <div className={`kv-collapse ${stockOpen ? "open" : ""}`}>
+            <button type="button" className="kv-collapse-head" onClick={() => setStockOpen((v) => !v)}>
+              <div>
+                <div style={{ fontWeight: 700 }}>Tồn kho</div>
+                <small style={{ color: "#6b7a8d", fontWeight: 400 }}>Quản lý số lượng tồn kho và định mức tồn. Khi tồn kho chạm đến định mức, bạn sẽ nhận được cảnh báo từ KiotViet.</small>
+              </div>
+              {stockOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {stockOpen && <div className="kv-collapse-body">
+              <label className="kv-field" style={{ maxWidth: 260 }}>Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} placeholder="0" /></label>
+            </div>}
+          </div>
+        </> : <div className="kv-desc-tab">
+          <label className="kv-field">Mô tả / Ghi chú<textarea rows={6} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Nhập mô tả chi tiết hàng hóa..." style={{ minHeight: 160 }} /></label>
+        </div>}
+      </div>
+      <footer className="kv-modal-footer">
+        <label className="kv-check"><input type="checkbox" checked={directSale} onChange={(e) => setDirectSale(e.target.checked)} /><span>Bán trực tiếp</span><Info size={14} color="#8a96a7" /></label>
+        <div className="kv-footer-actions">
+          <button type="button" className="kv-btn kv-btn-file" onClick={() => setShowCreate(false)}>Bỏ qua</button>
+          <div className="kv-split-btn">
+            <button type="button" className="kv-btn kv-btn-file" disabled={saving} onClick={createProductAndAddMore}>Lưu &amp; Tạo thêm hàng</button>
+            <button type="button" className="kv-btn kv-btn-file" style={{ padding: "0 8px", borderLeft: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}><ChevronDown size={14} /></button>
+          </div>
+          <button className="kv-btn kv-btn-primary" disabled={saving} style={{ minWidth: 72 }}>{saving ? "Đang lưu..." : "Lưu"}</button>
+        </div>
+      </footer>
+    </form></div>}
+
+    {/* ===== Import: Chọn cách thêm (ảnh 2) ===== */}
+    {showImportChooser && <div className="modal-backdrop kv-backdrop" onClick={() => setShowImportChooser(false)}><section className="kv-modal-small" onClick={(e) => e.stopPropagation()}>
+      <header className="kv-modal-header"><h2>Chọn cách thêm hàng hóa</h2><button type="button" className="kv-modal-close" onClick={() => setShowImportChooser(false)}><X size={18} /></button></header>
+      <div className="kv-chooser-body">
+        <button className="kv-chooser-card" onClick={() => { setShowImportChooser(false); setShowImportExcel(true); setImportFileName(""); setImportPreview([]); }}>
+          <div className="kv-chooser-title">Nhập từ Excel</div>
+          <div className="kv-chooser-desc">Điền thông tin hàng hoá trên file Excel và tải file lên phần mềm.</div>
+        </button>
+        <button className="kv-chooser-card" onClick={() => { setShowImportChooser(false); setShowSuggested(true); }}>
+          <div className="kv-chooser-title">Chọn từ danh sách gợi ý</div>
+          <div className="kv-chooser-desc">Thêm các hàng hoá phổ biến của ngành hàng Nông sản &amp; Thực phẩm với đầy đủ thông tin, hình ảnh</div>
+        </button>
+      </div>
+    </section></div>}
+
+    {/* ===== Import từ Excel (ảnh 3) ===== */}
+    {showImportExcel && <div className="modal-backdrop kv-backdrop" onClick={() => setShowImportExcel(false)}><section className="kv-modal-medium" onClick={(e) => e.stopPropagation()}>
+      <header className="kv-modal-header"><h2>Nhập hàng hóa từ file dữ liệu <span style={{ fontWeight: 400, fontSize: 13, color: "#333" }}>(Tải về file mẫu: <button type="button" className="kv-link" onClick={downloadTemplate} style={{ fontSize: 13 }}>Excel file</button>)</span></h2><button type="button" className="kv-modal-close" onClick={() => setShowImportExcel(false)}><X size={18} /></button></header>
+      <div className="kv-modal-body" style={{ padding: "0 20px" }}>
+        <div className="kv-import-section">
+          <div className="kv-import-section-title">Xử lý trùng <i>mã hàng/mã vạch, khác tên hàng hóa?</i></div>
+          <label className="kv-radio-large"><input type="radio" checked={importExcelOpt1 === "error"} onChange={() => setImportExcelOpt1("error")} /><span>Báo lỗi và dừng import</span></label>
+          <label className="kv-radio-large"><input type="radio" checked={importExcelOpt1 === "replace"} onChange={() => setImportExcelOpt1("replace")} /><span>Thay thế tên hàng cũ bằng tên hàng mới</span></label>
+        </div>
+        <div className="kv-import-section">
+          <div className="kv-import-section-title">Xử lý trùng <i>mã vạch, khác mã hàng?</i> <Info size={13} color="#8a96a7" style={{ display: "inline", verticalAlign: "middle" }} /></div>
+          <label className="kv-radio-large"><input type="radio" checked={importExcelOpt2 === "error"} onChange={() => setImportExcelOpt2("error")} /><span>Báo lỗi và dừng import</span></label>
+          <label className="kv-radio-large"><input type="radio" checked={importExcelOpt2 === "replace"} onChange={() => setImportExcelOpt2("replace")} /><span>Thay thế mã hàng cũ bằng mã hàng mới</span></label>
+        </div>
+        <div className="kv-import-section">
+          <div className="kv-import-section-title">Cập nhật tồn kho? <Info size={13} color="#8a96a7" style={{ display: "inline", verticalAlign: "middle" }} /></div>
+          <label className="kv-radio-large"><input type="radio" checked={importExcelOpt3 === "no"} onChange={() => setImportExcelOpt3("no")} /><span>Không</span></label>
+        </div>
+        {/* Hidden file handling but keep preview for functional */}
+        <div style={{ marginTop: 12 }}>
+          <label className="kv-dropzone small" onClick={() => importInput.current?.click()} style={{ padding: 12 }}>
+            <span className="kv-dropzone-title" style={{ fontSize: 12 }}>{importFileName || "Chưa chọn file"}</span>
+            <input ref={importInput} type="file" accept=".csv,.xlsx,.xls,text/csv" hidden onChange={(e) => handleFileChange(e.target.files?.[0])} />
+          </label>
+          {importPreview.length > 0 && <div className="kv-preview" style={{ marginTop: 8 }}><div className="kv-preview-head">Xem trước 5 dòng đầu</div><table><thead><tr><th>Mã</th><th>Tên</th><th>Nhóm</th><th>Giá</th><th>Tồn</th></tr></thead><tbody>{importPreview.map((r, i) => <tr key={i}><td>{r.sku}</td><td>{r.name}</td><td>{r.category}</td><td>{r.price}</td><td>{r.stock}</td></tr>)}</tbody></table></div>}
+        </div>
+      </div>
+      <footer className="kv-modal-footer" style={{ background: "#f7f9fb", justifyContent: "flex-end" }}>
+        <button type="button" className="kv-btn kv-btn-primary" onClick={() => importInput.current?.click()} style={{ minWidth: 140 }}>Chọn file dữ liệu</button>
+      </footer>
+      {importFileName && <div style={{ padding: "8px 20px 12px", display: "flex", justifyContent: "flex-end", gap: 8 }}>
+        <button type="button" className="kv-btn kv-btn-file" onClick={() => setShowImportExcel(false)}>Bỏ qua</button>
+        <button type="button" className="kv-btn kv-btn-primary" disabled={saving} onClick={importCsv}>{saving ? "Đang xử lý..." : "Nhập file"}</button>
       </div>}
-      <div className="kv-import-options">
-        <div className="kv-import-options-title">Xử lý khi trùng mã hàng</div>
-        <label className={`kv-radio ${importMode === "skip" ? "active" : ""}`}><input type="radio" name="kvImportMode" checked={importMode === "skip"} onChange={() => setImportMode("skip")} /><i /><span>Bỏ qua</span><small>Giữ nguyên hàng cũ, bỏ qua dòng trùng</small></label>
-        <label className={`kv-radio ${importMode === "update" ? "active" : ""}`}><input type="radio" name="kvImportMode" checked={importMode === "update"} onChange={() => setImportMode("update")} /><i /><span>Cập nhật</span><small>Ghi đè thông tin theo file</small></label>
+    </section></div>}
+
+    {/* ===== Danh sách gợi ý (ảnh 4) ===== */}
+    {showSuggested && <div className="modal-backdrop kv-backdrop" onClick={() => setShowSuggested(false)}><section className="kv-modal-large" onClick={(e) => e.stopPropagation()} style={{ width: "min(1100px, 96vw)", maxHeight: "90vh" }}>
+      <header className="kv-modal-header"><div><h2>Danh sách hàng hóa gợi ý</h2><p style={{ margin: "4px 0 0", color: "#6b7a8d", fontSize: 13 }}>Hãy chọn hàng hóa bạn muốn thêm vào gian hàng, sau đó nhập giá và số lượng tồn kho.</p></div><button type="button" className="kv-modal-close" onClick={() => setShowSuggested(false)}><X size={18} /></button></header>
+      <div className="kv-modal-body" style={{ padding: "12px 16px" }}>
+        <div className="kv-suggest-toolbar">
+          <label className="kv-search"><Search size={14} /><input value={suggestedQuery} onChange={(e) => setSuggestedQuery(e.target.value)} placeholder="Tìm tên hàng" /></label>
+          <div className="kv-select-wrap" style={{ minWidth: 200 }}>
+            <select value={suggestedCategory} onChange={(e) => setSuggestedCategory(e.target.value)}>
+              <option value="all">Chọn nhóm hàng</option>
+              <option value="Gia vị">Gia vị</option>
+              <option value="Bột">Bột</option>
+              <option value="Thực phẩm đóng gói">Thực phẩm đóng gói</option>
+            </select>
+            <ChevronDown size={14} className="kv-select-chevron" />
+          </div>
+        </div>
+        <div className="kv-table-wrap">
+          <table className="kv-suggest-table">
+            <thead><tr><th style={{ width: 32 }}><input type="checkbox" checked={selectedSuggested.size === filteredSuggested.length && filteredSuggested.length > 0} onChange={(e) => setSelectedSuggested(e.target.checked ? new Set(filteredSuggested.map((s) => s.id)) : new Set())} /></th><th>Ảnh</th><th>Mã hàng</th><th>Tên hàng</th><th>Nhóm hàng</th><th>Giá bán</th><th>Giá vốn</th><th>Tồn kho</th></tr></thead>
+            <tbody>{filteredSuggested.map((p) => <tr key={p.id} className={selectedSuggested.has(p.id) ? "selected" : ""}>
+              <td><input type="checkbox" checked={selectedSuggested.has(p.id)} onChange={(e) => setSelectedSuggested((prev) => { const n = new Set(prev); if (e.target.checked) n.add(p.id); else n.delete(p.id); return n; })} /></td>
+              <td><span className="kv-thumb-small"><ImageIcon size={14} color="#8fa0b1" /></span></td>
+              <td>{p.id}</td><td>{p.name}</td><td>{p.group}</td>
+              <td><input className="kv-cell-input" value={suggestedInputs[p.id]?.price ?? "0"} onChange={(e) => setSuggestedInputs((prev) => ({ ...prev, [p.id]: { ...prev[p.id], price: e.target.value, cost: prev[p.id]?.cost ?? "0", stock: prev[p.id]?.stock ?? "0" } }))} /></td>
+              <td><input className="kv-cell-input" value={suggestedInputs[p.id]?.cost ?? "0"} onChange={(e) => setSuggestedInputs((prev) => ({ ...prev, [p.id]: { ...prev[p.id], cost: e.target.value, price: prev[p.id]?.price ?? "0", stock: prev[p.id]?.stock ?? "0" } }))} /></td>
+              <td><input className="kv-cell-input" value={suggestedInputs[p.id]?.stock ?? "0"} onChange={(e) => setSuggestedInputs((prev) => ({ ...prev, [p.id]: { ...prev[p.id], stock: e.target.value, price: prev[p.id]?.price ?? "0", cost: prev[p.id]?.cost ?? "0" } }))} /></td>
+            </tr>)}
+            {!filteredSuggested.length && <tr><td colSpan={8} style={{ textAlign: "center", padding: 24, color: "#8a96a7" }}>Không có hàng hóa gợi ý</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <p className="kv-note">Lưu ý: Cột <b>Tên hàng</b> là bắt buộc. Nhóm hàng phải khớp tên đã có, nếu không sẽ để trống. Giá trị số không hợp lệ sẽ về 0.</p>
-    </div><footer><button type="button" className="kv-btn kv-btn-file" onClick={() => setShowImport(false)}>Bỏ qua</button><button className="kv-btn kv-btn-primary" type="button" disabled={saving || !importFileName} onClick={importCsv}>{saving ? "Đang xử lý..." : "Nhập file"}</button></footer></section></div>}
+      <footer className="kv-modal-footer">
+        <div style={{ color: "#6b7a8d", fontSize: 13 }}>{selectedSuggested.size} hàng đã chọn</div>
+        <div className="kv-footer-actions">
+          <button type="button" className="kv-btn kv-btn-file" onClick={() => setShowSuggested(false)}>Bỏ qua</button>
+          <button type="button" className="kv-btn kv-btn-primary" disabled={saving || !selectedSuggested.size} onClick={handleSuggestedAdd}>{saving ? "Đang thêm..." : `Thêm ${selectedSuggested.size ? `(${selectedSuggested.size})` : ""}`}</button>
+        </div>
+      </footer>
+    </section></div>}
+
   </div>;
 }
 
