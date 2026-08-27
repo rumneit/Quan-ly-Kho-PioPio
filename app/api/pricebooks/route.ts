@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
 
-type PriceListEntry = { id: string; name: string; price: number };
+type PriceListEntry = {
+  id: string;
+  name: string;
+  price: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  active?: boolean;
+  base_book_id?: string;
+  adjustment_type?: "vnd" | "percent";
+  adjustment_value?: number;
+  pos_rule?: string;
+  scope?: Record<string, string>;
+};
 type ProductRow = { id: string; price: number; price_lists: unknown };
 
 function entries(value: unknown): PriceListEntry[] {
@@ -11,7 +23,16 @@ function entries(value: unknown): PriceListEntry[] {
     const row = item as Record<string, unknown>;
     const price = Number(row.price);
     if (typeof row.id !== "string" || typeof row.name !== "string" || !Number.isFinite(price)) return [];
-    return [{ id: row.id, name: row.name, price }];
+    const entry: PriceListEntry = { id: row.id, name: row.name, price };
+    if (typeof row.start_date === "string") entry.start_date = row.start_date;
+    if (typeof row.end_date === "string") entry.end_date = row.end_date;
+    if (typeof row.active === "boolean") entry.active = row.active;
+    if (typeof row.base_book_id === "string") entry.base_book_id = row.base_book_id;
+    if (row.adjustment_type === "vnd" || row.adjustment_type === "percent") entry.adjustment_type = row.adjustment_type;
+    if (typeof row.adjustment_value === "number") entry.adjustment_value = row.adjustment_value;
+    if (typeof row.pos_rule === "string") entry.pos_rule = row.pos_rule;
+    if (row.scope && typeof row.scope === "object") entry.scope = row.scope as Record<string, string>;
+    return [entry];
   });
 }
 
@@ -37,22 +58,45 @@ export async function POST(request: Request) {
   try {
     const { supabase, products } = await productsForStore();
     const body = await request.json() as Record<string, unknown>;
+    if (body.action !== "create") return NextResponse.json({ error: "Thao tác không hợp lệ." }, { status: 400 });
     const name = String(body.name || "").trim();
-    const adjustment = Number(body.adjustment || 0);
-    if (body.action !== "create" || !name) return NextResponse.json({ error: "Tên bảng giá là bắt buộc." }, { status: 400 });
-    if (!Number.isFinite(adjustment)) return NextResponse.json({ error: "Mức điều chỉnh không hợp lệ." }, { status: 400 });
+    if (!name) return NextResponse.json({ error: "Tên bảng giá là bắt buộc." }, { status: 400 });
+    const baseBookId = String(body.base_book_id || "base");
+    const adjustmentType = body.adjustment_type === "vnd" ? "vnd" : "percent";
+    const adjustmentValue = Number(body.adjustment_value || 0);
+    if (!Number.isFinite(adjustmentValue)) return NextResponse.json({ error: "Mức điều chỉnh không hợp lệ." }, { status: 400 });
     const duplicate = products.some((product) => entries(product.price_lists).some((entry) => entry.name.toLocaleLowerCase("vi") === name.toLocaleLowerCase("vi")));
     if (duplicate || name.toLocaleLowerCase("vi") === "bảng giá chung") return NextResponse.json({ error: "Tên bảng giá đã tồn tại." }, { status: 409 });
 
     const id = crypto.randomUUID();
     const prices: Record<string, number> = {};
+    const meta: PriceListEntry = {
+      id,
+      name,
+      price: 0,
+      start_date: typeof body.start_date === "string" && body.start_date ? body.start_date : null,
+      end_date: typeof body.end_date === "string" && body.end_date ? body.end_date : null,
+      active: body.active === false ? false : true,
+      base_book_id: baseBookId,
+      adjustment_type: adjustmentType,
+      adjustment_value: adjustmentValue,
+      pos_rule: typeof body.pos_rule === "string" ? body.pos_rule : "allow",
+      scope: {
+        branch: String(body.branch_scope || "all"),
+        customer: String(body.customer_scope || "all"),
+        creator: String(body.creator_scope || "all"),
+      },
+    };
     const updates = products.map((product) => {
-      const price = Math.max(0, Math.round(Number(product.price || 0) * (1 + adjustment / 100)));
+      const list = entries(product.price_lists);
+      const base = baseBookId === "base" ? Number(product.price || 0) : (list.find((entry) => entry.id === baseBookId)?.price ?? Number(product.price || 0));
+      const price = Math.max(0, Math.round(adjustmentType === "vnd" ? base + adjustmentValue : base * (1 + adjustmentValue / 100)));
       prices[product.id] = price;
-      return { id: product.id, price_lists: [...entries(product.price_lists), { id, name, price }] };
+      const newEntry = { ...meta, price };
+      return { id: product.id, price_lists: [...list, newEntry] };
     });
     await applyUpdates(supabase, updates);
-    return NextResponse.json({ book: { id, name, prices } }, { status: 201 });
+    return NextResponse.json({ book: { id, name, prices, start_date: meta.start_date, end_date: meta.end_date, active: meta.active } }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Không thể tạo bảng giá." }, { status: 400 });
   }
@@ -78,14 +122,14 @@ export async function PATCH(request: Request) {
       if (bookId === "base") {
         await applyUpdates(supabase, validPrices.map(([id, price]) => ({ id, price })));
       } else {
-        const bookName = products.flatMap((product) => entries(product.price_lists)).find((entry) => entry.id === bookId)?.name;
-        if (!bookName) return NextResponse.json({ error: "Bảng giá không tồn tại." }, { status: 404 });
+        const bookEntry = products.flatMap((product) => entries(product.price_lists)).find((entry) => entry.id === bookId);
+        if (!bookEntry) return NextResponse.json({ error: "Bảng giá không tồn tại." }, { status: 404 });
         const byId = new Map(products.map((product) => [product.id, product]));
         await applyUpdates(supabase, validPrices.map(([id, price]) => {
           const product = byId.get(id)!;
           const list = entries(product.price_lists);
           const found = list.some((entry) => entry.id === bookId);
-          return { id, price_lists: found ? list.map((entry) => entry.id === bookId ? { ...entry, price } : entry) : [...list, { id: bookId, name: bookName, price }] };
+          return { id, price_lists: found ? list.map((entry) => entry.id === bookId ? { ...entry, price } : entry) : [...list, { ...bookEntry, price }] };
         }));
       }
       return NextResponse.json({ saved: validPrices.length });

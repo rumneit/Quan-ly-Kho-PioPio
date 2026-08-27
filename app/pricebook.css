@@ -2,3 +2,41 @@
 @media(max-width:1100px){.pricebook-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.pricebook-workspace{grid-template-columns:300px minmax(0,1fr)!important}.pricebook-sidebar{width:auto!important}.pricebook-page .pricebook-table table{min-width:820px!important}}
 @media(max-width:768px){.pricebook-page{height:auto;min-height:100vh;overflow:auto}.pricebook-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}.pricebook-search{grid-column:1/-1;grid-row:2}.pricebook-toolbar{grid-column:2;grid-row:1}.pricebook-toolbar .pricebook-tool,.pricebook-toolbar .column-control>.pricebook-tool{width:34px!important;min-width:34px!important;height:34px!important}.pricebook-toolbar .column-control{height:34px}.pricebook-workspace{display:block!important;height:auto}.pricebook-sidebar{position:relative!important;top:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;width:100%!important;height:auto!important;padding:10px 14px!important;border-right:0;border-bottom:1px solid var(--pb-border);box-shadow:none!important}.pricebook-sidebar>section:first-child{grid-column:1/-1}.pricebook-content{height:calc(100vh - 415px);min-height:430px;padding:10px!important}.pricebook-summary>div{gap:6px}.pricebook-summary span{display:none}.pricebook-summary>button{padding:0 8px}.pricebook-table{max-height:none!important}.pricebook-columns{position:fixed!important;right:12px!important;left:12px!important;width:auto!important}}
 .pricebook-notice{position:fixed!important;z-index:300;top:174px;right:18px;width:min(440px,calc(100vw - 36px));margin:0!important;padding:10px 12px!important;box-shadow:0 7px 24px rgba(25,40,58,.16)}
+
+/* ===== Create price book modal (KiotViet style) ===== */
+.pricebook-create-modal{width:min(720px,calc(100vw - 28px))!important;max-height:92vh!important;display:flex!important;flex-direction:column!important}
+.pricebook-tabs{display:flex;flex:0 0 auto;border-bottom:1px solid var(--pb-border);background:#fff;padding:0 18px}
+.pricebook-tabs button{padding:14px 18px;border:0;border-bottom:2px solid transparent;background:transparent;color:#5c6a78;font-size:15px;font-weight:600;cursor:pointer}
+.pricebook-tabs button.active{color:var(--pb-blue);border-color:var(--pb-blue)}
+.pricebook-create-body{flex:1;overflow:auto;padding:16px 20px 22px;background:#fff}
+.pricebook-tab-pane{display:grid;gap:14px}
+.pb-field{display:grid;gap:6px}
+.pb-field>label{color:#3d4c5b;font-size:13px;font-weight:600}
+.pb-field>input,.pb-formula input,.pb-formula select{height:38px;padding:0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:14px;outline:0}
+.pb-field>input:focus,.pb-formula input:focus,.pb-formula select:focus{border-color:var(--pb-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.pb-card{border:1px solid #e2e8ee;border-radius:7px;background:#fbfcfd;overflow:hidden}
+.pb-card-title{padding:11px 15px;border-bottom:1px solid #e7ecf1;background:#f4f7fa;color:#263545;font-size:13px;font-weight:600}
+.pb-card-body{padding:13px 15px}
+.pb-hint{margin:0 0 10px;color:var(--pb-muted);font-size:12px;line-height:19px}
+.pb-field-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.pb-field-row:last-child{margin-bottom:0}
+.pb-field-row>label{flex:0 0 96px;padding-top:8px;color:#3d4c5b;font-size:13px;font-weight:600}
+.pb-datetime{display:flex;align-items:center;gap:8px}
+.pb-datetime input{height:34px;padding:0 9px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px;outline:0}
+.pb-datetime span{color:#6b7987;font-size:13px}
+.pb-radios{display:grid;gap:8px}
+.pb-radio{display:flex;align-items:flex-start;gap:8px;color:#374450;font-size:13px;line-height:20px;cursor:pointer}
+.pb-radio input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--pb-blue);flex:0 0 auto}
+.pb-formula{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pb-formula>span{color:#3d4c5b;font-size:13px;font-weight:600}
+.pb-formula select{width:210px}
+.pb-formula select+select{width:96px}
+.pb-formula input{width:120px}
+.pricebook-import-body{padding:22px 28px 26px;background:#fff}
+.pricebook-import-body .pb-hint{margin-bottom:12px}
+.pb-link{border:0;background:transparent;padding:0;color:var(--pb-blue);font-size:13px;cursor:pointer;text-decoration:underline}
+.pb-file{display:grid;place-items:center;gap:8px;margin:14px 0;padding:22px;border:1px dashed #c2ccd6;border-radius:7px;background:#f8fafc;color:#6b7987}
+.pb-file svg{width:34px;height:34px}
+.pb-file label{display:grid;gap:6px;place-items:center;font-size:13px;font-weight:600;color:#374450;cursor:pointer}
+.pb-file input{font-size:12px}
+.pricebook-import-modal footer .primary{min-width:110px}
