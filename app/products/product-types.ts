@@ -49,6 +49,7 @@ export type ProductFilters = {
   createdFrom?: string;
   createdTo?: string;
   supplierIds: string[];
+  locationIds: string[];
   productType: "all" | "product" | "service" | "combo";
   directSale: "all" | "yes" | "no";
   linkedSaleChannel: "all" | "yes" | "no";
@@ -59,5 +60,5 @@ export type FilterOption = { id: string; name: string; count?: number; children?
 
 export const DEFAULT_FILTERS: ProductFilters = {
   categoryIds: [], inventoryCriteria: "all", inventoryOperator: "=", expectedPreset: "all", createdPreset: "all",
-  supplierIds: [], productType: "all", directSale: "all", linkedSaleChannel: "all", status: "active",
+  supplierIds: [], locationIds: [], productType: "all", directSale: "all", linkedSaleChannel: "all", status: "active",
 };

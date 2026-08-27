@@ -61,7 +61,7 @@ function filtersFromUrl(): ProductFilters {
   const params = new URLSearchParams(window.location.search);
   return {
     ...DEFAULT_FILTERS,
-    categoryIds: params.get("categories")?.split(",").filter(Boolean) || [], supplierIds: params.get("suppliers")?.split(",").filter(Boolean) || [],
+    categoryIds: params.get("categories")?.split(",").filter(Boolean) || [], supplierIds: params.get("suppliers")?.split(",").filter(Boolean) || [], locationIds: params.get("locations")?.split(",").filter(Boolean) || [],
     inventoryCriteria: (params.get("stock") as ProductFilters["inventoryCriteria"]) || "all", inventoryOperator: (params.get("stockOp") as ProductFilters["inventoryOperator"]) || "=",
     inventoryMin: params.has("stockMin") ? Number(params.get("stockMin")) : undefined, inventoryMax: params.has("stockMax") ? Number(params.get("stockMax")) : undefined,
     expectedPreset: params.get("expected") || "all", expectedFrom: params.get("expectedFrom") || undefined, expectedTo: params.get("expectedTo") || undefined,
@@ -146,7 +146,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   useEffect(() => {
     if (!urlReady) return;
     const params = new URLSearchParams();
-    if (filters.categoryIds.length) params.set("categories", filters.categoryIds.join(",")); if (filters.supplierIds.length) params.set("suppliers", filters.supplierIds.join(","));
+    if (filters.categoryIds.length) params.set("categories", filters.categoryIds.join(",")); if (filters.supplierIds.length) params.set("suppliers", filters.supplierIds.join(",")); if (filters.locationIds.length) params.set("locations", filters.locationIds.join(","));
     if (filters.inventoryCriteria !== "all") params.set("stock", filters.inventoryCriteria); if (filters.inventoryCriteria === "custom") { params.set("stockOp", filters.inventoryOperator); if (filters.inventoryMin !== undefined) params.set("stockMin", String(filters.inventoryMin)); if (filters.inventoryMax !== undefined) params.set("stockMax", String(filters.inventoryMax)); }
     if (filters.expectedPreset !== "all") params.set("expected", filters.expectedPreset); if (filters.expectedFrom) params.set("expectedFrom", filters.expectedFrom); if (filters.expectedTo) params.set("expectedTo", filters.expectedTo);
     if (filters.createdPreset !== "all") params.set("created", filters.createdPreset); if (filters.createdFrom) params.set("createdFrom", filters.createdFrom); if (filters.createdTo) params.set("createdTo", filters.createdTo);
@@ -156,18 +156,20 @@ export default function ProductClient({ profile, initialProducts, initialCategor
 
   const categories = useMemo<FilterOption[]>(() => categoryOptions.map((item) => ({ ...item, count: products.filter((product) => product.category_id === item.id).length })), [categoryOptions, products]);
   const suppliers = useMemo<FilterOption[]>(() => supplierOptions.map((item) => ({ ...item, count: products.filter((product) => product.supplier_id === item.id).length })), [supplierOptions, products]);
+  const locationOptions = useMemo<FilterOption[]>(() => Array.from(new Set(products.map((product) => (product.location || "").trim()).filter(Boolean))).map((name) => ({ id: name, name, count: products.filter((product) => product.location === name).length })), [products]);
   const filtered = useMemo(() => products.filter((product) => {
     const text = `${product.name} ${product.sku}`.toLowerCase().includes(query.trim().toLowerCase());
     const descriptiveText = `${product.description || ""} ${product.note || ""}`.toLowerCase().includes(noteQuery.trim().toLowerCase());
     const status = filters.status === "all" || (filters.status === "active" ? product.active : !product.active);
     const category = !filters.categoryIds.length || Boolean(product.category_id && filters.categoryIds.includes(product.category_id));
     const supplier = !filters.supplierIds.length || Boolean(product.supplier_id && filters.supplierIds.includes(product.supplier_id));
+    const location = !filters.locationIds.length || Boolean(product.location && filters.locationIds.includes(product.location));
     const type = filters.productType === "all" || (product.product_type || "product") === filters.productType;
     const direct = filters.directSale === "all" || (product.direct_sale ?? true) === (filters.directSale === "yes");
     const linked = filters.linkedSaleChannel === "all" || (product.linked_sale_channel ?? false) === (filters.linkedSaleChannel === "yes");
     const created = filters.createdPreset === "all" || dateInRange(product.created_at, filters.createdFrom, filters.createdTo);
     const expected = filters.expectedPreset === "all" || dateInRange(product.expected_out_of_stock_at, filters.expectedFrom, filters.expectedTo);
-    return text && descriptiveText && status && category && supplier && type && direct && linked && created && expected && matchesInventory(product, filters);
+    return text && descriptiveText && status && category && supplier && location && type && direct && linked && created && expected && matchesInventory(product, filters);
   }).sort((a, b) => { const av = a[sort.key], bv = b[sort.key]; const result = typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv), "vi"); return sort.direction === "asc" ? result : -result; }), [products, query, noteQuery, filters, sort]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -450,7 +452,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     return matchQ && matchCat;
   });
 
-  return <div className="kv-shell product-page">
+  return <div className="kv-shell product-page products-catalog-page">
     <ManagementHeader profile={profile} active="products" />
     <div className="product-actions">
       <h1>Hàng hóa</h1>
@@ -474,7 +476,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       </div>
     </div>
     <main className={`product-workspace ${sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>
-      <ProductFilterSidebar filters={filters} categories={categories} suppliers={suppliers} collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed} onChange={updateFilters} onCreateCategory={createCategory} />
+      <ProductFilterSidebar filters={filters} categories={categories} suppliers={suppliers} locations={locationOptions} collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed} onChange={updateFilters} onCreateCategory={createCategory} />
       <section className="product-content">
         {notice && <div className="product-notice" role="status">{notice}<button type="button" onClick={() => setNotice("")}>×</button></div>}
         {selected.length > 0 && <div className="bulk-bar"><CheckSquare size={19} /><b>{selected.length} hàng đã chọn</b><button type="button" onClick={() => bulkStatus(true)}>Đang kinh doanh</button><button type="button" onClick={() => bulkStatus(false)}>Ngừng kinh doanh</button><button type="button" onClick={() => setSelected([])}>Bỏ chọn</button></div>}

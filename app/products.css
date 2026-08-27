@@ -363,3 +363,22 @@
 .kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{display:inline-grid!important;place-items:center!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;padding:0!important;gap:0!important;font-size:0!important;line-height:0!important;overflow:hidden!important;flex:0 0 40px!important}
 .kv-toolbar-100>.kv-btn .kv-file-action-icon{display:block!important;width:22px!important;height:22px!important;min-width:22px!important;margin:0!important}
 .kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+
+/* Products catalog metrics measured from KiotViet at desktop size. */
+.products-catalog-page .product-workspace{grid-template-columns:250px minmax(0,1fr)!important}
+.products-catalog-page .product-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
+.products-catalog-page .product-filter-sidebar{width:250px!important;padding:12px 8px 48px 12px!important}
+.products-catalog-page .product-filter-sidebar :is(.filter-select-button,.radio-row){height:32px!important;min-height:32px!important;padding:0 10px!important;border-radius:8px!important;font-size:14px!important}
+.products-catalog-page .product-filter-sidebar .filter-segmented button{height:32px!important;min-height:32px!important;padding:0 12px!important;font-size:14px!important}
+.products-catalog-page .product-filter-sidebar .sidebar-collapse{left:234px!important;width:32px!important;height:32px!important}
+.products-catalog-page .sidebar-collapse.collapsed{left:8px!important;width:32px!important;height:32px!important}
+.products-catalog-page .product-actions h1{font-size:18px!important;line-height:28px!important}
+.products-catalog-page .product-table th{height:41px!important;padding:0 10px!important}
+.products-catalog-page .product-table td{height:40px!important;padding:0 10px!important}
+@media(min-width:1201px){
+  .products-catalog-page .product-actions{grid-template-columns:250px minmax(360px,760px) auto!important;min-height:60px!important;padding:0 16px!important}
+  .products-catalog-page .kv-toolbar-100>.kv-btn,
+  .products-catalog-page .kv-create-wrap>.kv-btn,
+  .products-catalog-page .kv-toolbar-100 .kv-btn-icon{width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important;flex-basis:32px!important;border-radius:6px!important}
+  .products-catalog-page .kv-toolbar-100 .kv-file-action-icon{width:18px!important;height:18px!important;min-width:18px!important;flex-basis:18px!important}
+}
