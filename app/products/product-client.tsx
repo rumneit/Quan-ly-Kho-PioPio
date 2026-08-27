@@ -466,8 +466,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
             <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Combo - đóng gói</button>
           </div>}
         </div>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon />Import file</button>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon />Xuất file</button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon /><span className="kv-toolbar-label">Import file</span></button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon /><span className="kv-toolbar-label">Xuất file</span></button>
         <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
         <button type="button" className="kv-btn-icon" aria-label="Cài đặt bảng"><Settings size={14} strokeWidth={2} /></button>
         <button type="button" className="kv-btn-icon" aria-label="Trợ giúp"><HelpCircle size={14} strokeWidth={2} /></button>
