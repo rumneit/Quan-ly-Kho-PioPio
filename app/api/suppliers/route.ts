@@ -1,0 +1,83 @@
+import { NextResponse } from "next/server";
+import { requireProfile } from "@/lib/auth";
+
+export async function GET() {
+  const { supabase } = await requireProfile();
+  const { data, error } = await supabase.from("suppliers").select("id,name,code,phone,email,address,area,ward,group_name,company,tax_code,identity,note,active,created_at,created_by,profiles(full_name)").order("created_at", { ascending: false }).limit(500);
+  if (error) return NextResponse.json({ error: "Không thể tải nhà cung cấp." }, { status: 400 });
+  const list = (data || []).map((row) => ({
+    id: row.id,
+    code: row.code || "",
+    name: row.name,
+    phone: row.phone || "",
+    email: row.email || "",
+    address: row.address || "",
+    area: row.area || "",
+    ward: row.ward || "",
+    group: row.group_name || "",
+    company: row.company || "",
+    taxCode: row.tax_code || "",
+    identity: row.identity || "",
+    note: row.note || "",
+    active: row.active !== false,
+    creator: (row.profiles as { full_name?: string } | null)?.full_name || "",
+    createdAt: row.created_at,
+    debt: 0,
+    totalPurchase: 0,
+  }));
+  return NextResponse.json({ suppliers: list });
+}
+
+export async function POST(request: Request) {
+  const { supabase, profile } = await requireProfile("manager");
+  const body = await request.json() as Record<string, unknown>;
+  const name = String(body.name || "").trim();
+  if (!name) return NextResponse.json({ error: "Tên nhà cung cấp là bắt buộc." }, { status: 400 });
+  const payload: Record<string, unknown> = {
+    store_id: profile.store_id,
+    name,
+    code: String(body.code || "").trim() || null,
+    phone: String(body.phone || "").trim() || null,
+    email: String(body.email || "").trim() || null,
+    address: String(body.address || "").trim() || null,
+    area: String(body.area || "").trim() || null,
+    ward: String(body.ward || "").trim() || null,
+    group_name: String(body.group || "").trim() || null,
+    company: String(body.company || "").trim() || null,
+    tax_code: String(body.taxCode || "").trim() || null,
+    identity: String(body.identity || "").trim() || null,
+    note: String(body.note || "").trim() || null,
+    active: body.active === false ? false : true,
+    created_by: profile.id,
+  };
+  const { data, error } = await supabase.from("suppliers").insert(payload).select("id,name,code,phone,email,address,area,ward,group_name,company,tax_code,identity,note,active").single();
+  if (error) return NextResponse.json({ error: error.code === "23505" ? "Mã hoặc tên nhà cung cấp đã tồn tại." : "Không thể tạo nhà cung cấp." }, { status: 400 });
+  return NextResponse.json({ supplier: data }, { status: 201 });
+}
+
+export async function PATCH(request: Request) {
+  const { supabase, profile } = await requireProfile("manager");
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id") || "";
+  if (!id) return NextResponse.json({ error: "Thiếu mã nhà cung cấp." }, { status: 400 });
+  const body = await request.json() as Record<string, unknown>;
+  const payload: Record<string, unknown> = {};
+  for (const [key, target] of [["name", "name"], ["code", "code"], ["phone", "phone"], ["email", "email"], ["address", "address"], ["area", "area"], ["ward", "ward"], ["group", "group_name"], ["company", "company"], ["taxCode", "tax_code"], ["identity", "identity"], ["note", "note"]] as const) {
+    if (key in body) payload[target] = String(body[key] || "").trim() || null;
+  }
+  if ("active" in body) payload.active = body.active === true;
+  if (payload.name === null) return NextResponse.json({ error: "Tên nhà cung cấp là bắt buộc." }, { status: 400 });
+  const { data, error } = await supabase.from("suppliers").update(payload).eq("id", id).eq("store_id", profile.store_id).select("id,name,code,phone,email,address,area,ward,group_name,company,tax_code,identity,note,active").single();
+  if (error) return NextResponse.json({ error: "Không thể cập nhật nhà cung cấp." }, { status: 400 });
+  return NextResponse.json({ supplier: data });
+}
+
+export async function DELETE(request: Request) {
+  const { supabase, profile } = await requireProfile("manager");
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id") || "";
+  if (!id) return NextResponse.json({ error: "Thiếu mã nhà cung cấp." }, { status: 400 });
+  const { error } = await supabase.from("suppliers").delete().eq("id", id).eq("store_id", profile.store_id);
+  if (error) return NextResponse.json({ error: "Không thể xóa nhà cung cấp." }, { status: 400 });
+  return NextResponse.json({ deleted: true });
+}
