@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PriceBookPage() {
   const { supabase, profile } = await requireProfile("manager");
-  const extended = await supabase.from("products").select("id,name,sku,price,cost,stock_quantity,active,category_id,product_categories(name)").eq("active", true).order("name");
+  const extended = await supabase.from("products").select("id,name,sku,price,cost,stock_quantity,active,category_id,price_lists,product_categories(name)").eq("active", true).order("name");
   const fallback = extended.error ? await supabase.from("products").select("id,name,sku,price,cost,stock_quantity,active").eq("active", true).order("name") : null;
   const source = extended.error ? fallback?.data || [] : extended.data || [];
   const products = source.map((row) => {
