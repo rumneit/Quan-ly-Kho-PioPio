@@ -73,6 +73,8 @@ export async function POST(request: Request) {
     const items = body.items as Array<Record<string, unknown>>;
     if (!items.length) return NextResponse.json({ error: "Không có dữ liệu import." }, { status: 400 });
     const mode = body.mode === "update" ? "update" : "skip";
+    const updateStock = body.update_stock === true;
+    const stopOnConflict = body.stop_on_conflict === true;
     let inserted = 0, updated = 0, skipped = 0;
     const errors: Array<{ row: number; error: string }> = [];
     const products: unknown[] = [];
@@ -94,10 +96,20 @@ export async function POST(request: Request) {
         description: row.description || null, created_by: profile.id,
         ...catalogFields(row),
       };
-      // Check duplicate sku within store
-      const { data: existing } = await supabase.from("products").select("id").eq("store_id", profile.store_id).eq("sku", sku).maybeSingle();
+      // KiotViet-compatible duplicate handling: match either SKU or barcode.
+      const barcode = String(row.barcode || "").trim();
+      const duplicateFilter = barcode ? `sku.eq.${sku},barcode.eq.${barcode}` : `sku.eq.${sku}`;
+      const { data: existing } = await supabase.from("products").select("id,sku,barcode,name").eq("store_id", profile.store_id).or(duplicateFilter).limit(1).maybeSingle();
       if (existing) {
+        const nameConflict = existing.name !== name && existing.sku === sku;
+        const barcodeConflict = Boolean(barcode && existing.barcode === barcode && existing.sku !== sku);
+        if (stopOnConflict && (nameConflict || barcodeConflict)) {
+          errors.push({ row: i + 2, error: nameConflict ? "Trùng mã hàng/mã vạch nhưng khác tên hàng" : "Trùng mã vạch nhưng khác mã hàng" });
+          skipped += items.length - i;
+          break;
+        }
         if (mode === "skip") { skipped++; continue; }
+        if (!updateStock) delete payload.stock_quantity;
         let { data, error } = await supabase.from("products").update(payload).eq("id", existing.id).select().single();
         if (error && (error as { code?: string }).code === "42703") {
           const { description: _d, ...fallbackBase } = withoutCatalogFields(payload);
