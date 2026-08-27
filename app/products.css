@@ -98,7 +98,8 @@
 .kv-btn-primary{border-color:#008ae6!important;background:#008ae6!important;color:#fff!important;font-weight:500!important;height:32px!important;padding:0 16px!important;border-radius:4px!important}
 .kv-btn-primary:hover{background:#0077c7!important;border-color:#0077c7!important}
 .kv-btn-primary:disabled{opacity:.55!important;cursor:not-allowed!important}
-.product-table{border:1px solid #dfe4ea!important;border-radius:6px!important;overflow:hidden!important;background:#fff!important}
+.product-table{border:1px solid #dfe4ea!important;border-radius:6px!important;overflow:auto!important;background:#fff!important}
+.product-page .product-table table{min-width:1360px!important}
 .product-table th{height:36px!important;background:#e8f0fe!important;background-color:#eef3ff!important;color:#1a2332!important;font-size:12px!important;font-weight:600!important;border-bottom:1px solid #dfe4ea!important;padding:0 10px!important}
 .product-table td{height:40px!important;font-size:13px!important;padding:8px 10px!important;border-bottom:1px solid #eef1f4!important}
 .product-notice{border-radius:6px!important;font-size:13px!important;border:1px solid #b9e2c9!important;background:#eaf8ee!important}
