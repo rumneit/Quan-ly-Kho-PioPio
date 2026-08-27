@@ -81,6 +81,17 @@ alter table public.product_import_jobs enable row level security;
 grant select, insert, update, delete on public.product_brands, public.store_branches, public.product_branch_inventory, public.product_components, public.product_import_jobs to authenticated;
 grant all on public.product_brands, public.store_branches, public.product_branch_inventory, public.product_components, public.product_import_jobs to service_role;
 
+drop policy if exists "members view product brands" on public.product_brands;
+drop policy if exists "managers manage product brands" on public.product_brands;
+drop policy if exists "members view branches" on public.store_branches;
+drop policy if exists "managers manage branches" on public.store_branches;
+drop policy if exists "members view branch inventory" on public.product_branch_inventory;
+drop policy if exists "managers manage branch inventory" on public.product_branch_inventory;
+drop policy if exists "members view components" on public.product_components;
+drop policy if exists "managers manage components" on public.product_components;
+drop policy if exists "members view import jobs" on public.product_import_jobs;
+drop policy if exists "managers manage import jobs" on public.product_import_jobs;
+
 create policy "members view product brands" on public.product_brands for select to authenticated using (store_id = (select public.current_store_id()));
 create policy "managers manage product brands" on public.product_brands for all to authenticated using (store_id = (select public.current_store_id()) and (select public.current_app_role()) = 'manager') with check (store_id = (select public.current_store_id()) and (select public.current_app_role()) = 'manager');
 create policy "members view branches" on public.store_branches for select to authenticated using (store_id = (select public.current_store_id()));
@@ -96,6 +107,11 @@ create policy "managers manage import jobs" on public.product_import_jobs for al
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('product-images', 'product-images', true, 2097152, array['image/jpeg','image/png','image/webp','image/gif'])
 on conflict (id) do update set public = excluded.public, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "authenticated upload product images" on storage.objects;
+drop policy if exists "public view product images" on storage.objects;
+drop policy if exists "authenticated update product images" on storage.objects;
+drop policy if exists "authenticated delete product images" on storage.objects;
 
 create policy "authenticated upload product images" on storage.objects for insert to authenticated with check (bucket_id = 'product-images');
 create policy "public view product images" on storage.objects for select to public using (bucket_id = 'product-images');
