@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CheckSquare, ChevronDown, ChevronUp, Columns3, FileDown, FileInput, FileOutput, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, Upload, X } from "lucide-react";
+import { CheckSquare, ChevronDown, ChevronUp, Columns3, FileDown, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, Upload, X } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
@@ -29,6 +29,14 @@ const dateTime = (value?: string | null) => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? "---" : new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(parsed);
 };
+
+function ImportFileIcon() {
+  return <svg className="kv-file-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v6m9-8 5 5h-5V2ZM5 19v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7M2 15h11m-4-4 4 4-4 4" /></svg>;
+}
+
+function ExportFileIcon() {
+  return <svg className="kv-file-action-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h8m-1-20 5 5h-5V2Zm-3 13h11m-4-4 4 4-4 4" /></svg>;
+}
 
 function matchesInventory(product: Product, filters: ProductFilters) {
   const value = product.stock_quantity;
@@ -458,8 +466,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
             <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Combo - đóng gói</button>
           </div>}
         </div>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><FileInput size={22} strokeWidth={2} />Import file</button>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><FileOutput size={22} strokeWidth={2} />Xuất file</button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon />Import file</button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon />Xuất file</button>
         <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
         <button type="button" className="kv-btn-icon" aria-label="Cài đặt bảng"><Settings size={14} strokeWidth={2} /></button>
         <button type="button" className="kv-btn-icon" aria-label="Trợ giúp"><HelpCircle size={14} strokeWidth={2} /></button>
