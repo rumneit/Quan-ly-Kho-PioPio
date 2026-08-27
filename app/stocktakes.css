@@ -1,1 +1,167 @@
-.stocktakes-page{--stock-border:#e1e3e6}.stocktake-actions .product-query{max-width:none}.stocktake-sidebar>section{margin-bottom:24px}.stocktake-sidebar select{width:100%;height:32px;padding:0 30px 0 10px;border:1px solid #c2c7ce;border-radius:8px;background:#fff;color:#525d6a;font-size:14px;outline:0}.stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:pointer}.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#0070f4}.stock-radio span{flex:1}.stock-radio svg{color:#525d6a}.stock-columns{max-height:420px;overflow:auto}.stocktake-content{min-width:0}.stocktake-table{max-height:calc(100vh - 225px)}.stocktake-table table{min-width:1550px}.stocktake-table th,.stocktake-table td{white-space:nowrap}.stocktake-table .stock-select{width:38px;min-width:38px;padding-left:12px;padding-right:6px;text-align:center}.stocktake-table .stock-star{width:34px;min-width:34px;padding:0 6px;text-align:center}.stocktake-table .stock-star button{display:inline-flex;border:0;background:transparent;color:#8994a1}.stocktake-table th:nth-child(3){min-width:130px}.stocktake-table .number-cell{text-align:right}.stocktake-code{color:#0070f4;font-weight:500}.stock-status{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:12px;font-size:12px!important;font-weight:600}.stock-status.draft{background:#fff4dc;color:#a86200}.stock-status.balanced{background:#def7e8;color:#14824b}.stock-status.cancelled{background:#f0f1f3;color:#6d7782}.stocktake-empty{min-height:390px}.stocktake-empty .primary{height:32px;margin-top:10px;padding:0 16px;border:1px solid #0070f4;border-radius:8px;background:#0070f4;color:#fff;font-weight:600}.stocktake-modal{width:min(980px,calc(100vw - 28px))}.stocktake-form-head{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--stock-border)}.stocktake-form-head .product-query{height:36px}.stocktake-form-head>label:last-child{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;font-weight:600}.stocktake-form-head>label:last-child input{height:36px;padding:0 10px;border:1px solid #c2c7ce;border-radius:8px;font:inherit;font-weight:400;outline:0}.stocktake-lines{max-height:480px;overflow:auto;padding:0 20px}.stocktake-lines table{width:100%;border-collapse:collapse}.stocktake-lines th{position:sticky;top:0;z-index:1;padding:10px;background:#e6f1fe;font-size:12px!important;text-align:left}.stocktake-lines td{padding:8px 10px;border-bottom:1px solid var(--stock-border)}.stocktake-lines th:nth-child(n+3),.stocktake-lines td:nth-child(n+3){text-align:right}.stocktake-lines input{width:94px;height:32px;padding:0 8px;border:1px solid #c2c7ce;border-radius:6px;font:inherit;text-align:right}.stocktake-lines .positive{color:#14824b;font-weight:600}.stocktake-lines .negative{color:#d63c3c;font-weight:600}.stocktake-modal footer>span{margin-right:auto;color:#6d7782}.stocktake-modal footer button{display:inline-flex;align-items:center;gap:6px}.stocktakes-page .product-pager{border-radius:0 0 8px 8px}@media(max-width:900px){.stocktake-actions .product-toolbar>button{font-size:0!important}.stocktake-form-head{grid-template-columns:1fr}.stocktake-table{max-height:calc(100vh - 265px)}}
+/* ===== Kiểm kho (Stocktake) — KiotViet style ===== */
+.stocktakes-page{--kt-blue:#008ae6;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100vh;overflow:hidden;background:#f2f4f7!important}
+
+/* Shared sidebar controls used by other business pages */
+.stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:pointer}
+.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#0070f4;flex:0 0 auto}
+.stock-radio span{flex:1}
+.stock-radio svg{color:#525d6a}
+.stock-status{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:12px;font-size:12px!important;font-weight:600;white-space:nowrap}
+.stock-status.draft{background:#fff4dc;color:#a86200}
+.stock-status.balanced{background:#def7e8;color:#14824b}
+.stock-status.cancelled{background:#f0f1f3;color:#6d7782}
+
+/* Action bar */
+.stocktake-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
+.stocktakes-page .stocktake-actions h1{font-size:22px!important;line-height:30px!important;margin:0!important;white-space:nowrap}
+.stocktake-search{display:flex;justify-content:center;min-width:0}
+.stocktake-search .product-query{width:100%;max-width:760px!important;min-width:0!important;height:40px!important;border-radius:8px!important}
+.stocktake-search .product-query input{font-size:15px!important}
+.stock-toolbar{justify-self:end;gap:8px!important;margin:0!important;flex-wrap:nowrap!important}
+.stock-toolbar .stock-tool{display:grid!important;place-items:center!important;width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;border:1px solid #cfd6de!important;border-radius:7px!important;background:#fff!important;color:#394858!important}
+.stock-toolbar .stock-tool:hover{border-color:var(--kt-blue)!important;color:var(--kt-blue)!important;background:#f7fbff!important}
+.stock-toolbar .stock-tool.primary{border-color:var(--kt-blue)!important;background:var(--kt-blue)!important;color:#fff!important}
+.stock-tool svg{width:19px;height:19px}
+.kt-file-icon{width:23px!important;height:23px!important;overflow:visible;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* Create header */
+.stocktake-create-actions{display:flex!important;align-items:center!important;gap:12px!important;grid-template-columns:none!important}
+.stock-back{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:pointer}
+.stock-back:hover{background:#eaf4ff}
+.stock-back svg{width:18px;height:18px}
+
+/* Workspace + sidebar */
+.stocktake-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100vh - 162px);min-height:0!important}
+.stocktakes-page .sidebar-collapse{left:355px}
+.stocktake-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 40px!important}
+.stocktake-sidebar>section{padding:10px 0 16px!important;margin:0!important}
+.stocktake-sidebar h2{margin:0 0 9px!important;font-size:15px!important;line-height:21px!important}
+.stocktake-sidebar select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;color:#44515f;font-size:13px;outline:0}
+.stocktake-sidebar select:focus{border-color:var(--kt-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.stocktake-sidebar .stock-radio,.stocktake-sidebar .stock-check{min-height:32px;color:#334150;font-size:13px}
+.stocktake-sidebar .stock-radio input,.stocktake-sidebar .stock-check input{accent-color:var(--kt-blue)}
+.stocktake-sidebar .stock-radio svg{width:15px;height:15px;color:var(--kt-muted)}
+.stock-custom-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
+.stock-custom-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#2e3541;outline:0}
+.stock-custom-range input:focus{border-color:var(--kt-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+
+/* Content + list table */
+.stocktake-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
+.stocktake-table{min-height:0!important;max-height:none!important;flex:1;border-radius:6px 6px 0 0!important}
+.stocktakes-page .stocktake-table table{min-width:1250px!important}
+.stocktake-table th,.stocktake-table td{white-space:nowrap}
+.stocktake-table th{height:38px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
+.stocktake-table .stock-select{width:38px;min-width:38px;padding-left:12px;padding-right:6px;text-align:center}
+.stocktake-table .stock-select input{width:16px;height:16px;accent-color:var(--kt-blue)}
+.stocktake-table .stock-star{width:34px;min-width:34px;padding:0 6px;text-align:center}
+.stocktake-table .stock-star button{display:inline-flex;border:0;background:transparent;color:#8994a1}
+.stocktake-table th.number-cell,.stocktake-table td.number-cell{text-align:right}
+.stocktake-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
+.stock-filter-row th{height:38px!important;padding:4px 8px!important;border-bottom:1px solid #cad6e3!important;background:#f8fafc!important}
+.stock-filter-input{display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;border:1px solid #d5dce4;border-radius:4px;background:#fff;color:#8190a0}
+.stock-filter-input:focus-within{border-color:var(--kt-blue)}
+.stock-filter-input svg{width:13px;height:13px;flex:0 0 auto}
+.stock-filter-input input{width:100%!important;height:25px!important;border:0!important;outline:0;background:transparent;font-size:12px!important}
+.stocktake-code{color:var(--kt-blue)!important;font-weight:500}
+.stocktake-empty{min-height:320px}
+.stocktake-empty .primary{height:32px;margin-top:10px;padding:0 16px;border:1px solid var(--kt-blue);border-radius:6px;background:var(--kt-blue);color:#fff;font-weight:600}
+.stock-loading{color:#8a96a7;font-size:13px}
+
+/* Pager */
+.stocktakes-page .product-pager{flex:0 0 auto;min-height:44px;border:1px solid #dfe4ea;border-top:0;border-radius:0 0 6px 6px}
+.stocktakes-page .product-pager button{min-width:28px;height:28px;border-radius:6px}
+
+/* Notice */
+.stocktake-notice{position:fixed!important;z-index:300;top:174px;right:18px;width:min(440px,calc(100vw - 36px));margin:0!important;padding:10px 12px!important;box-shadow:0 7px 24px rgba(25,40,58,.16)}
+.stocktake-notice.error{border-color:#f1b8b8;background:#fff0f0;color:#b42323}
+.stocktake-notice svg{width:15px;height:15px}
+
+/* ===== Create view ===== */
+.stocktake-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100vh - 162px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f2f4f7}
+.stocktake-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px}
+.stock-summary{display:flex;flex:0 0 auto;flex-wrap:wrap;gap:8px}
+.stock-chip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid #d0d7de;border-radius:17px;background:#fff;color:#334150;font-size:13px;cursor:pointer}
+.stock-chip:hover{border-color:var(--kt-blue);color:var(--kt-blue)}
+.stock-chip.active{border-color:var(--kt-blue);background:#eaf4ff;color:var(--kt-blue)}
+.stock-chip b{font-weight:600}
+.stock-create-toolbar{display:flex;flex:0 0 auto;align-items:center;gap:14px;flex-wrap:wrap}
+.stock-create-search{height:38px!important;max-width:520px!important}
+.stock-create-search input{font-size:14px!important}
+.stock-import{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stock-import-btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border:1px solid var(--kt-blue);border-radius:6px;background:#eaf4ff;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:pointer}
+.stock-import-btn:hover{background:#d9ecff}
+.stock-import-btn:disabled{opacity:.6;cursor:not-allowed}
+.stock-import-btn svg{width:20px;height:20px}
+.stock-import-hint{color:var(--kt-muted);font-size:12px}
+.stock-link{border:0;background:transparent;padding:0;color:var(--kt-blue);font-size:12px;cursor:pointer;text-decoration:underline}
+.stock-import input[type=file]{display:none}
+.stock-create-table{flex:1;min-height:0!important;max-height:none!important;border-radius:6px!important}
+.stock-create-table table{min-width:920px!important}
+.stock-create-table th{height:38px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
+.stock-create-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
+.stock-create-table th.number-cell,.stock-create-table td.number-cell{text-align:right}
+.stock-stt{color:var(--kt-muted);text-align:center!important}
+.stock-product-name{color:#273544;font-weight:500}
+.stock-edit-cell input{width:96px!important;height:30px!important;padding:0 8px!important;border:1px solid #d0d7de!important;border-radius:5px!important;background:#fff!important;text-align:right;font:inherit;font-size:13px!important;outline:0}
+.stock-edit-cell input:hover{border-color:#b8c2cc}
+.stock-edit-cell input:focus{border-color:var(--kt-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.stock-pos{color:#d9363e}
+.stock-neg{color:#14824b}
+.stock-create-empty{min-height:240px}
+
+/* Right panel */
+.stock-create-side{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.stock-side-block{flex:0 0 auto;padding:14px 16px;border:1px solid #dfe4ea;border-radius:6px;background:#fff}
+.stock-field{display:grid;gap:6px;margin-bottom:12px}
+.stock-field:last-child{margin-bottom:0}
+.stock-field>span{color:#3d4c5b;font-size:13px;font-weight:600}
+.stock-field input,.stock-field select{height:36px;padding:0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px;color:#2e3541;outline:0}
+.stock-field input:focus,.stock-field select:focus{border-color:var(--kt-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.stock-side-label{display:block;margin-bottom:6px;color:#3d4c5b;font-size:13px;font-weight:600}
+.stock-side-total{display:block;font-size:24px;font-weight:700;color:#1a2332;line-height:1.2}
+.stock-recent ul{list-style:none;margin:0;padding:0}
+.stock-recent li+li{border-top:1px solid #eef1f4}
+.stock-recent button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 2px;border:0;background:transparent;cursor:pointer;color:#334150}
+.stock-recent button:hover{color:var(--kt-blue)}
+.stock-recent button b{font-weight:600;font-size:13px}
+.stock-recent button span{font-size:12px;color:var(--kt-muted)}
+.stock-recent-empty{color:#8a96a7;font-size:12px;padding:6px 0}
+.stock-side-footer{flex:0 0 auto;display:flex;gap:8px;margin-top:auto;padding-top:2px}
+.stock-side-footer button{flex:1;height:36px;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#2e3541;font-size:13px;font-weight:600;cursor:pointer}
+.stock-side-footer button:hover{border-color:#b8c2cc;background:#f7f9fb}
+.stock-side-footer button.primary{border-color:var(--kt-blue);background:var(--kt-blue);color:#fff}
+.stock-side-footer button.primary:hover{background:#0077c7;border-color:#0077c7}
+.stock-side-footer button:disabled{opacity:.6;cursor:not-allowed}
+
+/* Modals */
+.stock-modal{width:min(600px,calc(100vw - 28px))!important}
+.stock-modal header svg{width:17px;height:17px}
+.stock-modal-body{padding:18px;background:#fff}
+.stock-modal-note{color:#4c5968;font-size:13px;line-height:20px;margin:0 0 16px}
+.stock-modal-body .stock-field{margin-bottom:0}
+.stock-help h3{margin:0 0 4px;color:#263545;font-size:14px}
+.stock-help p{margin:0 0 17px;color:#4c5968;font-size:13px;line-height:20px}
+.stock-help p:last-child{margin-bottom:0}
+
+@media(max-width:1100px){
+  .stocktake-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}
+  .stocktake-workspace{grid-template-columns:300px minmax(0,1fr)!important}
+  .stocktake-sidebar{width:auto!important}
+  .stocktakes-page .stocktake-table table{min-width:1000px!important}
+  .stock-create-table table{min-width:860px!important}
+}
+@media(max-width:768px){
+  .stocktakes-page{height:auto;min-height:100vh;overflow:auto}
+  .stocktake-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
+  .stocktake-search{grid-column:1/-1;grid-row:2}
+  .stock-toolbar{grid-column:2;grid-row:1}
+  .stock-toolbar .stock-tool{width:34px!important;min-width:34px!important;height:34px!important}
+  .stocktake-workspace{display:block!important;height:auto}
+  .stocktake-sidebar{position:relative!important;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;width:100%!important;height:auto!important;padding:10px 14px!important;border-right:0;border-bottom:1px solid var(--kt-border);box-shadow:none!important}
+  .stocktake-sidebar>section:first-child{grid-column:1/-1}
+  .stocktake-content{height:calc(100vh - 415px);min-height:430px;padding:10px!important}
+  .stocktake-table{max-height:none!important}
+  .stocktake-create{display:block;height:auto}
+  .stocktake-create-main{min-height:70vh}
+  .stock-create-side{margin-top:14px}
+}
