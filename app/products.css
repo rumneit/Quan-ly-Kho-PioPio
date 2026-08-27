@@ -298,6 +298,7 @@
 .kv-toolbar-100{gap:8px!important}
 .kv-toolbar-100 .kv-btn-icon{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;border-radius:8px!important}
 .kv-toolbar-100 .kv-btn-icon svg{width:18px!important;height:18px!important}
+.kv-toolbar-100 .kv-btn-import svg,.kv-toolbar-100 .kv-btn-export svg{width:22px!important;height:22px!important;color:#273444!important;stroke-width:2!important}
 .kv-dropdown{top:46px!important;min-width:205px!important;border-radius:8px!important}
 .kv-dropdown button{padding:10px 14px!important;font-size:15px!important;line-height:20px!important}
 
