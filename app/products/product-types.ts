@@ -21,6 +21,19 @@ export type Product = {
   location?: string | null;
   min_stock?: number | null;
   max_stock?: number | null;
+  barcode?: string | null;
+  brand_id?: string | null;
+  brand_name?: string | null;
+  base_unit?: string | null;
+  sold_by?: "quantity" | "weight";
+  weight?: number | null;
+  warranty_months?: number;
+  tax_percent?: number;
+  attributes?: Record<string, string[]>;
+  units?: Array<{ name: string; conversion: number; price?: number }>;
+  price_lists?: Array<{ name: string; price: number }>;
+  images?: string[];
+  track_inventory?: boolean;
 };
 
 export type ProductFilters = {

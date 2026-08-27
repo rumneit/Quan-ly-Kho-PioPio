@@ -1,6 +1,62 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
 
+function catalogFields(row: Record<string, unknown>) {
+  const jsonArray = (value: unknown) => Array.isArray(value) ? value : [];
+  const jsonObject = (value: unknown) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  return {
+    barcode: String(row.barcode || "").trim() || null,
+    brand_id: row.brand_id || null,
+    base_unit: String(row.base_unit || "Cái").trim() || "Cái",
+    sold_by: row.sold_by === "weight" ? "weight" : "quantity",
+    weight: row.weight === "" || row.weight == null ? null : Number(row.weight),
+    warranty_months: Math.max(0, Math.trunc(Number(row.warranty_months || 0))),
+    tax_percent: Math.max(0, Number(row.tax_percent || 0)),
+    attributes: jsonObject(row.attributes),
+    units: jsonArray(row.units),
+    price_lists: jsonArray(row.price_lists),
+    images: jsonArray(row.images),
+    track_inventory: row.track_inventory !== false,
+    min_stock: row.min_stock == null || row.min_stock === "" ? null : Math.max(0, Number(row.min_stock)),
+    max_stock: row.max_stock == null || row.max_stock === "" ? null : Math.max(0, Number(row.max_stock)),
+    location: String(row.location || "").trim() || null,
+    note: String(row.note || "").trim() || null,
+  };
+}
+
+function withoutCatalogFields(payload: Record<string, unknown>) {
+  const legacy = { ...payload };
+  for (const key of ["barcode", "brand_id", "base_unit", "sold_by", "weight", "warranty_months", "tax_percent", "attributes", "units", "price_lists", "images", "track_inventory", "min_stock", "max_stock", "location", "note"]) delete legacy[key];
+  return legacy;
+}
+
+async function saveRelatedCatalogData(supabase: Awaited<ReturnType<typeof requireProfile>>["supabase"], profile: Awaited<ReturnType<typeof requireProfile>>["profile"], productId: string, row: Record<string, unknown>, stock: number) {
+  const branchId = row.branch_id ? String(row.branch_id) : null;
+  const components = Array.isArray(row.components) ? row.components : [];
+  if (branchId) {
+    await supabase.from("product_branch_inventory").upsert({
+      product_id: productId,
+      branch_id: branchId,
+      quantity: stock,
+      min_stock: row.min_stock == null || row.min_stock === "" ? null : Number(row.min_stock),
+      max_stock: row.max_stock == null || row.max_stock === "" ? null : Number(row.max_stock),
+      location: String(row.location || "").trim() || null,
+      updated_at: new Date().toISOString(),
+    });
+  }
+  if (components.length) {
+    await supabase.from("product_components").delete().eq("product_id", productId);
+    await supabase.from("product_components").insert(components.map((item) => {
+      const component = item as Record<string, unknown>;
+      return { product_id: productId, component_id: component.product_id, quantity: Number(component.quantity || 1) };
+    }));
+  }
+  if (stock > 0) {
+    const { data: movement } = await supabase.from("inventory_movements").select("id").eq("product_id", productId).eq("type", "initial").limit(1).maybeSingle();
+    if (!movement) await supabase.from("inventory_movements").insert({ store_id: profile.store_id, product_id: productId, type: "initial", quantity: Math.trunc(stock), note: "Tồn đầu khi tạo/import hàng hóa", created_by: profile.id });
+  }
+}
+
 export async function GET() {
   const { supabase } = await requireProfile();
   const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -20,6 +76,7 @@ export async function POST(request: Request) {
     let inserted = 0, updated = 0, skipped = 0;
     const errors: Array<{ row: number; error: string }> = [];
     const products: unknown[] = [];
+    const { data: importJob } = await supabase.from("product_import_jobs").insert({ store_id: profile.store_id, file_name: String(body.file_name || "import-hang-hoa.csv"), status: "processing", created_by: profile.id }).select("id").maybeSingle();
     for (let i = 0; i < items.length; i++) {
       const row = items[i];
       const name = String(row.name || "").trim();
@@ -35,6 +92,7 @@ export async function POST(request: Request) {
         product_type: ["product","service","combo"].includes(String(row.product_type)) ? row.product_type : "product",
         direct_sale: row.direct_sale !== false, linked_sale_channel: Boolean(row.linked_sale_channel),
         description: row.description || null, created_by: profile.id,
+        ...catalogFields(row),
       };
       // Check duplicate sku within store
       const { data: existing } = await supabase.from("products").select("id").eq("store_id", profile.store_id).eq("sku", sku).maybeSingle();
@@ -42,25 +100,28 @@ export async function POST(request: Request) {
         if (mode === "skip") { skipped++; continue; }
         let { data, error } = await supabase.from("products").update(payload).eq("id", existing.id).select().single();
         if (error && (error as { code?: string }).code === "42703") {
-          const { description: _d, ...fallback } = payload;
+          const { description: _d, ...fallbackBase } = withoutCatalogFields(payload);
+          const fallback = fallbackBase;
           const retry = await supabase.from("products").update(fallback).eq("id", existing.id).select().single();
           data = retry.data; error = retry.error;
         }
         if (error) errors.push({ row: i + 2, error: error.message });
-        else { updated++; if (data) products.push(data); }
+        else { updated++; if (data) { products.push(data); await saveRelatedCatalogData(supabase, profile, data.id, row, stock); } }
       } else {
         let { data, error } = await supabase.from("products").insert(payload).select().single();
         if (error && (error as { code?: string }).code === "42703") {
-          const { description: _d, ...fallback } = payload;
+          const { description: _d, ...fallbackBase } = withoutCatalogFields(payload);
+          const fallback = fallbackBase;
           const retry = await supabase.from("products").insert(fallback).select().single();
           data = retry.data; error = retry.error;
         }
         if (error) {
           if ((error as { code?: string }).code === "23505") { errors.push({ row: i + 2, error: "Mã hàng đã tồn tại" }); skipped++; }
           else errors.push({ row: i + 2, error: error.message });
-        } else { inserted++; if (data) products.push(data); }
+        } else { inserted++; if (data) { products.push(data); await saveRelatedCatalogData(supabase, profile, data.id, row, stock); } }
       }
     }
+    if (importJob?.id) await supabase.from("product_import_jobs").update({ status: errors.length && !inserted && !updated ? "failed" : "completed", inserted, updated, skipped, errors, completed_at: new Date().toISOString() }).eq("id", importJob.id);
     return NextResponse.json({ inserted, updated, skipped, errors, products }, { status: 200 });
   }
 
@@ -78,16 +139,18 @@ export async function POST(request: Request) {
     category_id, supplier_id, product_type,
     direct_sale: body.direct_sale !== false, linked_sale_channel: Boolean(body.linked_sale_channel),
     description: body.description || body.note || null,
-    created_by: profile.id
+    created_by: profile.id,
+    ...catalogFields(body),
   };
   let { data, error } = await supabase.from("products").insert(basePayload).select().single();
   // Fallback nếu DB chưa chạy migration 003 (thiếu cột description)
   if (error && (error as { code?: string }).code === "42703") {
-    const { description: _d, note: _n, brand: _b, location: _l, min_stock: _min, max_stock: _max, ...fallbackPayload } = basePayload;
+    const { description: _d, ...fallbackPayload } = withoutCatalogFields(basePayload);
     const retry = await supabase.from("products").insert(fallbackPayload).select().single();
     data = retry.data as typeof data; error = retry.error as typeof error;
   }
   if (error) return NextResponse.json({ error: (error as { code?: string }).code === "23505" ? "Mã hàng đã tồn tại." : `Không thể thêm sản phẩm: ${(error as { message?: string }).message || ""}` }, { status: 400 });
+  await saveRelatedCatalogData(supabase, profile, data.id, body, stock);
   return NextResponse.json({ product: data }, { status: 201 });
 }
 

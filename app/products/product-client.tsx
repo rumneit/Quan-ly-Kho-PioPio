@@ -7,7 +7,8 @@ import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
 import { DEFAULT_FILTERS, FilterOption, Product, ProductFilters } from "./product-types";
 
-type NewProduct = { name: string; sku: string; price: string; cost: string; stock: string; category_id: string; supplier_id: string; product_type: "product" | "service" | "combo"; description: string };
+type NewProduct = { name: string; sku: string; barcode: string; price: string; cost: string; stock: string; category_id: string; supplier_id: string; brand_id: string; branch_id: string; product_type: "product" | "service" | "combo"; description: string; note: string; base_unit: string; sold_by: "quantity" | "weight"; weight: string; warranty_months: string; tax_percent: string; min_stock: string; max_stock: string; location: string };
+const EMPTY_PRODUCT: NewProduct = { name: "", sku: "", barcode: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", brand_id: "", branch_id: "", product_type: "product", description: "", note: "", base_unit: "Cái", sold_by: "quantity", weight: "", warranty_months: "0", tax_percent: "0", min_stock: "", max_stock: "", location: "" };
 type ColumnKey = "image" | "sku" | "name" | "category" | "type" | "linked" | "price" | "cost" | "brand" | "stock" | "location" | "reserved" | "created" | "expected" | "minStock" | "maxStock" | "status";
 type SortKey = "sku" | "name" | "price" | "stock_quantity";
 const PAGE_SIZE = 10;
@@ -81,10 +82,12 @@ const SUGGESTED_PRODUCTS = [
   { id: "NSTP00025", name: "Bề bề bóc nõn 300gr", group: "Hải sản", price: 0, cost: 0, stock: 0 },
 ];
 
-export default function ProductClient({ profile, initialProducts, initialCategories = [], initialSuppliers = [] }: { profile: Profile; initialProducts: Product[]; initialCategories?: FilterOption[]; initialSuppliers?: FilterOption[] }) {
+export default function ProductClient({ profile, initialProducts, initialCategories = [], initialSuppliers = [], initialBrands = [], initialBranches = [] }: { profile: Profile; initialProducts: Product[]; initialCategories?: FilterOption[]; initialSuppliers?: FilterOption[]; initialBrands?: FilterOption[]; initialBranches?: FilterOption[] }) {
   const [products, setProducts] = useState(initialProducts);
   const [categoryOptions, setCategoryOptions] = useState(initialCategories);
   const [supplierOptions] = useState(initialSuppliers);
+  const [brandOptions, setBrandOptions] = useState(initialBrands);
+  const [branchOptions] = useState(initialBranches);
   const [filters, setFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
   const [query, setQuery] = useState("");
   const [noteQuery, setNoteQuery] = useState("");
@@ -105,7 +108,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [selected, setSelected] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [urlReady, setUrlReady] = useState(false);
-  const [newProduct, setNewProduct] = useState<NewProduct>({ name: "", sku: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", product_type: "product", description: "" });
+  const [newProduct, setNewProduct] = useState<NewProduct>({ ...EMPTY_PRODUCT, branch_id: initialBranches[0]?.id || "" });
   const [visible, setVisible] = useState<Record<ColumnKey, boolean>>({ image: true, sku: true, name: true, category: false, type: false, linked: false, price: true, cost: true, brand: false, stock: true, location: false, reserved: true, created: true, expected: true, minStock: false, maxStock: false, status: false });
   const [importMode, setImportMode] = useState<"skip" | "update">("skip");
   const [importPreview, setImportPreview] = useState<Array<Record<string, string>>>([]);
@@ -169,6 +172,21 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       supplier_id: newProduct.supplier_id || null,
       product_type: newProduct.product_type,
       description: newProduct.description.trim() || null,
+      note: newProduct.note.trim() || null,
+      barcode: newProduct.barcode.trim() || null,
+      brand_id: newProduct.brand_id || null,
+      branch_id: newProduct.branch_id || null,
+      base_unit: newProduct.base_unit,
+      sold_by: newProduct.sold_by,
+      weight: newProduct.weight,
+      warranty_months: newProduct.warranty_months,
+      tax_percent: newProduct.tax_percent,
+      min_stock: newProduct.min_stock,
+      max_stock: newProduct.max_stock,
+      location: newProduct.location,
+      images: createImages,
+      track_inventory: newProduct.product_type !== "service",
+      direct_sale: directSale,
     };
     if (!payload.name) { setSaving(false); setNotice("Tên hàng là bắt buộc (giống KiotViet)."); return; }
     if (newProduct.product_type === "product" && !payload.category_id) { setSaving(false); setNotice("Vui lòng chọn nhóm hàng (Bắt buộc) — giống KiotViet."); return; }
@@ -179,7 +197,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     const cat = categoryOptions.find((c) => c.id === newProduct.category_id)?.name || null;
     const sup = supplierOptions.find((s) => s.id === newProduct.supplier_id)?.name || null;
     setProducts((current) => [{ ...enriched, category_name: cat, supplier_name: sup } as Product, ...current]);
-    setNewProduct({ name: "", sku: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", product_type: "product", description: "" });
+    setNewProduct({ ...EMPTY_PRODUCT, branch_id: branchOptions[0]?.id || "" });
     setCreateImages([]); setShowCreate(false); setPage(1); setNotice("Đã tạo hàng hóa mới.");
   }
 
@@ -187,7 +205,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     await createProduct();
     // keep modal open for adding more - KiotViet "Lưu & Tạo thêm hàng"
     setShowCreate(true);
-    setNewProduct({ name: "", sku: "", price: "", cost: "", stock: "0", category_id: "", supplier_id: "", product_type: "product", description: "" });
+    setNewProduct({ ...EMPTY_PRODUCT, branch_id: branchOptions[0]?.id || "" });
     setCreateImages([]);
   }
 
@@ -198,15 +216,32 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     else setNotice(result.error || "Không thể tạo nhóm hàng.");
   }
 
+  async function createBrand(name: string) {
+    const response = await fetch("/api/product-brands", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+    const result = await response.json();
+    if (!response.ok) { setNotice(result.error || "Không thể tạo thương hiệu."); return; }
+    setBrandOptions((current) => [...current, result.brand].sort((a, b) => a.name.localeCompare(b.name, "vi")));
+    setNewProduct((current) => ({ ...current, brand_id: result.brand.id }));
+  }
+
+  async function uploadProductImage(file: File) {
+    if (file.size > 2 * 1024 * 1024) { setNotice("Mỗi ảnh không quá 2 MB — giống KiotViet."); return; }
+    const form = new FormData(); form.append("file", file);
+    const response = await fetch("/api/products/images", { method: "POST", body: form });
+    const result = await response.json();
+    if (!response.ok) { setNotice(result.error || "Không thể tải ảnh."); return; }
+    setCreateImages((current) => [...current, result.url].slice(0, 5));
+  }
+
   function exportCsv() {
     if (!filtered.length) { setNotice("Không có dữ liệu để xuất."); return; }
     setNotice("Đang chuẩn bị file xuất...");
-    const headers = ["Mã hàng", "Tên hàng", "Nhóm hàng", "Loại hàng", "Giá bán", "Giá vốn", "Tồn kho", "Nhà cung cấp", "Mô tả", "Trạng thái", "Ngày tạo"];
+    const headers = ["Mã hàng", "Mã vạch", "Tên hàng", "Nhóm hàng", "Thương hiệu", "Loại hàng", "Đơn vị", "Giá bán", "Giá vốn", "Tồn kho", "Định mức tồn ít nhất", "Định mức tồn nhiều nhất", "Vị trí", "Nhà cung cấp", "Mô tả", "Ghi chú", "Bảo hành (tháng)", "Thuế (%)", "Trạng thái", "Ngày tạo"];
     const typeLabel = (t?: string) => t === "service" ? "Dịch vụ" : t === "combo" ? "Combo - đóng gói" : "Hàng hóa";
     const lines = [
       headers.map(csvEscape).join(","),
       ...filtered.map((p) => [
-        p.sku, p.name, p.category_name || "", typeLabel(p.product_type), p.price, p.cost ?? 0, p.stock_quantity, p.supplier_name || "", (p.description || p.note || ""), p.active ? "Đang kinh doanh" : "Ngừng kinh doanh", p.created_at ? new Date(p.created_at).toLocaleDateString("vi-VN") : ""
+        p.sku, p.barcode || "", p.name, p.category_name || "", p.brand_name || p.brand || "", typeLabel(p.product_type), p.base_unit || "Cái", p.price, p.cost ?? 0, p.stock_quantity, p.min_stock ?? "", p.max_stock ?? "", p.location || "", p.supplier_name || "", p.description || "", p.note || "", p.warranty_months ?? 0, p.tax_percent ?? 0, p.active ? "Đang kinh doanh" : "Ngừng kinh doanh", p.created_at ? new Date(p.created_at).toLocaleDateString("vi-VN") : ""
       ].map(csvEscape).join(",")),
     ];
     const blob = new Blob([`\ufeff${lines.join("\n")}`], { type: "text/csv;charset=utf-8" });
@@ -223,11 +258,10 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   }
 
   function downloadTemplate() {
-    const headers = ["Mã hàng", "Tên hàng*", "Nhóm hàng", "Loại hàng (product/service/combo)", "Giá bán", "Giá vốn", "Tồn kho", "Mô tả"];
+    const headers = ["Mã hàng", "Mã vạch", "Tên hàng*", "Nhóm hàng", "Thương hiệu", "Loại hàng (product/service/combo)", "Đơn vị", "Giá bán", "Giá vốn", "Tồn kho", "Tồn ít nhất", "Tồn nhiều nhất", "Vị trí", "Bảo hành (tháng)", "Thuế (%)", "Mô tả"];
     const sample = [
-      ["SP001", "Cà phê đen đá", "Đồ uống", "product", "25000", "15000", "100", "Mẫu 1"],
-      ["SP002", "Bạc sỉu", "Đồ uống", "product", "30000", "18000", "50", "Mẫu 2"],
-      ["DV001", "Phí ship", "", "service", "15000", "0", "0", "Dịch vụ"],
+      ["SP001", "893000000001", "Cà phê đen đá", "Đồ uống", "PioPio", "product", "Ly", "25000", "15000", "100", "10", "200", "Kệ A", "0", "0", "Mẫu 1"],
+      ["SP002", "893000000002", "Bạc sỉu", "Đồ uống", "PioPio", "product", "Ly", "30000", "18000", "50", "5", "100", "Kệ A", "0", "0", "Mẫu 2"],
     ];
     const lines = [headers.map(csvEscape).join(","), ...sample.map((r) => r.map(csvEscape).join(","))];
     const blob = new Blob([`\ufeff${lines.join("\n")}`], { type: "text/csv;charset=utf-8" });
@@ -251,13 +285,21 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       const headers = parseCsvLine(lines[0]).map(normalizeHeader);
       const idx = {
         sku: headers.findIndex((h) => ["mã hàng", "ma hang", "sku", "mã"].includes(h)),
+        barcode: headers.findIndex((h) => ["mã vạch", "ma vach", "barcode"].includes(h)),
         name: headers.findIndex((h) => ["tên hàng", "ten hang", "tên hàng*", "name"].includes(h)),
         category: headers.findIndex((h) => ["nhóm hàng", "nhom hang", "category", "nhóm"].includes(h)),
+        brand: headers.findIndex((h) => ["thương hiệu", "thuong hieu", "brand"].includes(h)),
+        unit: headers.findIndex((h) => ["đơn vị", "don vi", "unit"].includes(h)),
         type: headers.findIndex((h) => h.includes("loại hàng") || h === "type" || h === "product_type"),
         price: headers.findIndex((h) => ["giá bán", "gia ban", "price"].includes(h)),
         cost: headers.findIndex((h) => ["giá vốn", "gia von", "cost", "giá nhập"].includes(h)),
         stock: headers.findIndex((h) => ["tồn kho", "ton kho", "stock", "số lượng", "tồn"].includes(h)),
         desc: headers.findIndex((h) => ["mô tả", "mo ta", "ghi chú", "description", "note"].includes(h)),
+        minStock: headers.findIndex((h) => ["tồn ít nhất", "ton it nhat", "min stock"].includes(h)),
+        maxStock: headers.findIndex((h) => ["tồn nhiều nhất", "ton nhieu nhat", "max stock"].includes(h)),
+        location: headers.findIndex((h) => ["vị trí", "vi tri", "location"].includes(h)),
+        warranty: headers.findIndex((h) => h.includes("bảo hành") || h === "warranty"),
+        tax: headers.findIndex((h) => h.includes("thuế") || h === "tax"),
       };
       if (idx.name === -1) { setNotice("Không tìm thấy cột 'Tên hàng' trong file. Vui lòng tải file mẫu."); return; }
       const preview: Array<Record<string, string>> = [];
@@ -286,6 +328,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     const { headers: idx, lines } = parsed;
     const items: Array<Record<string, unknown>> = [];
     const catMap = new Map(categoryOptions.map((c) => [c.name.toLowerCase(), c.id]));
+    const brandMap = new Map(brandOptions.map((b) => [b.name.toLowerCase(), b.id]));
     for (const line of lines) {
       if (!line.trim()) continue;
       const cells = parseCsvLine(line);
@@ -293,6 +336,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       if (!name) continue;
       const sku = (idx.sku >= 0 ? cells[idx.sku] : "")?.trim();
       const catName = (idx.category >= 0 ? cells[idx.category] : "")?.trim();
+      const brandName = (idx.brand >= 0 ? cells[idx.brand] : "")?.trim();
       const typeRaw = (idx.type >= 0 ? cells[idx.type] : "")?.trim().toLowerCase();
       const price = Number((idx.price >= 0 ? cells[idx.price] : "0")?.replace(/[^\d.-]/g, "") || 0);
       const cost = Number((idx.cost >= 0 ? cells[idx.cost] : "0")?.replace(/[^\d.-]/g, "") || 0);
@@ -300,11 +344,19 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       const desc = (idx.desc >= 0 ? cells[idx.desc] : "")?.trim();
       items.push({
         sku: sku || undefined,
+        barcode: idx.barcode >= 0 ? (cells[idx.barcode] || "").trim() : null,
         name,
         price: Number.isFinite(price) ? price : 0,
         cost: Number.isFinite(cost) ? cost : 0,
         stock: Number.isFinite(stock) ? Math.trunc(stock) : 0,
         category_id: catName ? (catMap.get(catName.toLowerCase()) || null) : null,
+        brand_id: brandName ? (brandMap.get(brandName.toLowerCase()) || null) : null,
+        base_unit: idx.unit >= 0 ? (cells[idx.unit] || "Cái").trim() : "Cái",
+        min_stock: idx.minStock >= 0 ? Number(cells[idx.minStock] || 0) : null,
+        max_stock: idx.maxStock >= 0 ? Number(cells[idx.maxStock] || 0) : null,
+        location: idx.location >= 0 ? (cells[idx.location] || "").trim() : null,
+        warranty_months: idx.warranty >= 0 ? Number(cells[idx.warranty] || 0) : 0,
+        tax_percent: idx.tax >= 0 ? Number(cells[idx.tax] || 0) : 0,
         supplier_id: null,
         product_type: ["service", "combo", "product"].includes(typeRaw) ? typeRaw : "product",
         description: desc || null,
@@ -312,7 +364,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     }
     if (!items.length) { setNotice("Không có dòng hợp lệ để import."); return; }
     setSaving(true);
-    const res = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items, mode: importMode }) });
+    const mode = importExcelOpt1 === "replace" || importExcelOpt2 === "replace" ? "update" : importMode;
+    const res = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items, mode, file_name: importFileName, update_stock: importExcelOpt3 === "yes" }) });
     const result = await res.json();
     setSaving(false);
     if (!res.ok) { setNotice(result.error || "Import thất bại."); return; }
@@ -429,6 +482,11 @@ export default function ProductClient({ profile, initialProducts, initialCategor
             <div className="kv-create-main">
               <label className="kv-field">Mã hàng<input value={newProduct.sku} onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })} placeholder="Tự động" /></label>
               <label className="kv-field">Tên hàng<span className="kv-req">*</span><input autoFocus required value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} placeholder="Bắt buộc" /></label>
+              <div className="kv-three-grid">
+                <label className="kv-field">Mã vạch<input value={newProduct.barcode} onChange={(e) => setNewProduct({ ...newProduct, barcode: e.target.value })} placeholder="Nhập hoặc quét mã vạch" /></label>
+                <label className="kv-field">Đơn vị cơ bản<input value={newProduct.base_unit} onChange={(e) => setNewProduct({ ...newProduct, base_unit: e.target.value })} placeholder="Cái" /></label>
+                <label className="kv-field">Bán theo<select value={newProduct.sold_by} onChange={(e) => setNewProduct({ ...newProduct, sold_by: e.target.value as "quantity" | "weight" })}><option value="quantity">Số lượng</option><option value="weight">Trọng lượng</option></select></label>
+              </div>
               <div className="kv-create-row2">
                 <label className="kv-field">Nhóm hàng<span style={{ color: "#666", fontWeight: 400, marginLeft: 4 }}></span>
                   <div className="kv-select-wrap">
@@ -442,14 +500,14 @@ export default function ProductClient({ profile, initialProducts, initialCategor
                 <button type="button" className="kv-link" onClick={() => { const n = prompt("Tên nhóm mới:"); if (n) createCategory(n); }} style={{ alignSelf: "end", marginBottom: 8 }}>Tạo mới</button>
                 <label className="kv-field">Thương hiệu
                   <div className="kv-select-wrap">
-                    <select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}>
+                    <select value={newProduct.brand_id} onChange={(e) => setNewProduct({ ...newProduct, brand_id: e.target.value })}>
                       <option value="">Chọn thương hiệu</option>
-                      {supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      {brandOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                     <ChevronDown size={14} className="kv-select-chevron" />
                   </div>
                 </label>
-                <button type="button" className="kv-link" style={{ alignSelf: "end", marginBottom: 8 }}>Tạo mới</button>
+                <button type="button" className="kv-link" onClick={() => { const n = prompt("Tên thương hiệu mới:"); if (n) createBrand(n); }} style={{ alignSelf: "end", marginBottom: 8 }}>Tạo mới</button>
               </div>
             </div>
             <div className="kv-create-images">
@@ -457,9 +515,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
                 {createImages[0] ? <img src={createImages[0]} alt="preview" /> : <div className="kv-image-placeholder"><ImageIcon size={28} color="#b9c4d2" /></div>}
                 <label className="kv-image-add">
                   <input type="file" accept="image/*" hidden onChange={(e) => {
-                    const f = e.target.files?.[0]; if (!f) return;
-                    if (f.size > 2 * 1024 * 1024) { setNotice("Mỗi ảnh không quá 2 MB — giống KiotViet."); return; }
-                    const url = URL.createObjectURL(f); setCreateImages((prev) => [url, ...prev].slice(0, 5));
+                    const f = e.target.files?.[0]; if (f) uploadProductImage(f);
                   }} />
                   <span>Thêm ảnh</span>
                 </label>
@@ -500,11 +556,28 @@ export default function ProductClient({ profile, initialProducts, initialCategor
               {stockOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
             {stockOpen && <div className="kv-collapse-body">
-              <label className="kv-field" style={{ maxWidth: 260 }}>Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} placeholder="0" /></label>
+              <div className="kv-three-grid" style={{ paddingTop: 12 }}>
+                <label className="kv-field">Chi nhánh<select value={newProduct.branch_id} onChange={(e) => setNewProduct({ ...newProduct, branch_id: e.target.value })}><option value="">Chi nhánh trung tâm</option>{branchOptions.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
+                <label className="kv-field">Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} placeholder="0" /></label>
+                <label className="kv-field">Vị trí<input value={newProduct.location} onChange={(e) => setNewProduct({ ...newProduct, location: e.target.value })} placeholder="Kệ, kho..." /></label>
+                <label className="kv-field">Định mức tồn ít nhất<input type="number" min="0" value={newProduct.min_stock} onChange={(e) => setNewProduct({ ...newProduct, min_stock: e.target.value })} placeholder="0" /></label>
+                <label className="kv-field">Định mức tồn nhiều nhất<input type="number" min="0" value={newProduct.max_stock} onChange={(e) => setNewProduct({ ...newProduct, max_stock: e.target.value })} placeholder="0" /></label>
+                <label className="kv-field">Nhà cung cấp<select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}><option value="">Chọn nhà cung cấp</option>{supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              </div>
             </div>}
           </div>
+
+          <div className="kv-collapse open">
+            <div className="kv-collapse-head"><span>Thông tin mở rộng</span><ChevronUp size={16} /></div>
+            <div className="kv-collapse-body"><div className="kv-three-grid" style={{ paddingTop: 12 }}>
+              <label className="kv-field">Trọng lượng<input type="number" min="0" step="0.001" value={newProduct.weight} onChange={(e) => setNewProduct({ ...newProduct, weight: e.target.value })} placeholder="0" /></label>
+              <label className="kv-field">Bảo hành (tháng)<input type="number" min="0" value={newProduct.warranty_months} onChange={(e) => setNewProduct({ ...newProduct, warranty_months: e.target.value })} /></label>
+              <label className="kv-field">Thuế (%)<input type="number" min="0" value={newProduct.tax_percent} onChange={(e) => setNewProduct({ ...newProduct, tax_percent: e.target.value })} /></label>
+            </div></div>
+          </div>
         </> : <div className="kv-desc-tab">
-          <label className="kv-field">Mô tả / Ghi chú<textarea rows={6} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Nhập mô tả chi tiết hàng hóa..." style={{ minHeight: 160 }} /></label>
+          <label className="kv-field">Mô tả<textarea rows={6} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Nhập mô tả chi tiết hàng hóa..." style={{ minHeight: 160 }} /></label>
+          <label className="kv-field" style={{ marginTop: 14 }}>Ghi chú nội bộ<textarea rows={4} value={newProduct.note} onChange={(e) => setNewProduct({ ...newProduct, note: e.target.value })} placeholder="Ghi chú chỉ nhân viên cửa hàng nhìn thấy..." /></label>
         </div>}
       </div>
       <footer className="kv-modal-footer">

@@ -6,21 +6,27 @@ export const dynamic = "force-dynamic";
 export default async function ProductsPage() {
   const { supabase, profile } = await requireProfile("manager");
   // Thử select đầy đủ (kể cả cột 003_product_extra) - nếu chưa migrate thì fallback tự động
+  const catalogSelect = "id,name,sku,price,cost,stock_quantity,active,created_at,category_id,supplier_id,product_type,direct_sale,linked_sale_channel,expected_out_of_stock_at,description,note,brand,location,min_stock,max_stock,barcode,brand_id,base_unit,sold_by,weight,warranty_months,tax_percent,attributes,units,price_lists,images,track_inventory,product_categories(name),suppliers(name),product_brands(name)";
   const fullSelect = "id,name,sku,price,cost,stock_quantity,active,created_at,category_id,supplier_id,product_type,direct_sale,linked_sale_channel,expected_out_of_stock_at,description,note,brand,location,min_stock,max_stock,product_categories(name),suppliers(name)";
   const extendedSelect = "id,name,sku,price,cost,stock_quantity,active,created_at,category_id,supplier_id,product_type,direct_sale,linked_sale_channel,expected_out_of_stock_at,product_categories(name),suppliers(name)";
-  let extended = await supabase.from("products").select(fullSelect).order("created_at", { ascending: false });
+  let extended = await supabase.from("products").select(catalogSelect).order("created_at", { ascending: false });
+  if (extended.error && String(extended.error.code) === "42703") {
+    extended = await supabase.from("products").select(fullSelect).order("created_at", { ascending: false }) as typeof extended;
+  }
   if (extended.error && String(extended.error.code) === "42703") {
     extended = await supabase.from("products").select(extendedSelect).order("created_at", { ascending: false }) as typeof extended;
   }
   const fallback = extended.error ? await supabase.from("products").select("id,name,sku,price,cost,stock_quantity,active,created_at").order("created_at", { ascending: false }) : null;
   const source = extended.error ? fallback?.data || [] : extended.data || [];
   const products = source.map((row) => {
-    const item = row as typeof row & { product_categories?: { name?: string } | null; suppliers?: { name?: string } | null };
-    return { ...item, category_name: item.product_categories?.name || null, supplier_name: item.suppliers?.name || null };
+    const item = row as typeof row & { product_categories?: { name?: string } | null; suppliers?: { name?: string } | null; product_brands?: { name?: string } | null };
+    return { ...item, category_name: item.product_categories?.name || null, supplier_name: item.suppliers?.name || null, brand_name: item.product_brands?.name || null };
   });
-  const [categoryResult, supplierResult] = await Promise.all([
+  const [categoryResult, supplierResult, brandResult, branchResult] = await Promise.all([
     supabase.from("product_categories").select("id,name").order("name"),
     supabase.from("suppliers").select("id,name").order("name"),
+    supabase.from("product_brands").select("id,name").order("name"),
+    supabase.from("store_branches").select("id,name").eq("active", true).order("is_default", { ascending: false }),
   ]);
-  return <ProductClient profile={profile} initialProducts={products} initialCategories={categoryResult.data || []} initialSuppliers={supplierResult.data || []} />;
+  return <ProductClient profile={profile} initialProducts={products} initialCategories={categoryResult.data || []} initialSuppliers={supplierResult.data || []} initialBrands={brandResult.data || []} initialBranches={branchResult.data || []} />;
 }
