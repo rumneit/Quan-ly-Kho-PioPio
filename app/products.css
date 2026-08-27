@@ -283,3 +283,74 @@
   .kv-dynamic-row.three,.kv-dynamic-row.two,.kv-dynamic-row.component{grid-template-columns:1fr 40px!important}
   .kv-dynamic-row.three input:nth-child(2),.kv-dynamic-row.three input:nth-child(3),.kv-dynamic-row.two input:nth-child(2),.kv-dynamic-row.component input{grid-column:1/2!important}
 }
+
+/* Balanced scale: compact enough for daily use while preserving KiotViet proportions. */
+@media(min-width:1201px){
+  .product-actions{grid-template-columns:240px minmax(360px,760px) auto!important;min-height:56px!important;padding:8px 18px!important;gap:16px!important}
+  .kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important;font-size:0!important;line-height:0!important;gap:0!important;overflow:hidden!important}
+  .kv-toolbar-100>.kv-btn svg,.kv-create-wrap>.kv-btn svg{width:18px!important;height:18px!important;margin:0!important;flex:0 0 18px!important}
+  .kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+}
+.product-page .product-actions h1{font-size:22px!important;line-height:28px!important}
+.product-query{height:40px!important;border-radius:8px!important;padding:0 13px!important}
+.product-query input{font-size:15px!important;line-height:20px!important}
+.advanced-search-toggle{width:26px!important;height:26px!important;right:7px!important}
+.kv-toolbar-100{gap:8px!important}
+.kv-toolbar-100 .kv-btn-icon{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;border-radius:8px!important}
+.kv-toolbar-100 .kv-btn-icon svg{width:18px!important;height:18px!important}
+.kv-dropdown{top:46px!important;min-width:205px!important;border-radius:8px!important}
+.kv-dropdown button{padding:10px 14px!important;font-size:15px!important;line-height:20px!important}
+
+.kv-modal-large{width:min(1280px,calc(100vw - 48px))!important;height:min(88vh,820px)!important;border-radius:12px!important}
+.kv-modal-header{padding:16px 22px!important}
+.kv-modal-header h2{font-size:22px!important;line-height:28px!important}
+.kv-modal-close{width:34px!important;height:34px!important}
+.kv-modal-close svg{width:20px!important;height:20px!important}
+.kv-modal-tabs{gap:32px!important;padding:0 22px!important}
+.kv-modal-tabs button{padding:13px 0 10px!important;font-size:16px!important;line-height:22px!important}
+.kv-modal-body{padding:18px 22px!important}
+.kv-create-grid{grid-template-columns:minmax(0,1fr) 260px!important;gap:22px!important}
+.kv-create-main{gap:13px!important}
+.kv-field{gap:6px!important;font-size:14px!important;line-height:20px!important}
+.kv-field input,.kv-field select,.kv-field textarea{height:38px!important;border-radius:7px!important;padding:0 12px!important;font-size:15px!important;line-height:20px!important}
+.kv-field textarea{height:auto!important;padding:10px 12px!important}
+.kv-create-row2{gap:8px!important}
+.kv-three-grid{gap:12px!important}
+.kv-link{font-size:14px!important;line-height:20px!important}
+.kv-image-main{min-height:205px!important;border-radius:9px!important;padding:14px!important}
+.kv-image-placeholder{height:85px!important}
+.kv-image-add{padding:7px 14px!important;border-radius:7px!important;font-size:14px!important}
+.kv-image-main small{font-size:12px!important}
+.kv-thumb{height:48px!important;border-radius:7px!important}
+.kv-collapse{margin-top:16px!important;border-radius:9px!important}
+.kv-collapse-head{padding:14px 16px!important;font-size:16px!important}
+.kv-collapse-head small{font-size:13px!important;line-height:18px!important}
+.kv-collapse-body{padding:0 16px 16px!important}
+.kv-price-grid{gap:20px!important;padding-top:14px!important;max-width:720px!important}
+.kv-dynamic-title{font-size:14px!important;margin-bottom:9px!important}
+.kv-dynamic-row input,.kv-dynamic-row select{height:36px!important;border-radius:7px!important;padding:0 11px!important;font-size:14px!important}
+.kv-dynamic-row>button{width:34px!important;height:34px!important}
+.kv-modal-footer{padding:11px 22px!important;min-height:62px!important}
+.kv-check{font-size:14px!important}
+.kv-check input{width:18px!important;height:18px!important}
+.kv-modal-footer .kv-btn,.kv-btn-primary{height:40px!important;border-radius:7px!important;padding:0 17px!important;font-size:14px!important}
+
+.kv-modal-small{width:min(620px,calc(100vw - 32px))!important;border-radius:12px!important}
+.kv-modal-small .kv-modal-header{padding:18px 22px!important}
+.kv-chooser-body{padding:16px 22px 24px!important;gap:14px!important}
+.kv-chooser-card{padding:18px!important;border-radius:9px!important}
+.kv-chooser-title{font-size:17px!important;line-height:23px!important;margin-bottom:7px!important}
+.kv-chooser-desc{font-size:14px!important;line-height:20px!important}
+.kv-modal-medium{width:min(900px,calc(100vw - 40px))!important;border-radius:12px!important}
+.kv-modal-medium .kv-modal-body{padding:0 24px!important}
+.kv-import-section{padding:18px 0!important}
+.kv-import-section-title{font-size:16px!important;line-height:22px!important;margin-bottom:9px!important}
+.kv-radio-large{gap:10px!important;padding:7px 0!important;font-size:15px!important;line-height:21px!important}
+.kv-radio-large input{width:19px!important;height:19px!important}
+.kv-suggest-toolbar{gap:16px!important;margin-bottom:16px!important}
+.kv-search,.kv-suggest-toolbar .kv-select-wrap select{height:40px!important;border-radius:8px!important}
+.kv-search input,.kv-suggest-toolbar .kv-select-wrap select{font-size:15px!important}
+.kv-suggest-table{font-size:14px!important}
+.kv-suggest-table th{height:42px!important;padding:0 11px!important;font-size:13px!important}
+.kv-suggest-table td{padding:9px 11px!important;line-height:19px!important}
+.kv-cell-input{width:105px!important;height:32px!important;border-radius:7px!important;font-size:14px!important}
