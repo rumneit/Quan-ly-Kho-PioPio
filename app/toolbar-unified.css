@@ -812,3 +812,14 @@
 .settings-token-box code { display: block !important; padding: 10px 12px !important; border: 1px dashed #9ad6b0 !important; border-radius: 6px !important; background: #fff !important; color: #0f5132 !important; font-size: 13px !important; word-break: break-all !important; }
 .settings-token-box p { margin: 8px 0 0 !important; font-size: 12px !important; color: #187442 !important; }
 .settings-table code { padding: 2px 6px !important; border-radius: 4px !important; background: #f4f5f7 !important; color: #2e3541 !important; font-size: 12px !important; }
+
+/* =====================================================================
+   DASHBOARD — KiotViet "Kết quả bán hàng hôm nay" additions
+   ===================================================================== */
+.kv-stat-icon.green { background: #20ae5b !important; }
+.kv-today-stats article:nth-child(3) { padding-left: 24px !important; border-left: 1px solid #e7ebef !important; }
+.kv-today-compare { display: flex !important; flex-wrap: wrap !important; gap: 8px 24px !important; margin-top: 16px !important; padding-top: 12px !important; border-top: 1px solid #eef1f4 !important; }
+.kv-today-compare span { font-size: 13px !important; color: #6b7a8d !important; }
+.kv-today-compare b { margin-left: 6px !important; font-size: 13px !important; font-weight: 600 !important; }
+.kv-today-compare b.up { color: #188448 !important; }
+.kv-today-compare b.down { color: #d64545 !important; }

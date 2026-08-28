@@ -65,6 +65,29 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const todayRevenue = todayOrders.filter((order) => order.status === "paid").reduce((sum, order) => sum + Number(order.total), 0);
   const todayReturns = todayOrders.filter((order) => order.status === "refunded").reduce((sum, order) => sum + Number(order.total), 0);
   const todayInvoiceCount = todayOrders.filter((order) => order.status === "paid").length;
+  const todayNet = todayRevenue - todayReturns;
+
+  const yesterdayNet = useMemo(() => {
+    const rows = orders.filter((order) => inRange(order.created_at, "Hôm qua"));
+    return rows.filter((order) => order.status === "paid").reduce((sum, order) => sum + Number(order.total), 0)
+      - rows.filter((order) => order.status === "refunded").reduce((sum, order) => sum + Number(order.total), 0);
+  }, [orders]);
+
+  const samePeriodLastMonthNet = useMemo(() => {
+    const now = new Date();
+    const ref = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+    const rows = orders.filter((order) => {
+      const date = new Date(order.created_at);
+      return date >= start && date <= end && date.getDate() === ref.getDate();
+    });
+    return rows.filter((order) => order.status === "paid").reduce((sum, order) => sum + Number(order.total), 0)
+      - rows.filter((order) => order.status === "refunded").reduce((sum, order) => sum + Number(order.total), 0);
+  }, [orders]);
+
+  const pctVsYesterday = yesterdayNet !== 0 ? Math.round(((todayNet - yesterdayNet) / Math.abs(yesterdayNet)) * 100) : (todayNet > 0 ? 100 : 0);
+  const pctVsLastMonth = samePeriodLastMonthNet !== 0 ? Math.round(((todayNet - samePeriodLastMonthNet) / Math.abs(samePeriodLastMonthNet)) * 100) : (todayNet > 0 ? 100 : 0);
 
   const chartOrders = useMemo(() => orders.filter((order) => inRange(order.created_at, dateRange)), [orders, dateRange]);
   const chartData = useMemo(() => {
@@ -139,7 +162,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
       {message && <div className="kv-toast-message">✓ {message}</div>}
       <div className="kv-dashboard-grid">
         <div className="kv-main-column">
-          <section className="kv-card kv-today-card kv-enter"><h2>Kết quả bán hàng hôm nay</h2><div className="kv-today-stats"><article><span className="kv-stat-icon blue"><DollarSign size={18} /></span><div><small>Doanh thu</small><strong>{money(todayRevenue)}</strong>{todayInvoiceCount > 0 && <p>{todayInvoiceCount} hóa đơn</p>}</div></article><article><span className="kv-stat-icon orange"><RotateCcw size={17} /></span><div><small>Trả hàng</small><strong>{money(todayReturns)}</strong></div></article></div></section>
+          <section className="kv-card kv-today-card kv-enter"><h2>Kết quả bán hàng hôm nay</h2><div className="kv-today-stats"><article><span className="kv-stat-icon blue"><DollarSign size={18} /></span><div><small>Doanh thu</small><strong>{money(todayRevenue)}</strong>{todayInvoiceCount > 0 && <p>{todayInvoiceCount} hóa đơn</p>}</div></article><article><span className="kv-stat-icon orange"><RotateCcw size={17} /></span><div><small>Trả hàng</small><strong>{money(todayReturns)}</strong></div></article><article><span className="kv-stat-icon green"><DollarSign size={18} /></span><div><small>Doanh thu thuần</small><strong>{money(todayNet)}</strong></div></article></div><div className="kv-today-compare"><span>So với hôm qua <b className={pctVsYesterday >= 0 ? "up" : "down"}>{pctVsYesterday >= 0 ? "▲" : "▼"} {Math.abs(pctVsYesterday)}%</b></span><span>So với cùng kỳ tháng trước <b className={pctVsLastMonth >= 0 ? "up" : "down"}>{pctVsLastMonth >= 0 ? "▲" : "▼"} {Math.abs(pctVsLastMonth)}%</b></span></div></section>
           <section className="kv-card kv-chart-card kv-enter delay-1"><div className="kv-card-title"><h2>Doanh thu thuần <b>{money(chartTotal)}</b></h2><select aria-label="Khoảng thời gian" value={dateRange} onChange={(event) => setDateRange(event.target.value as DateRange)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div><div className="kv-tabs"><button className={chartMode === "day" ? "active" : ""} onClick={() => setChartMode("day")}>Theo ngày</button><button className={chartMode === "hour" ? "active" : ""} onClick={() => setChartMode("hour")}>Theo giờ</button><button className={chartMode === "weekday" ? "active" : ""} onClick={() => setChartMode("weekday")}>Theo thứ</button></div><div className="kv-chart"><div className="kv-y-axis">{hasChartData ? <><span>{money(chartMax)}</span><span>{money(chartMax * .75)}</span><span>{money(chartMax * .5)}</span><span>{money(chartMax * .25)}</span></> : <><span /><span /><span /><span /></>}<span>0</span></div><div className="kv-bars">{chartData.values.map((value, index) => <i key={`${chartData.labels[index]}-${index}`} title={`${chartData.labels[index]}: ${money(value)}`} style={{ height: value ? `${Math.max(2, Math.abs(value) / chartMax * 100)}%` : "1px" }}><span>{chartData.labels[index]}</span></i>)}</div>{!hasChartData && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()}</div>}</div></section>
           <div className="kv-rank-grid">
             <section className="kv-card kv-rank-card kv-enter delay-2"><div className="kv-card-title"><h2>Top 10 hàng bán chạy</h2><div className="kv-rank-filters"><select aria-label="Tiêu chí xếp hạng" value={rankingMetric} onChange={(event) => setRankingMetric(event.target.value as typeof rankingMetric)}><option>Doanh thu thuần</option><option>Số lượng</option></select><select aria-label="Khoảng thời gian hàng bán chạy" value={rankingRange} onChange={(event) => setRankingRange(event.target.value as DateRange)}><option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option></select></div></div>{topProducts.length ? <div className="kv-top-products">{topProducts.map((product, index) => <div key={product.id}><b>{index + 1}</b><span>{product.name}<small>{product.sku}</small></span><strong>{rankingMetric === "Số lượng" ? `${money(product.quantity)} sản phẩm` : money(product.revenue)}</strong></div>)}</div> : <div className="kv-empty"><PackageOpen size={42} /><p>Chưa có dữ liệu</p><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}</section>
