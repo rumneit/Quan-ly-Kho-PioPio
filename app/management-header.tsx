@@ -7,7 +7,8 @@ export type ManagementSection =
   | "suppliers" | "purchase-orders" | "purchase-returns"
   | "orders" | "invoices" | "returns" | "delivery-partners" | "waybills"
   | "customers" | "cashflow" | "end-of-day-report"
-  | "sale-report" | "order-report" | "product-report" | "customer-report" | "supplier-report" | "sale-channel-report" | "financial-report";
+  | "sale-report" | "order-report" | "product-report" | "customer-report" | "supplier-report" | "sale-channel-report" | "financial-report"
+  | "settings" | "settings-store" | "settings-branches" | "settings-users" | "settings-product-info" | "settings-data";
 
 export default function ManagementHeader({ profile, active }: { profile: Profile; active: ManagementSection }) {
   const initials = profile.full_name.split(" ").map((item) => item[0]).slice(-2).join("");
@@ -26,6 +27,7 @@ export default function ManagementHeader({ profile, active }: { profile: Profile
       <div className="kv-nav-dropdown"><button className={`kv-top-item ${active === "customers" ? "active" : ""}`} aria-haspopup="true">Khách hàng</button><div className="kv-submenu customer-submenu"><section><h3>Khách hàng</h3><Link className={active === "customers" ? "active" : ""} href="/customers">Khách hàng</Link></section></div></div>
       <Link className={`kv-top-item ${active === "cashflow" ? "active" : ""}`} href="/cashflow">Sổ quỹ</Link>
       <div className="kv-nav-dropdown"><button className={`kv-top-item ${reportActive ? "active" : ""}`} aria-haspopup="true">Báo cáo</button><div className="kv-submenu report-submenu"><section><h3>Báo cáo</h3><Link className={active === "end-of-day-report" ? "active" : ""} href="/end-of-day-report">Cuối ngày</Link><Link className={active === "sale-report" ? "active" : ""} href="/sale-report">Bán hàng</Link><Link className={active === "order-report" ? "active" : ""} href="/order-report">Đặt hàng</Link><Link className={active === "product-report" ? "active" : ""} href="/product-report">Hàng hóa</Link><Link className={active === "customer-report" ? "active" : ""} href="/customer-report">Khách hàng</Link><Link className={active === "supplier-report" ? "active" : ""} href="/supplier-report">Nhà cung cấp</Link><Link className={active === "sale-channel-report" ? "active" : ""} href="/sale-channel-report">Kênh bán hàng</Link><Link className={active === "financial-report" ? "active" : ""} href="/financial-report">Tài chính</Link></section></div></div>
+      <Link className={`kv-top-item ${active === "settings" || active === "settings-store" || active === "settings-branches" || active === "settings-users" || active === "settings-product-info" || active === "settings-data" ? "active" : ""}`} href="/settings">Cài đặt</Link>
       <span className="kv-top-item">Bán online</span>
     </div><Link className="kv-sale-link" href="/sales"><ShoppingCart size={20} />Bán hàng</Link></nav>
   </>;
