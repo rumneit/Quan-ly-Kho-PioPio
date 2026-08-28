@@ -527,3 +527,120 @@
   font-size: 14px !important;
   line-height: 20px !important;
 }
+
+/* =====================================================================
+   DATE RANGE PICKER — KiotViet-style calendar popover (date-range-picker.tsx)
+   ===================================================================== */
+.date-range-picker {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+}
+.date-range-picker .filter-select-button {
+  width: 100% !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid #d1d5da !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #15171a !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  text-align: left !important;
+}
+.date-range-picker .filter-select-button:focus-within,
+.date-range-picker .filter-select-button[aria-expanded="true"] {
+  border-color: #0070f4 !important;
+  box-shadow: 0 0 0 2px rgba(0, 112, 244, .12) !important;
+}
+.date-range-picker .filter-select-button svg {
+  color: #85909d !important;
+  flex: 0 0 auto !important;
+}
+.date-filter-popover {
+  position: absolute !important;
+  z-index: 160 !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  min-width: 320px !important;
+  max-width: min(680px, calc(100vw - 24px)) !important;
+  background: #fff !important;
+  border: 1px solid #e1e6ec !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 32px rgba(16, 30, 54, .16) !important;
+  overflow: hidden !important;
+}
+.date-filter-tabs {
+  display: flex !important;
+  gap: 20px !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid #e8eaed !important;
+  background: #fff !important;
+}
+.date-filter-tabs button {
+  height: 38px !important;
+  padding: 0 2px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  color: #6b7a8d !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+.date-filter-tabs button.active {
+  color: #0070f4 !important;
+  border-bottom-color: #0070f4 !important;
+}
+.date-filter-popover .preset-panel {
+  padding: 12px 16px !important;
+  max-height: 320px !important;
+  overflow: auto !important;
+}
+.date-filter-popover .dual-calendar {
+  padding: 14px 16px 10px !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 18px !important;
+}
+.date-filter-popover .date-range-header {
+  position: static !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #eef1f4 !important;
+  font-size: 13px !important;
+}
+.date-filter-popover footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 16px !important;
+  border-top: 1px solid #eef1f4 !important;
+  background: #fafbfc !important;
+}
+.date-filter-popover footer button {
+  height: 30px !important;
+  padding: 0 12px !important;
+  border: 1px solid #d1d5da !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #2e3541 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+.date-filter-popover footer button.today {
+  margin-right: auto !important;
+}
+.date-filter-popover footer button.primary {
+  border-color: #0070f4 !important;
+  background: #0070f4 !important;
+  color: #fff !important;
+}
+.date-filter-popover footer button:disabled {
+  opacity: .5 !important;
+  cursor: not-allowed !important;
+}

@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Columns3, Download, HelpCircle, Minus, Plus, Search, Settings, SlidersHorizontal, WalletCards, X } from "lucide-react";
+import { Columns3, Download, HelpCircle, Minus, Plus, Search, Settings, SlidersHorizontal, WalletCards, X } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 export type CashAccount = { id: string; name: string; account_type: "cash" | "bank" | "ewallet"; opening_balance: number; bank_name: string | null; bank_account: string | null; active: boolean };
 export type CashVoucher = {
@@ -32,13 +33,6 @@ type FilterState = { type: "all" | "receipt" | "expense"; kind: string; status: 
 const initialFilters: FilterState = { type: "all", kind: "", status: ["completed", "cancelled"], profit: "all", creatorId: "", partnerKind: "all", partnerQuery: "" };
 const emptyForm = { account_id: "", kind: "", partner_kind: "" as "" | "customer" | "supplier", partner_id: "", partner_name: "", amount: "", occurred_at: "", note: "", affects_profit: true };
 
-function monthRange(): { from: string; to: string } {
-  const now = new Date();
-  const from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  const to = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`;
-  return { from, to };
-}
-
 export default function CashFlowClient({ profile, initialAccounts, initialVouchers, initialCount, initialSummary, initialMeta, dataWarning = "" }: { profile: Profile; initialAccounts: CashAccount[]; initialVouchers: CashVoucher[]; initialCount: number; initialSummary: CashSummary; initialMeta: CashMeta; dataWarning?: string }) {
   const [accounts, setAccounts] = useState(initialAccounts);
   const [vouchers, setVouchers] = useState(initialVouchers);
@@ -48,8 +42,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
   const [fund, setFund] = useState<FundTab>("all");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const [datePreset, setDatePreset] = useState<"all" | "month" | "custom">("month");
-  const [dateRange, setDateRange] = useState(monthRange());
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`; const to = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`; return { preset: "this_month", from, to }; });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
   const [visible, setVisible] = useState<Record<string, boolean>>(() => Object.fromEntries(columns.map(([key]) => [key, defaultVisible.has(key)])));
@@ -78,7 +71,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
     if (filters.partnerQuery) params.set("partnerQuery", filters.partnerQuery);
     if (filters.profit === "yes") params.set("profit", "1");
     if (filters.profit === "no") params.set("profit", "0");
-    if (datePreset !== "all") { params.set("dateFrom", dateRange.from); params.set("dateTo", dateRange.to); }
+    if (dateValue.preset !== "all" && dateValue.from && dateValue.to) { params.set("dateFrom", dateValue.from); params.set("dateTo", dateValue.to); }
     return params;
   }
 
@@ -99,7 +92,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
       }
     }, query ? 280 : 0);
     return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [filters, page, pageSize, query, fund, datePreset, dateRange]);
+  }, [filters, page, pageSize, query, fund, dateValue]);
 
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
@@ -213,7 +206,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
     </div>
     <main className="product-workspace cash-workspace">
       <aside className="product-filter-sidebar business-sidebar cash-sidebar">
-        <section><h2>Thời gian</h2>{[["all", "Toàn thời gian"], ["month", "Tháng này"], ["custom", "Tùy chỉnh"]].map(([value, label]) => <label className="stock-radio" key={value}><input type="radio" name="cash-date" checked={datePreset === value} onChange={() => { if (value === "month") setDateRange(monthRange()); setDatePreset(value as "all" | "month" | "custom"); setPage(1); }} /><span>{label}</span>{value === "custom" && <CalendarDays size={16} />}</label>)}{datePreset === "custom" && <div className="cash-date-range"><input type="date" aria-label="Từ ngày" value={dateRange.from} onChange={(event) => setDateRange((current) => ({ ...current, from: event.target.value }))} /><input type="date" aria-label="Đến ngày" value={dateRange.to} onChange={(event) => setDateRange((current) => ({ ...current, to: event.target.value }))} /></div>}</section>
+        <section><h2>Thời gian</h2><DateRangePicker value={dateValue} onChange={setDateValue} /></section>
         <section><h2>Loại chứng từ</h2>{[["all", "Tất cả"], ["receipt", "Phiếu thu"], ["expense", "Phiếu chi"]].map(([value, label]) => <label className="stock-radio" key={value}><input type="radio" name="cash-type" checked={filters.type === value} onChange={() => changeFilter("type", value as FilterState["type"])} /><span>{label}</span></label>)}</section>
         <section><h2>Loại thu chi</h2><select aria-label="Loại thu chi" value={filters.kind} onChange={(event) => changeFilter("kind", event.target.value)}><option value="">Tất cả</option><optgroup label="Phiếu thu">{receiptKinds.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</optgroup><optgroup label="Phiếu chi">{expenseKinds.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</optgroup></select></section>
         <section><h2>Trạng thái</h2>{[["completed", "Hoàn thành"], ["cancelled", "Đã hủy"]].map(([value, label]) => <label className="stock-check" key={value}><input type="checkbox" checked={filters.status.includes(value)} onChange={() => toggleStatus(value)} />{label}</label>)}</section>

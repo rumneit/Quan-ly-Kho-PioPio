@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, CalendarDays, Download, FileSpreadsheet, Printer, TrendingUp } from "lucide-react";
+import { BarChart3, Download, FileSpreadsheet, Printer, TrendingUp } from "lucide-react";
 import ManagementHeader, { type ManagementSection } from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 export type ReportMode = "sales" | "orders" | "products" | "customers" | "suppliers" | "channels";
 type OrderItem = { quantity: number; line_total: number; unit_price: number; products?: { id?: string; sku?: string; name?: string; cost?: number; category_id?: string | null; brand_id?: string | null } | null };
@@ -59,9 +60,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
   const config = configs[mode];
   const [view, setView] = useState("Biểu đồ");
   const [interest, setInterest] = useState(config.interests[0]);
-  const [range, setRange] = useState("Tuần này");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_week", from: iso(start), to: iso(end) }; });
   const [groupProducts, setGroupProducts] = useState(true);
   const [status, setStatus] = useState("all");
   const [categoryId, setCategoryId] = useState("all");
@@ -77,16 +76,14 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
     const orderedProductIds = new Set(orderedProducts.map((product) => product.id));
     const orderedItemsHas = (item: OrderItem) => (item.products?.id ? orderedProductIds.has(item.products.id) : false);
     return orders.filter((order) => {
-      const cr = new Date(order.created_at), now = new Date();
-      const rangeOk = range === "Toàn thời gian" || range === "Tùy chỉnh" || (range === "Hôm nay" && cr.toDateString() === now.toDateString()) || (range === "Hôm qua" && now.getTime() - cr.getTime() >= 86400000 && now.getTime() - cr.getTime() < 172800000) || (range === "7 ngày qua" && now.getTime() - cr.getTime() <= 7 * 86400000) || (range === "Tuần này" && now.getTime() - cr.getTime() <= 7 * 86400000) || (range === "Tháng này" && cr.getMonth() === now.getMonth() && cr.getFullYear() === now.getFullYear());
-      const customOk = range !== "Tùy chỉnh" || ((!customFrom || order.created_at.slice(0, 10) >= customFrom) && (!customTo || order.created_at.slice(0, 10) <= customTo));
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || order.created_at.slice(0, 10) >= dateValue.from) && (!dateValue.to || order.created_at.slice(0, 10) <= dateValue.to));
       const statusOk = status === "all" || order.status === status;
       const sellerOk = sellerId === "all" || order.created_by === sellerId;
       const channelOk = channelFilter === "all" || (order.channel || "direct") === channelFilter;
       const productOk = (categoryId === "all" && brandId === "all" && productId === "all") || (order.order_items || []).some(orderedItemsHas);
-      return rangeOk && customOk && statusOk && sellerOk && channelOk && productOk;
+      return dateOk && statusOk && sellerOk && channelOk && productOk;
     });
-  }, [orders, range, customFrom, customTo, status, categoryId, brandId, productId, sellerId, channelFilter, orderedProducts]);
+  }, [orders, dateValue, status, categoryId, brandId, productId, sellerId, channelFilter, orderedProducts]);
 
   const rows = useMemo<Row[]>(() => {
     const paid = filteredOrders.filter((order) => order.status === "paid");
@@ -214,12 +211,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
             <section key={filter}>
               <h2>{filter}</h2>
               {filter.includes("Thời gian") ? (
-                <>
-                  <select value={range} onChange={(event) => setRange(event.target.value)}>
-                    <option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tuần này</option><option>Tháng này</option><option>Toàn thời gian</option><option>Tùy chỉnh</option>
-                  </select>
-                  {range === "Tùy chỉnh" && <div className="analytics-date-range"><label><input type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} /><CalendarDays size={15} /></label><label><input type="date" value={customTo} onChange={(event) => setCustomTo(event.target.value)} /><CalendarDays size={15} /></label></div>}
-                </>
+                <DateRangePicker value={dateValue} onChange={setDateValue} />
               ) : filter === "Trạng thái" ? (
                 <select value={status} onChange={(event) => setStatus(event.target.value)}>
                   <option value="all">Chọn trạng thái</option><option value="draft">Phiếu tạm</option><option value="paid">Hoàn thành</option><option value="cancelled">Đã hủy</option>
@@ -255,7 +247,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
           </div>
           {view === "Biểu đồ" ? (
             <section className="analytics-chart-card">
-              <header><div><h2>{chartTitle}</h2><p>{range}</p></div><strong>{money(Number(totals[metric]))}</strong></header>
+              <header><div><h2>{chartTitle}</h2><p>{dateValue.preset === "all" ? "Toàn thời gian" : dateValue.from && dateValue.to ? `${dateValue.from.split("-").reverse().join("/")} – ${dateValue.to.split("-").reverse().join("/")}` : ""}</p></div><strong>{money(Number(totals[metric]))}</strong></header>
               <div className="analytics-chart">
                 {topRows.length ? topRows.map((row) => <div className="analytics-bar" key={row.id}><span>{Number(row[metric]) ? money(Number(row[metric])) : "0"}</span><i style={{ height: `${Math.max(3, Math.abs(Number(row[metric])) / max * 100)}%` }} /><b>{row.label}</b></div>) : <div className="analytics-empty"><BarChart3 size={50} /><strong>Báo cáo không có dữ liệu</strong><p>Hãy chọn khoảng thời gian khác hoặc bổ sung giao dịch.</p></div>}
               </div>
