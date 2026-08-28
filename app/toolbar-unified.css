@@ -1,45 +1,161 @@
 /* =====================================================================
    UNIFIED MANAGEMENT TOOLBAR — loaded last for maximum specificity.
-   All pages: Tìm kiếm, Tạo Mới, Import, Xuất file → same size, icon,
-   spacing, and hover style. Icon-only buttons → 32px², text buttons
-   → 32px high with inline-flex + gap. Search box → 32px high.
+   Metrics measured from KiotViet "Danh sách hàng hóa" (#/Products/) at
+   1272px viewport:
+     H1        250x28, x=16, font 20px/28px 700, margin-right 12px
+     Search    430x32 wrapper, radius 8px, border 1px #d1d5da
+     Buttons   32x32, radius 8px, border 1px #d1d5da, pitch 40px (gap 8)
+     Primary   outline style: border+text #0070f4, background #fff
+     Sidebar   250 wide at x=16, padding 12px 12px 12px 0, radius 8px
+     Content   starts x=278 (sidebar right edge 266 + 12px gap)
    ===================================================================== */
 
-/* Search box — every page that uses .product-query */
+:root {
+  --kv-tool-size: 32px;
+  --kv-tool-radius: 8px;
+  --kv-tool-gap: 8px;
+  --kv-tool-border: #d1d5da;
+  --kv-tool-text: #3e464f;
+  --kv-tool-primary: #0070f4;
+  --kv-search-width: 430px;
+  --kv-sidebar-width: 250px;
+  --kv-page-inset: 16px;
+  --kv-sidebar-gap: 12px;
+}
+
+/* ---------- Actions bar: H1 250px + search + right-aligned tools ---------- */
+.product-page .product-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--kv-sidebar-gap) !important;
+  min-height: 56px !important;
+  padding: 0 var(--kv-page-inset) !important;
+  background: #f7f8f9 !important;
+  border-bottom: 1px solid #e8eaed !important;
+}
+.product-page .product-actions > h1 {
+  flex: 0 0 var(--kv-sidebar-width) !important;
+  width: var(--kv-sidebar-width) !important;
+  margin: 0 !important;
+  color: #15171a !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 28px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ---------- Search box: fixed 430px, pushes tools to the right ---------- */
 .product-page .product-toolbar .product-query,
-.product-page .product-actions .product-query {
-  height: 32px !important;
-  min-height: 32px !important;
-  max-height: 32px !important;
+.product-page .product-actions .product-query,
+.product-page .product-actions .product-query-wrap {
+  flex: 0 0 var(--kv-search-width) !important;
+  width: var(--kv-search-width) !important;
+  min-width: 0 !important;
+  max-width: var(--kv-search-width) !important;
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
+  max-height: var(--kv-tool-size) !important;
+  margin-right: auto !important;
   padding: 0 10px !important;
-  border: 1px solid #d0d7de !important;
-  border-radius: 6px !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
   background: #fff !important;
-  gap: 8px !important;
-  flex: 0 1 360px !important;
-  min-width: 200px !important;
-  max-width: 420px !important;
+  gap: var(--kv-tool-gap) !important;
+  box-shadow: none !important;
+}
+/* Products page defines .kv-btn-icon / .column-control > button with
+   radius 6px !important outside .product-toolbar — override to 8px. */
+.product-page .kv-btn-icon,
+.product-page .kv-toolbar-100 .kv-btn,
+.product-page .kv-toolbar-100 .kv-btn-icon,
+.product-page .kv-create-wrap > .kv-btn,
+.product-page .column-control > button,
+.product-page .column-control > button.kv-btn-icon,
+.products-catalog-page .kv-toolbar-100 > .kv-btn,
+.products-catalog-page .kv-create-wrap > .kv-btn,
+.products-catalog-page .kv-toolbar-100 .kv-btn-icon {
+  width: var(--kv-tool-size) !important;
+  min-width: var(--kv-tool-size) !important;
+  max-width: var(--kv-tool-size) !important;
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
+  max-height: var(--kv-tool-size) !important;
+  padding: 0 !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
+  font-size: 0 !important;
+}
+
+.product-page .product-actions .product-query-wrap .product-query {
+  position: absolute !important;
+  inset: 0 !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-right: 0 !important;
+}
+.product-page .product-actions .product-query-wrap {
+  position: relative !important;
+  padding: 0 !important;
+}
+
+/* Products page wraps the search in .product-actions-center — pin it to
+   the same 430px slot so the search box lands at x=278 like KiotViet. */
+.product-page .product-actions .product-actions-center {
+  flex: 0 0 var(--kv-search-width) !important;
+  width: var(--kv-search-width) !important;
+  min-width: 0 !important;
+  max-width: var(--kv-search-width) !important;
+  flex-basis: var(--kv-search-width) !important;
+  order: 0 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  margin-right: auto !important;
+}
+.product-page .product-actions .product-actions-center .product-query-wrap {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex-basis: auto !important;
 }
 .product-page .product-toolbar .product-query input,
 .product-page .product-actions .product-query input {
   font-size: 14px !important;
   line-height: 20px !important;
-  color: #2e3541 !important;
+  color: #15171a !important;
 }
-.product-page .product-toolbar .product-query svg,
-.product-page .product-actions .product-query svg {
+.product-page .product-toolbar .product-query input::placeholder,
+.product-page .product-actions .product-query input::placeholder {
+  color: #85909d !important;
+}
+.product-page .product-toolbar .product-query > svg,
+.product-page .product-actions .product-query > svg {
   width: 18px !important;
   height: 18px !important;
-  color: #8a96a7 !important;
-  flex: 0 0 auto !important;
+  color: #85909d !important;
+  flex: 0 0 18px !important;
 }
 .product-page .product-toolbar .product-query:focus-within,
 .product-page .product-actions .product-query:focus-within {
-  border-color: #008ae6 !important;
-  box-shadow: 0 0 0 2px rgba(0,138,230,.15) !important;
+  border-color: var(--kv-tool-primary) !important;
+  box-shadow: 0 0 0 2px rgba(0, 112, 244, .12) !important;
 }
 
-/* All toolbar buttons — base uniform appearance */
+/* ---------- Toolbar row ---------- */
+.product-page .product-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--kv-tool-gap) !important;
+  margin: 0 !important;
+  flex: 1 1 auto !important;
+  flex-wrap: nowrap !important;
+  min-width: 0 !important;
+}
+
+/* ---------- All toolbar buttons: 32x32, radius 8px ---------- */
 .product-page .product-toolbar > button,
 .product-page .product-toolbar .kv-btn,
 .product-page .product-toolbar .column-control > button,
@@ -49,18 +165,23 @@
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
-  height: 32px !important;
-  min-height: 32px !important;
-  padding: 0 12px !important;
-  border: 1px solid #d0d7de !important;
-  border-radius: 6px !important;
+  width: var(--kv-tool-size) !important;
+  min-width: var(--kv-tool-size) !important;
+  max-width: var(--kv-tool-size) !important;
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
+  max-height: var(--kv-tool-size) !important;
+  padding: 0 !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
   background: #fff !important;
-  color: #2e3541 !important;
+  color: var(--kv-tool-text) !important;
   font-family: inherit !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
+  font-size: 0 !important;
+  font-weight: 600 !important;
   line-height: 1 !important;
   white-space: nowrap !important;
+  overflow: hidden !important;
   cursor: pointer !important;
   transition: border-color .14s, background .14s, color .14s !important;
 }
@@ -68,33 +189,27 @@
 .product-page .product-toolbar .kv-btn:hover,
 .product-page .product-toolbar .column-control > button:hover,
 .product-page .product-toolbar .customer-more > button:hover {
-  border-color: #b8c0cc !important;
+  border-color: #b4bcc6 !important;
   background: #f7f9fb !important;
-  color: #1a2332 !important;
+  color: #15171a !important;
+}
+.product-page .product-toolbar > button:focus-visible,
+.product-page .product-toolbar .kv-btn:focus-visible {
+  outline: 0 !important;
+  box-shadow: 0 0 0 2px rgba(0, 112, 244, .2) !important;
 }
 
-/* Icon-only buttons — square 32px */
-.product-page .product-toolbar > .kv-btn-icon,
-.product-page .product-toolbar > .kv-btn-file,
-.product-page .product-toolbar > .pricebook-tool,
-.product-page .product-toolbar > .supplier-tool,
-.product-page .product-toolbar > .stock-tool,
-.product-page .product-toolbar > .internal-tool,
-.product-page .product-toolbar > .damage-tool,
-.product-page .product-toolbar > .purchase-tool,
-.product-page .product-toolbar > .order-tool:not(.primary),
-.product-page .product-toolbar > .customer-tool,
-.product-page .product-toolbar > .cash-tool-button.cash-icon,
-.product-page .product-toolbar .column-control > button {
-  width: 32px !important;
-  min-width: 32px !important;
-  max-width: 32px !important;
-  padding: 0 !important;
+/* Hide inline text labels so every button is a clean 32px square */
+.product-page .product-toolbar > button > span:not(.kv-caret),
+.product-page .product-toolbar .kv-btn > span:not(.kv-caret),
+.product-page .product-toolbar .kv-toolbar-label {
+  display: none !important;
 }
 
-/* Primary create buttons — filled blue */
+/* Primary "Tạo mới" — KiotViet outline style, not filled */
 .product-page .product-toolbar > .primary,
 .product-page .product-toolbar > .kv-btn-create,
+.product-page .product-toolbar .kv-create-wrap > .kv-btn-create,
 .product-page .product-toolbar > .order-tool.primary,
 .product-page .product-toolbar > .customer-tool.primary,
 .product-page .product-toolbar > .cash-create.primary,
@@ -104,81 +219,148 @@
 .product-page .product-toolbar > .supplier-tool.primary,
 .product-page .product-toolbar > .internal-tool.primary,
 .product-page .product-toolbar > .pricebook-tool.primary {
-  border-color: #008ae6 !important;
-  background: #008ae6 !important;
-  color: #fff !important;
+  border-color: var(--kv-tool-primary) !important;
+  background: #fff !important;
+  color: var(--kv-tool-primary) !important;
 }
 .product-page .product-toolbar > .primary:hover,
 .product-page .product-toolbar > .kv-btn-create:hover,
+.product-page .product-toolbar .kv-create-wrap > .kv-btn-create:hover,
 .product-page .product-toolbar > .order-tool.primary:hover,
 .product-page .product-toolbar > .customer-tool.primary:hover,
 .product-page .product-toolbar > .cash-create.primary:hover {
-  background: #0077c7 !important;
-  border-color: #0077c7 !important;
-  color: #fff !important;
+  border-color: var(--kv-tool-primary) !important;
+  background: #eaf4ff !important;
+  color: var(--kv-tool-primary) !important;
 }
 
-/* Tạo mới text button (products) — keep Plus + label + caret inline */
-.product-page .product-toolbar .kv-btn-create {
-  gap: 4px !important;
-}
-.product-page .product-toolbar .kv-btn-create .kv-caret {
-  margin-left: 2px !important;
-  transition: transform .15s !important;
-}
-.product-page .product-toolbar .kv-btn-create .kv-caret.open {
-  transform: rotate(180deg) !important;
-}
-
-/* Import/Export file buttons — icon-only products */
-.product-page .product-toolbar .kv-btn-file {
-  width: 32px !important;
-  min-width: 32px !important;
-  max-width: 32px !important;
-  padding: 0 !important;
-}
-
-/* Menu-dots (Khác) in customers toolbar */
-.product-page .product-toolbar .customer-more > button {
-  width: 32px !important;
-  min-width: 32px !important;
-  padding: 0 !important;
-}
-
-/* SVG icons inside toolbar buttons — uniform 18px */
+/* Icons inside buttons — uniform 18px */
 .product-page .product-toolbar button svg,
+.product-page .product-toolbar .kv-btn svg,
 .product-page .product-toolbar .column-control button svg {
   width: 18px !important;
   height: 18px !important;
+  min-width: 18px !important;
   flex: 0 0 18px !important;
-}
-
-/* Caret in create dropdown — keep small */
-.product-page .product-toolbar .kv-btn-create svg.kv-caret {
-  width: 13px !important;
-  height: 13px !important;
-  flex: 0 0 13px !important;
-}
-
-/* Toolbar gap — uniform 8px */
-.product-page .product-toolbar {
-  gap: 8px !important;
   margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
+}
+/* Create-dropdown caret hidden (button is icon-only square) */
+.product-page .product-toolbar .kv-btn-create .kv-caret {
+  display: none !important;
 }
 
-/* Column popover — positioning consistent */
-.product-page .product-toolbar .columns-popover {
-  top: 38px !important;
-  right: 0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 8px 24px rgba(16,30,54,.14) !important;
+/* Dropdown / popover anchoring stays consistent */
+.product-page .product-toolbar .columns-popover,
+.product-page .product-toolbar .kv-dropdown,
+.product-page .product-toolbar .customer-more-menu {
+  top: 40px !important;
+  border-radius: var(--kv-tool-radius) !important;
+  box-shadow: 0 8px 24px rgba(16, 30, 54, .14) !important;
 }
 
-/* ===== Report toolbars (analytics, financial, report, sale-report) ===== */
-/* Their toolbar buttons are text buttons (Xuất file, In báo cáo) */
+/* ---------- Sidebar: 250px at 16px inset, radius 8px ---------- */
+.product-page .product-workspace {
+  grid-template-columns: calc(var(--kv-sidebar-width) + var(--kv-page-inset)) minmax(0, 1fr) !important;
+  column-gap: var(--kv-sidebar-gap) !important;
+  padding-right: var(--kv-page-inset) !important;
+  background: #f7f8f9 !important;
+}
+.product-page .product-workspace.sidebar-is-collapsed {
+  grid-template-columns: 26px minmax(0, 1fr) !important;
+}
+.product-page .product-filter-sidebar {
+  width: var(--kv-sidebar-width) !important;
+  margin-left: var(--kv-page-inset) !important;
+  padding: 12px 12px 12px 0 !important;
+  border: 0 !important;
+  border-radius: var(--kv-tool-radius) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+.product-page .product-filter-sidebar h2 {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 20px !important;
+  margin: 0 0 8px !important;
+}
+.product-page .product-filter-sidebar :is(select, input:not([type=checkbox]):not([type=radio]), .filter-select-button, .radio-row) {
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
+  background: #fff !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+
+/* ---------- Report pages: same sidebar + toolbar rhythm ---------- */
+.analytics-workspace,
+.report-workspace,
+.sale-report-layout,
+.financial-layout {
+  column-gap: var(--kv-sidebar-gap) !important;
+  padding-right: var(--kv-page-inset) !important;
+}
+.analytics-sidebar,
+.report-sidebar,
+.sale-report-sidebar,
+.financial-sidebar {
+  width: var(--kv-sidebar-width) !important;
+  margin-left: var(--kv-page-inset) !important;
+  padding: 12px 12px 12px 0 !important;
+  border: 0 !important;
+  border-radius: var(--kv-tool-radius) !important;
+  background: #fff !important;
+}
+.analytics-sidebar h2,
+.report-sidebar h2,
+.sale-report-sidebar h2,
+.financial-sidebar h2 {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 20px !important;
+  margin: 0 0 8px !important;
+}
+.analytics-sidebar select,
+.report-sidebar select,
+.sale-report-sidebar select,
+.financial-sidebar select,
+.analytics-sidebar input[type=date],
+.report-sidebar input[type=date],
+.sale-report-sidebar input[type=date],
+.financial-sidebar input[type=date],
+.report-date {
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
+  background: #fff !important;
+  font-size: 14px !important;
+}
+.analytics-toolbar,
+.report-toolbar,
+.sale-report-heading,
+.financial-heading {
+  gap: var(--kv-sidebar-gap) !important;
+  padding: 0 var(--kv-page-inset) !important;
+  min-height: 56px !important;
+}
+.analytics-toolbar h1,
+.report-toolbar h1,
+.sale-report-heading h1,
+.financial-heading h1 {
+  flex: 0 0 var(--kv-sidebar-width) !important;
+  width: var(--kv-sidebar-width) !important;
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 28px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
 .analytics-toolbar button,
 .report-toolbar button,
 .sale-report-heading button,
@@ -187,16 +369,16 @@
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
-  height: 32px !important;
-  min-height: 32px !important;
+  height: var(--kv-tool-size) !important;
+  min-height: var(--kv-tool-size) !important;
   padding: 0 12px !important;
-  border: 1px solid #d0d7de !important;
-  border-radius: 6px !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
   background: #fff !important;
-  color: #2e3541 !important;
+  color: var(--kv-tool-text) !important;
   font-family: inherit !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
   white-space: nowrap !important;
   cursor: pointer !important;
 }
@@ -204,31 +386,36 @@
 .report-toolbar button:hover,
 .sale-report-heading button:hover,
 .financial-viewer-toolbar button:hover {
-  border-color: #b8c0cc !important;
+  border-color: #b4bcc6 !important;
   background: #f7f9fb !important;
-  color: #1a2332 !important;
+  color: #15171a !important;
 }
 .analytics-toolbar button svg,
 .report-toolbar button svg,
 .sale-report-heading button svg,
 .financial-viewer-toolbar button svg {
-  width: 17px !important;
-  height: 17px !important;
-  flex: 0 0 17px !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
+.analytics-toolbar label,
+.report-toolbar label {
+  gap: 8px !important;
+  font-size: 14px !important;
+}
+.analytics-toolbar select,
+.report-toolbar select {
+  height: var(--kv-tool-size) !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--kv-tool-border) !important;
+  border-radius: var(--kv-tool-radius) !important;
+  font-size: 14px !important;
 }
 
-/* ===== Actions container — even spacing ===== */
-.product-page .product-actions {
-  min-height: 56px !important;
-  padding: 0 16px !important;
-  background: #f7f8f9 !important;
-  border-bottom: 1px solid #e8eaed !important;
-}
-.product-page .product-actions h1 {
-  font-size: 18px !important;
-  line-height: 28px !important;
-  margin: 0 12px 0 0 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+/* Narrow screens: let the toolbar wrap instead of overflowing */
+@media (max-width: 1100px) {
+  .product-page .product-actions { flex-wrap: wrap !important; padding: 8px var(--kv-page-inset) !important; }
+  .product-page .product-actions > h1 { flex: 0 0 auto !important; width: auto !important; }
+  .product-page .product-toolbar .product-query,
+  .product-page .product-actions .product-query { flex: 1 1 240px !important; width: auto !important; max-width: none !important; }
 }
