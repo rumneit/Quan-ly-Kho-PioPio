@@ -1,0 +1,234 @@
+/* =====================================================================
+   UNIFIED MANAGEMENT TOOLBAR — loaded last for maximum specificity.
+   All pages: Tìm kiếm, Tạo Mới, Import, Xuất file → same size, icon,
+   spacing, and hover style. Icon-only buttons → 32px², text buttons
+   → 32px high with inline-flex + gap. Search box → 32px high.
+   ===================================================================== */
+
+/* Search box — every page that uses .product-query */
+.product-page .product-toolbar .product-query,
+.product-page .product-actions .product-query {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 10px !important;
+  border: 1px solid #d0d7de !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  gap: 8px !important;
+  flex: 0 1 360px !important;
+  min-width: 200px !important;
+  max-width: 420px !important;
+}
+.product-page .product-toolbar .product-query input,
+.product-page .product-actions .product-query input {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: #2e3541 !important;
+}
+.product-page .product-toolbar .product-query svg,
+.product-page .product-actions .product-query svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: #8a96a7 !important;
+  flex: 0 0 auto !important;
+}
+.product-page .product-toolbar .product-query:focus-within,
+.product-page .product-actions .product-query:focus-within {
+  border-color: #008ae6 !important;
+  box-shadow: 0 0 0 2px rgba(0,138,230,.15) !important;
+}
+
+/* All toolbar buttons — base uniform appearance */
+.product-page .product-toolbar > button,
+.product-page .product-toolbar .kv-btn,
+.product-page .product-toolbar .column-control > button,
+.product-page .product-toolbar .customer-more > button,
+.product-page .product-toolbar .kv-create-wrap > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid #d0d7de !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #2e3541 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: border-color .14s, background .14s, color .14s !important;
+}
+.product-page .product-toolbar > button:hover,
+.product-page .product-toolbar .kv-btn:hover,
+.product-page .product-toolbar .column-control > button:hover,
+.product-page .product-toolbar .customer-more > button:hover {
+  border-color: #b8c0cc !important;
+  background: #f7f9fb !important;
+  color: #1a2332 !important;
+}
+
+/* Icon-only buttons — square 32px */
+.product-page .product-toolbar > .kv-btn-icon,
+.product-page .product-toolbar > .kv-btn-file,
+.product-page .product-toolbar > .pricebook-tool,
+.product-page .product-toolbar > .supplier-tool,
+.product-page .product-toolbar > .stock-tool,
+.product-page .product-toolbar > .internal-tool,
+.product-page .product-toolbar > .damage-tool,
+.product-page .product-toolbar > .purchase-tool,
+.product-page .product-toolbar > .order-tool:not(.primary),
+.product-page .product-toolbar > .customer-tool,
+.product-page .product-toolbar > .cash-tool-button.cash-icon,
+.product-page .product-toolbar .column-control > button {
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  padding: 0 !important;
+}
+
+/* Primary create buttons — filled blue */
+.product-page .product-toolbar > .primary,
+.product-page .product-toolbar > .kv-btn-create,
+.product-page .product-toolbar > .order-tool.primary,
+.product-page .product-toolbar > .customer-tool.primary,
+.product-page .product-toolbar > .cash-create.primary,
+.product-page .product-toolbar > .damage-tool.primary,
+.product-page .product-toolbar > .stock-tool.primary,
+.product-page .product-toolbar > .purchase-tool.primary,
+.product-page .product-toolbar > .supplier-tool.primary,
+.product-page .product-toolbar > .internal-tool.primary,
+.product-page .product-toolbar > .pricebook-tool.primary {
+  border-color: #008ae6 !important;
+  background: #008ae6 !important;
+  color: #fff !important;
+}
+.product-page .product-toolbar > .primary:hover,
+.product-page .product-toolbar > .kv-btn-create:hover,
+.product-page .product-toolbar > .order-tool.primary:hover,
+.product-page .product-toolbar > .customer-tool.primary:hover,
+.product-page .product-toolbar > .cash-create.primary:hover {
+  background: #0077c7 !important;
+  border-color: #0077c7 !important;
+  color: #fff !important;
+}
+
+/* Tạo mới text button (products) — keep Plus + label + caret inline */
+.product-page .product-toolbar .kv-btn-create {
+  gap: 4px !important;
+}
+.product-page .product-toolbar .kv-btn-create .kv-caret {
+  margin-left: 2px !important;
+  transition: transform .15s !important;
+}
+.product-page .product-toolbar .kv-btn-create .kv-caret.open {
+  transform: rotate(180deg) !important;
+}
+
+/* Import/Export file buttons — icon-only products */
+.product-page .product-toolbar .kv-btn-file {
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  padding: 0 !important;
+}
+
+/* Menu-dots (Khác) in customers toolbar */
+.product-page .product-toolbar .customer-more > button {
+  width: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+}
+
+/* SVG icons inside toolbar buttons — uniform 18px */
+.product-page .product-toolbar button svg,
+.product-page .product-toolbar .column-control button svg {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+}
+
+/* Caret in create dropdown — keep small */
+.product-page .product-toolbar .kv-btn-create svg.kv-caret {
+  width: 13px !important;
+  height: 13px !important;
+  flex: 0 0 13px !important;
+}
+
+/* Toolbar gap — uniform 8px */
+.product-page .product-toolbar {
+  gap: 8px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+/* Column popover — positioning consistent */
+.product-page .product-toolbar .columns-popover {
+  top: 38px !important;
+  right: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(16,30,54,.14) !important;
+}
+
+/* ===== Report toolbars (analytics, financial, report, sale-report) ===== */
+/* Their toolbar buttons are text buttons (Xuất file, In báo cáo) */
+.analytics-toolbar button,
+.report-toolbar button,
+.sale-report-heading button,
+.financial-viewer-toolbar button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid #d0d7de !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #2e3541 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+.analytics-toolbar button:hover,
+.report-toolbar button:hover,
+.sale-report-heading button:hover,
+.financial-viewer-toolbar button:hover {
+  border-color: #b8c0cc !important;
+  background: #f7f9fb !important;
+  color: #1a2332 !important;
+}
+.analytics-toolbar button svg,
+.report-toolbar button svg,
+.sale-report-heading button svg,
+.financial-viewer-toolbar button svg {
+  width: 17px !important;
+  height: 17px !important;
+  flex: 0 0 17px !important;
+}
+
+/* ===== Actions container — even spacing ===== */
+.product-page .product-actions {
+  min-height: 56px !important;
+  padding: 0 16px !important;
+  background: #f7f8f9 !important;
+  border-bottom: 1px solid #e8eaed !important;
+}
+.product-page .product-actions h1 {
+  font-size: 18px !important;
+  line-height: 28px !important;
+  margin: 0 12px 0 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

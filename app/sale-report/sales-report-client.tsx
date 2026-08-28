@@ -63,6 +63,8 @@ export default function SalesReportClient({ profile, orders }: { profile: Profil
   const [priceBook, setPriceBook] = useState("all");
   const [saleMethod, setSaleMethod] = useState("all");
   const [channel, setChannel] = useState("all");
+  const [seller, setSeller] = useState("all");
+  const [vat, setVat] = useState<"excluded" | "included">("excluded");
 
   const filteredOrders = useMemo(() => {
     const now = new Date();
@@ -200,6 +202,17 @@ export default function SalesReportClient({ profile, orders }: { profile: Profil
           <section>
             <h2>Kênh bán</h2>
             <select value={channel} onChange={(event) => setChannel(event.target.value)}><option value="all">Chọn kênh bán</option><option value="direct">Bán trực tiếp</option></select>
+          </section>
+          <section>
+            <h2>Nhân viên</h2>
+            <select value={seller} onChange={(event) => setSeller(event.target.value)}><option value="all">Chọn nhân viên</option></select>
+          </section>
+          <section>
+            <h2>Thuế</h2>
+            <div className="sale-report-chips" role="group" aria-label="Thuế">
+              <button className={vat === "excluded" ? "active" : ""} onClick={() => setVat("excluded")}>Chưa bao gồm thuế</button>
+              <button className={vat === "included" ? "active" : ""} onClick={() => setVat("included")}>Đã bao gồm thuế</button>
+            </div>
           </section>
         </aside>
 

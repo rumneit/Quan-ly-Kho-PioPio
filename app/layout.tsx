@@ -14,6 +14,8 @@ import "./orders.css";
 import "./business.css";
 import "../style.css";
 import "./reference-theme.css";
+import "./orders-modules.css";
+import "./toolbar-unified.css";
 
 export const metadata: Metadata = {
   title: "PioPio | Quản lý bán hàng",

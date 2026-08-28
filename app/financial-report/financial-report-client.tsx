@@ -15,12 +15,22 @@ type Order = {
   order_items?: { quantity: number; products?: { cost?: number | null } | null }[];
 };
 
+type Voucher = {
+  id: string;
+  type: string;
+  kind: string;
+  amount: number;
+  affects_profit: boolean;
+  status: string;
+  occurred_at: string;
+};
+
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(Math.round(value));
 const isoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const displayDate = (value: string) => value ? value.split("-").reverse().join("/") : "---";
 const months = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 
-export default function FinancialReportClient({ profile, orders }: { profile: Profile; orders: Order[] }) {
+export default function FinancialReportClient({ profile, orders, vouchers }: { profile: Profile; orders: Order[]; vouchers: Voucher[] }) {
   const today = useMemo(() => new Date(), []);
   const [timeMode, setTimeMode] = useState<"month" | "custom">("custom");
   const [year, setYear] = useState(today.getFullYear());
@@ -49,8 +59,12 @@ export default function FinancialReportClient({ profile, orders }: { profile: Pr
     const returns = refunded.reduce((sum, order) => sum + Number(order.total || 0), 0);
     const net = sales - discount - returns;
     const cost = paid.reduce((sum, order) => sum + (order.order_items || []).reduce((itemSum, item) => itemSum + Number(item.quantity || 0) * Number(item.products?.cost || 0), 0), 0);
-    return { sales, discount, returns, net, cost, grossProfit: net - cost };
-  }, [orders, bounds]);
+    const inRangeVouchers = vouchers.filter((voucher) => voucher.status === "completed" && voucher.affects_profit && voucher.occurred_at.slice(0, 10) >= bounds.from && voucher.occurred_at.slice(0, 10) <= bounds.to);
+    const otherIncome = inRangeVouchers.filter((voucher) => voucher.type === "receipt" && (voucher.kind === "other_income" || voucher.kind === "transfer_in")).reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
+    const otherExpense = inRangeVouchers.filter((voucher) => voucher.type === "expense" && (voucher.kind === "other_expense" || voucher.kind === "transfer_out")).reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
+    const grossProfit = net - cost;
+    return { sales, discount, returns, net, cost, grossProfit, otherIncome, otherExpense, operatingProfit: grossProfit - otherExpense, netProfit: grossProfit - otherExpense + otherIncome };
+  }, [orders, vouchers, bounds]);
 
   const rows = [
     ["Doanh thu bán hàng (1)", totals.sales, "major"],
@@ -60,17 +74,12 @@ export default function FinancialReportClient({ profile, orders }: { profile: Pr
     ["Doanh thu thuần (3 = 1 - 2)", totals.net, "total"],
     ["Giá vốn hàng bán (4)", totals.cost, "major"],
     ["Lợi nhuận gộp về bán hàng (5 = 3 - 4)", totals.grossProfit, "total"],
-    ["Chi phí (6)", 0, "major"],
-    ["Chi phí voucher", 0, "child"], ["Phí trả ĐTGH", 0, "child"], ["Hoàn tiền cho khách", 0, "child"],
-    ["Xuất hủy hàng hóa", 0, "child"], ["Giá trị thanh toán bằng điểm", 0, "child"],
-    ["Chiết khấu thanh toán cho khách", 0, "child"], ["Chi trả lương NV", 0, "child"],
-    ["Chênh lệch làm tròn nhập hàng", 0, "child"],
-    ["Lợi nhuận từ hoạt động kinh doanh (7 = 5 - 6)", totals.grossProfit, "total"],
-    ["Thu nhập khác (8)", 0, "major"],
-    ["Phí trả hàng", 0, "child"], ["Chênh lệch làm tròn nhập hàng", 0, "child"],
-    ["Chênh lệch làm tròn bán hàng", 0, "child"], ["Chiết khấu thanh toán từ NCC", 0, "child"],
-    ["Chi phí khác (9)", 0, "major"],
-    ["Lợi nhuận thuần (10 = (7 + 8) - 9)", totals.grossProfit, "grand"],
+    ["Chi phí (6)", totals.otherExpense, "major"],
+    ["Chi phí khác (chi phiếu)", totals.otherExpense, "child"],
+    ["Lợi nhuận từ hoạt động kinh doanh (7 = 5 - 6)", totals.operatingProfit, "total"],
+    ["Thu nhập khác (8)", totals.otherIncome, "major"],
+    ["Thu khác (phiếu thu)", totals.otherIncome, "child"],
+    ["Lợi nhuận thuần (10 = 7 + 8)", totals.netProfit, "grand"],
   ] as const;
 
   function exportCsv() {
