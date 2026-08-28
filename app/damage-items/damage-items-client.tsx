@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Status = "draft" | "completed" | "cancelled";
@@ -51,9 +52,7 @@ export default function DamageItemsClient({ profile, initialProducts }: { profil
   const [query, setQuery] = useState("");
   const [codeQuery, setCodeQuery] = useState("");
   const [noteQuery, setNoteQuery] = useState("");
-  const [datePreset, setDatePreset] = useState<"month" | "custom" | "all">("month");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
+const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_month", from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; });
   const [statuses, setStatuses] = useState<Status[]>(["draft", "completed", "cancelled"]);
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [exporterFilter, setExporterFilter] = useState("all");
@@ -121,10 +120,8 @@ export default function DamageItemsClient({ profile, initialProducts }: { profil
     const byNote = noteQuery.trim().toLowerCase();
     const now = new Date();
     return vouchers.filter((item) => {
-      const created = new Date(item.createdAt);
-      const dateOk = datePreset === "all" || (datePreset === "custom"
-        ? (!customFrom || created >= startOfDay(customFrom)) && (!customTo || created <= endOfDay(customTo))
-        : created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear());
+      const created = item.createdAt.slice(0, 10);
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       return `${item.code} ${item.note}`.toLowerCase().includes(keyword)
         && item.code.toLowerCase().includes(byCode)
         && item.note.toLowerCase().includes(byNote)
@@ -133,7 +130,7 @@ export default function DamageItemsClient({ profile, initialProducts }: { profil
         && (exporterFilter === "all" || item.exporter === exporterFilter)
         && dateOk;
     });
-  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, exporterFilter, datePreset, customFrom, customTo]);
+  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, exporterFilter, dateValue]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / settings.pageSize));
   const safePage = Math.min(page, totalPages);
@@ -266,10 +263,7 @@ export default function DamageItemsClient({ profile, initialProducts }: { profil
           : <aside className="product-filter-sidebar damage-sidebar">
             <section><h2>Trạng thái</h2>{(["draft", "completed", "cancelled"] as Status[]).map((status) => <label className="stock-check" key={status}><input type="checkbox" checked={statuses.includes(status)} onChange={() => toggleStatus(status)} /><span>{statusLabel[status]}</span></label>)}</section>
             <section><h2>Thời gian</h2>
-              <label className="stock-radio"><input type="radio" name="damage-date" checked={datePreset === "month"} onChange={() => setDatePreset("month")} /><span>Tháng này</span><ChevronRight size={17} /></label>
-              <label className="stock-radio"><input type="radio" name="damage-date" checked={datePreset === "custom"} onChange={() => setDatePreset("custom")} /><span>Tùy chỉnh</span><CalendarDays size={17} /></label>
-              {datePreset === "custom" && <div className="damage-date-range"><input type="date" aria-label="Từ ngày" value={customFrom} onChange={(event) => { setCustomFrom(event.target.value); setPage(1); }} /><input type="date" aria-label="Đến ngày" value={customTo} onChange={(event) => { setCustomTo(event.target.value); setPage(1); }} /></div>}
-              <label className="stock-radio"><input type="radio" name="damage-date" checked={datePreset === "all"} onChange={() => setDatePreset("all")} /><span>Toàn thời gian</span></label>
+              <DateRangePicker value={dateValue} onChange={setDateValue} />
             </section>
             <section><h2>Người tạo</h2><select aria-label="Người tạo" value={creatorFilter} onChange={(event) => { setCreatorFilter(event.target.value); setPage(1); }}><option value="all">Chọn người tạo</option>{creators.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>
             <section><h2>Người xuất hủy</h2><select aria-label="Người xuất hủy" value={exporterFilter} onChange={(event) => { setExporterFilter(event.target.value); setPage(1); }}><option value="all">Chọn người xuất hủy</option>{exporters.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>

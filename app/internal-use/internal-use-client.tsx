@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Check, ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 type Status = "draft" | "completed" | "cancelled";
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
@@ -58,9 +59,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   const [codeQuery, setCodeQuery] = useState("");
   const [noteQuery, setNoteQuery] = useState("");
   const [statuses, setStatuses] = useState<Status[]>(["draft", "completed", "cancelled"]);
-  const [datePreset, setDatePreset] = useState<"month" | "custom" | "all">("month");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_month", from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; });
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [exporterFilter, setExporterFilter] = useState("all");
   const [purposeFilter, setPurposeFilter] = useState("all");
@@ -100,15 +99,9 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   const receiverOptions = useMemo(() => Array.from(new Set(vouchers.map((item) => item.receiver).filter(Boolean))), [vouchers]);
 
   const filtered = useMemo(() => {
-    const now = new Date();
     return vouchers.filter((item) => {
-      const created = new Date(item.time);
-      let dateOk = true;
-      if (datePreset === "month") dateOk = created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
-      else if (datePreset === "custom") {
-        if (customFrom) dateOk = dateOk && created.getTime() >= new Date(`${customFrom}T00:00:00`).getTime();
-        if (customTo) dateOk = dateOk && created.getTime() <= new Date(`${customTo}T23:59:59`).getTime();
-      }
+      const createdDate = item.time.slice(0, 10);
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || createdDate >= dateValue.from) && (!dateValue.to || createdDate <= dateValue.to));
       const haystack = `${item.code} ${item.note} ${item.purpose} ${item.receiver} ${item.creator}`.toLowerCase();
       return haystack.includes(query.trim().toLowerCase())
         && item.code.toLowerCase().includes(codeQuery.trim().toLowerCase())
@@ -120,7 +113,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
         && (receiverFilter === "all" || item.receiver === receiverFilter)
         && dateOk;
     });
-  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, exporterFilter, purposeFilter, receiverFilter, datePreset, customFrom, customTo]);
+  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, exporterFilter, purposeFilter, receiverFilter, dateValue]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -268,13 +261,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
               </section>
               <section>
                 <h2>Thời gian</h2>
-                <label className="stock-radio"><input type="radio" name="internal-date" checked={datePreset === "month"} onChange={() => setDatePreset("month")} /><span>Tháng này</span></label>
-                <label className="stock-radio"><input type="radio" name="internal-date" checked={datePreset === "custom"} onChange={() => setDatePreset("custom")} /><span>Tùy chỉnh</span><CalendarDays size={17} /></label>
-                {datePreset === "custom" && <div className="internal-date-range">
-                  <input type="date" aria-label="Từ ngày" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} />
-                  <input type="date" aria-label="Đến ngày" value={customTo} onChange={(event) => setCustomTo(event.target.value)} />
-                </div>}
-                <label className="stock-radio"><input type="radio" name="internal-date" checked={datePreset === "all"} onChange={() => setDatePreset("all")} /><span>Toàn thời gian</span></label>
+                <DateRangePicker value={dateValue} onChange={setDateValue} />
               </section>
               <section><h2>Người tạo</h2><select aria-label="Người tạo" value={creatorFilter} onChange={(event) => setCreatorFilter(event.target.value)}><option value="all">Chọn người tạo</option>{creatorOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>
               <section><h2>Người xuất dùng nội bộ</h2><select aria-label="Người xuất dùng nội bộ" value={exporterFilter} onChange={(event) => setExporterFilter(event.target.value)}><option value="all">Chọn người xuất dùng nội bộ</option>{creatorOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>

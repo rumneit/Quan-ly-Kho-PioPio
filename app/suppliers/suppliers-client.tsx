@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 import "../suppliers.css";
 
 type Supplier = {
@@ -119,9 +120,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
   const [groupFilter, setGroupFilter] = useState("all");
   const [totalMin, setTotalMin] = useState("");
   const [totalMax, setTotalMax] = useState("");
-  const [datePreset, setDatePreset] = useState<"all" | "custom">("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateValue, setDateValue] = useState<DateValue>({ preset: "all" });
   const [debtMin, setDebtMin] = useState("");
   const [debtMax, setDebtMax] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -169,15 +168,13 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
       const emailMatch = item.email.toLowerCase().includes(emailQuery.trim().toLowerCase());
       const groupMatch = groupFilter === "all" || item.group === groupFilter;
       const totalOk = (!totalMin || item.totalPurchase >= Number(totalMin)) && (!totalMax || item.totalPurchase <= Number(totalMax));
-      const created = new Date(item.createdAt);
-      const from = dateFrom ? new Date(`${dateFrom}T00:00:00`) : null;
-      const to = dateTo ? new Date(`${dateTo}T23:59:59.999`) : null;
-      const dateOk = datePreset === "all" || ((!from || created >= from) && (!to || created <= to));
+      const created = item.createdAt.slice(0, 10);
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       const debtOk = (!debtMin || item.debt >= Number(debtMin)) && (!debtMax || item.debt <= Number(debtMax));
       const statusOk = status === "all" || (status === "active" ? item.active : !item.active);
       return globalMatch && codeMatch && nameMatch && phoneMatch && emailMatch && groupMatch && totalOk && dateOk && debtOk && statusOk;
     });
-  }, [items, query, codeQuery, nameQuery, phoneQuery, emailQuery, groupFilter, totalMin, totalMax, datePreset, dateFrom, dateTo, debtMin, debtMax, status]);
+  }, [items, query, codeQuery, nameQuery, phoneQuery, emailQuery, groupFilter, totalMin, totalMax, dateValue, debtMin, debtMax, status]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -353,11 +350,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
         : <aside className="product-filter-sidebar suppliers-sidebar">
           <section><h2>Nhóm nhà cung cấp <button type="button" onClick={() => setShowGroup(true)}>Tạo mới</button></h2><select aria-label="Nhóm nhà cung cấp" value={groupFilter} onChange={(event) => { setGroupFilter(event.target.value); setPage(1); }}><option value="all">Tất cả các nhóm</option>{groups.map((group) => <option key={group} value={group}>{group}</option>)}</select></section>
           <section><h2>Tổng mua</h2><span className="filter-caption">Giá trị</span><div className="supplier-range"><input type="number" min="0" value={totalMin} onChange={(event) => { setTotalMin(event.target.value); setPage(1); }} placeholder="Từ" aria-label="Tổng mua từ" /><input type="number" min="0" value={totalMax} onChange={(event) => { setTotalMax(event.target.value); setPage(1); }} placeholder="Tới" aria-label="Tổng mua tới" /></div></section>
-          <section><h2>Thời gian</h2>
-            <label className="stock-radio"><input type="radio" name="supplier-date" checked={datePreset === "all"} onChange={() => { setDatePreset("all"); setPage(1); }} /><span>Toàn thời gian</span></label>
-            <label className="stock-radio"><input type="radio" name="supplier-date" checked={datePreset === "custom"} onChange={() => { setDatePreset("custom"); setPage(1); }} /><span>Tùy chỉnh</span><CalendarDays size={15} /></label>
-            {datePreset === "custom" && <div className="supplier-date-range"><input type="date" aria-label="Từ ngày" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setPage(1); }} /><input type="date" aria-label="Đến ngày" value={dateTo} onChange={(event) => { setDateTo(event.target.value); setPage(1); }} /></div>}
-          </section>
+          <section><h2>Thời gian</h2><DateRangePicker value={dateValue} onChange={(value) => { setDateValue(value); setPage(1); }} /></section>
           <section><h2>Nợ hiện tại</h2><div className="supplier-range"><input type="number" min="0" value={debtMin} onChange={(event) => { setDebtMin(event.target.value); setPage(1); }} placeholder="Từ" aria-label="Nợ từ" /><input type="number" min="0" value={debtMax} onChange={(event) => { setDebtMax(event.target.value); setPage(1); }} placeholder="Tới" aria-label="Nợ tới" /></div></section>
           <section><h2>Trạng thái</h2>
             {([["all", "Tất cả"], ["active", "Đang hoạt động"], ["inactive", "Ngừng hoạt động"]] as Array<[StatusFilter, string]>).map(([value, label]) => <label className="stock-radio" key={value}><input type="radio" name="supplier-status" checked={status === value} onChange={() => { setStatus(value); setPage(1); }} /><span>{label}</span></label>)}

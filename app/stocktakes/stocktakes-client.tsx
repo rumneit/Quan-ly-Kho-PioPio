@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Columns3, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns3, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Status = "draft" | "balanced" | "cancelled";
@@ -77,9 +78,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   const [query, setQuery] = useState("");
   const [codeFilter, setCodeFilter] = useState("");
   const [noteFilter, setNoteFilter] = useState("");
-  const [datePreset, setDatePreset] = useState<"month" | "custom" | "all">("month");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_month", from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; });
   const [statuses, setStatuses] = useState<Status[]>(["draft", "balanced", "cancelled"]);
   const [creator, setCreator] = useState("all");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -145,15 +144,11 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
       const noteColumnMatch = !noteKeyword || (item.note || "").toLowerCase().includes(noteKeyword);
       const statusMatch = statuses.includes(item.status);
       const creatorMatch = creator === "all" || item.creator === creator;
-      const created = new Date(item.createdAt);
-      const monthMatch = created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
-      const from = dateFrom ? new Date(`${dateFrom}T00:00:00`) : null;
-      const to = dateTo ? new Date(`${dateTo}T23:59:59.999`) : null;
-      const customMatch = (!from || created >= from) && (!to || created <= to);
-      const dateMatch = datePreset === "all" || (datePreset === "month" ? monthMatch : customMatch);
+      const createdDate = item.createdAt.slice(0, 10);
+      const dateMatch = dateValue.preset === "all" || ((!dateValue.from || createdDate >= dateValue.from) && (!dateValue.to || createdDate <= dateValue.to));
       return codeMatch && codeColumnMatch && noteColumnMatch && statusMatch && creatorMatch && dateMatch;
     });
-  }, [items, query, codeFilter, noteFilter, statuses, creator, datePreset, dateFrom, dateTo]);
+    }, [items, query, codeFilter, noteFilter, statuses, creator, dateValue]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -313,10 +308,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
               ? <button type="button" className="sidebar-collapse collapsed" aria-label="Mở bộ lọc" onClick={() => setSidebarCollapsed(false)}><ChevronRight /></button>
               : <aside className="product-filter-sidebar stocktake-sidebar">
                 <section><h2>Ngày tạo</h2>
-                  <label className="stock-radio"><input type="radio" name="stock-date" checked={datePreset === "month"} onChange={() => { setDatePreset("month"); setPage(1); }} /><span>Tháng này</span><ChevronRight size={15} /></label>
-                  <label className="stock-radio"><input type="radio" name="stock-date" checked={datePreset === "custom"} onChange={() => { setDatePreset("custom"); setPage(1); }} /><span>Tùy chỉnh</span><CalendarDays size={15} /></label>
-                  {datePreset === "custom" && <div className="stock-custom-range"><input type="date" aria-label="Từ ngày" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setPage(1); }} /><input type="date" aria-label="Đến ngày" value={dateTo} onChange={(event) => { setDateTo(event.target.value); setPage(1); }} /></div>}
-                  <label className="stock-radio"><input type="radio" name="stock-date" checked={datePreset === "all"} onChange={() => { setDatePreset("all"); setPage(1); }} /><span>Toàn thời gian</span></label>
+                  <DateRangePicker value={dateValue} onChange={(value) => { setDateValue(value); setPage(1); }} />
                 </section>
                 <section><h2>Trạng thái</h2>
                   {(["draft", "balanced", "cancelled"] as Status[]).map((value) => <label className="stock-check" key={value}><input type="checkbox" checked={statuses.includes(value)} onChange={() => toggleStatus(value)} /><span>{statusLabel[value]}</span></label>)}

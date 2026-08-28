@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { CalendarDays, Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Supplier = { id: string; name: string; code?: string; phone?: string; email?: string; group_name?: string };
@@ -155,9 +156,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
   const [codeFilter, setCodeFilter] = useState("");
   const [invoiceQuery, setInvoiceQuery] = useState("");
   const [statuses, setStatuses] = useState<Status[]>(["draft", "completed", "cancelled"]);
-  const [datePreset, setDatePreset] = useState<DatePreset>("month");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_month", from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; });
   const [creatorFilter, setCreatorFilter] = useState("all");
   const [handlerFilter, setHandlerFilter] = useState("all");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -206,10 +205,8 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
     const invoiceKeyword = invoiceQuery.trim().toLowerCase();
     const now = new Date();
     return vouchers.filter((item) => {
-      const created = new Date(item.createdAt);
-      const dateOk = datePreset === "all" || (datePreset === "custom"
-        ? (!dateFrom || created >= startOfDay(dateFrom)) && (!dateTo || created <= endOfDay(dateTo))
-        : created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear());
+      const created = item.createdAt.slice(0, 10);
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       return `${item.code} ${item.note} ${item.supplier}`.toLowerCase().includes(keyword)
         && item.code.toLowerCase().includes(codeKeyword)
         && (mode === "return" || item.invoice.toLowerCase().includes(invoiceKeyword))
@@ -218,7 +215,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
         && (handlerFilter === "all" || item.handler === handlerFilter)
         && dateOk;
     });
-  }, [vouchers, query, codeFilter, invoiceQuery, mode, statuses, creatorFilter, handlerFilter, datePreset, dateFrom, dateTo]);
+  }, [vouchers, query, codeFilter, invoiceQuery, mode, statuses, creatorFilter, handlerFilter, dateValue]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -429,10 +426,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
               </section>
               <section>
                 <h2>Thời gian</h2>
-                <label className="stock-radio"><input type="radio" name="purchase-date" checked={datePreset === "month"} onChange={() => { setDatePreset("month"); setPage(1); }} /><span>Tháng này</span></label>
-                <label className="stock-radio"><input type="radio" name="purchase-date" checked={datePreset === "custom"} onChange={() => { setDatePreset("custom"); setPage(1); }} /><span>Tùy chỉnh</span><CalendarDays size={15} /></label>
-                {datePreset === "custom" && <div className="purchase-date-range"><input type="date" aria-label="Từ ngày" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setPage(1); }} /><input type="date" aria-label="Đến ngày" value={dateTo} onChange={(event) => { setDateTo(event.target.value); setPage(1); }} /></div>}
-                <label className="stock-radio"><input type="radio" name="purchase-date" checked={datePreset === "all"} onChange={() => { setDatePreset("all"); setPage(1); }} /><span>Toàn thời gian</span></label>
+                <DateRangePicker value={dateValue} onChange={(value) => { setDateValue(value); setPage(1); }} />
               </section>
               <section>
                 <h2>Người tạo</h2>
