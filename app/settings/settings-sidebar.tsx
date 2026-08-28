@@ -8,8 +8,12 @@ const NAV_GROUPS: Array<{ title: string; items: Array<{ href: string; label: str
     title: "Quản lý",
     items: [
       { href: "/settings/store-info", label: "Thông tin cửa hàng" },
+      { href: "/settings/store", label: "Cửa hàng & Hàng hóa" },
       { href: "/settings/branches", label: "Quản lý chi nhánh" },
       { href: "/settings/users", label: "Quản lý người dùng" },
+      { href: "/settings/user-permissions", label: "Phân quyền nhóm hàng" },
+      { href: "/settings/security", label: "Bảo mật" },
+      { href: "/settings/print-templates", label: "Mẫu in" },
     ],
   },
   {
@@ -19,8 +23,11 @@ const NAV_GROUPS: Array<{ title: string; items: Array<{ href: string; label: str
     ],
   },
   {
-    title: "Dữ liệu",
+    title: "Dữ liệu & Vận hành",
     items: [
+      { href: "/settings/book-closing", label: "Khóa sổ" },
+      { href: "/settings/audit-log", label: "Lịch sử thao tác" },
+      { href: "/settings/devices", label: "Thiết bị" },
       { href: "/settings/data", label: "Xóa dữ liệu" },
     ],
   },

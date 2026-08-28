@@ -6,9 +6,16 @@ import Link from "next/link";
 const NAV_ITEMS: Array<{ href: string; label: string }> = [
   { href: "/settings", label: "Cài đặt" },
   { href: "/settings/store-info", label: "Thông tin cửa hàng" },
+  { href: "/settings/store", label: "Cửa hàng & Hàng hóa" },
   { href: "/settings/branches", label: "Quản lý chi nhánh" },
   { href: "/settings/users", label: "Quản lý người dùng" },
+  { href: "/settings/user-permissions", label: "Phân quyền nhóm hàng" },
+  { href: "/settings/security", label: "Bảo mật" },
+  { href: "/settings/print-templates", label: "Mẫu in" },
   { href: "/settings/product-info", label: "Thông tin hàng hóa" },
+  { href: "/settings/book-closing", label: "Khóa sổ" },
+  { href: "/settings/audit-log", label: "Lịch sử thao tác" },
+  { href: "/settings/devices", label: "Thiết bị" },
   { href: "/settings/data", label: "Xóa dữ liệu" },
 ];
 

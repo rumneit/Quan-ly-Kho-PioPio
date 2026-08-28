@@ -773,3 +773,37 @@
   .settings-sidebar { width: 220px !important; }
   .settings-cards, .settings-info-grid { grid-template-columns: 1fr 1fr !important; }
 }
+
+/* =====================================================================
+   SETTINGS — interactive components (store, security, permissions, etc.)
+   ===================================================================== */
+.settings-loading { padding: 60px 0 !important; text-align: center !important; color: #85909d !important; }
+.settings-toast { margin-bottom: 14px !important; padding: 10px 14px !important; border: 1px solid #b9e2c9 !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
+.settings-form-card { padding: 16px 18px !important; margin-bottom: 16px !important; border: 1px solid #e8eaed !important; border-radius: 8px !important; background: #fff !important; max-width: 760px !important; }
+.settings-form-card h3 { margin: 0 0 10px !important; font-size: 15px !important; font-weight: 600 !important; color: #15171a !important; }
+.settings-hint { margin: 8px 0 0 !important; font-size: 13px !important; color: #6b7a8d !important; line-height: 18px !important; }
+.settings-radio-group { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+.settings-radio { display: inline-flex !important; align-items: center !important; gap: 8px !important; height: 34px !important; padding: 0 14px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #2e3541 !important; font-size: 14px !important; cursor: pointer !important; }
+.settings-radio input { width: 16px !important; height: 16px !important; accent-color: #0070f4 !important; }
+.settings-radio.active { border-color: #0070f4 !important; background: #edf6ff !important; color: #0070f4 !important; font-weight: 600 !important; }
+.settings-toggle { display: inline-flex !important; align-items: center !important; }
+.settings-toggle input { position: absolute !important; opacity: 0 !important; width: 0 !important; height: 0 !important; }
+.settings-toggle span { position: relative !important; display: inline-block !important; width: 42px !important; height: 24px !important; border-radius: 12px !important; background: #cfd5dc !important; transition: background .18s !important; cursor: pointer !important; }
+.settings-toggle span::after { content: "" !important; position: absolute !important; top: 2px !important; left: 2px !important; width: 20px !important; height: 20px !important; border-radius: 50% !important; background: #fff !important; transition: transform .18s !important; box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+.settings-toggle input:checked + span { background: #0070f4 !important; }
+.settings-toggle input:checked + span::after { transform: translateX(18px) !important; }
+.settings-select { width: 100% !important; height: 34px !important; padding: 0 12px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 14px !important; }
+.settings-btn-primary { height: 34px !important; padding: 0 16px !important; border: 1px solid #0070f4 !important; border-radius: 6px !important; background: #0070f4 !important; color: #fff !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; }
+.settings-btn-primary:hover { background: #005ac3 !important; border-color: #005ac3 !important; }
+.settings-btn-primary:disabled { opacity: .55 !important; cursor: not-allowed !important; }
+.settings-btn-danger { height: 32px !important; padding: 0 12px !important; border: 1px solid #e0a3a3 !important; border-radius: 6px !important; background: #fff !important; color: #b33232 !important; font-size: 13px !important; cursor: pointer !important; }
+.settings-btn-sm { height: 30px !important; padding: 0 12px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #2e3541 !important; font-size: 13px !important; cursor: pointer !important; }
+.settings-message { margin: 6px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; font-size: 13px !important; }
+.settings-message.ok { background: #effaf3 !important; color: #187442 !important; border: 1px solid #b9e2c9 !important; }
+.settings-message.err { background: #fff0f0 !important; color: #b33232 !important; border: 1px solid #f1b7b7 !important; }
+.settings-permission-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; margin: 14px 0 !important; max-width: 760px !important; }
+.settings-permission-grid .settings-check { padding: 10px 12px !important; border: 1px solid #e8eaed !important; border-radius: 6px !important; cursor: pointer !important; }
+.settings-permission-grid .settings-check.active { border-color: #0070f4 !important; background: #edf6ff !important; }
+.settings-modal { width: min(520px, calc(100vw - 28px)) !important; max-height: 90vh !important; overflow: auto !important; padding: 20px 22px !important; border-radius: 10px !important; background: #fff !important; box-shadow: 0 16px 48px rgba(16,30,54,.24) !important; }
+.settings-modal h3 { margin: 0 0 14px !important; font-size: 17px !important; font-weight: 700 !important; color: #15171a !important; }
+.settings-modal .settings-form { max-width: none !important; }
