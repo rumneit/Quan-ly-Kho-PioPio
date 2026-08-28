@@ -419,3 +419,111 @@
   .product-page .product-toolbar .product-query,
   .product-page .product-actions .product-query { flex: 1 1 240px !important; width: auto !important; max-width: none !important; }
 }
+
+/* =====================================================================
+   HEADER + NAV + TABLE — KiotViet "Danh sách hàng hóa" measurements.
+   Top bar = 48px header + 48px blue nav = 96px (project was 56+48=104).
+   ===================================================================== */
+
+/* Header / nav bar heights */
+.kv-shell .kv-header {
+  height: 48px !important;
+  padding: 0 16px !important;
+  box-shadow: none !important;
+}
+.kv-shell .kv-horizontal-nav {
+  top: 48px !important;
+  height: 48px !important;
+  padding: 0 10px !important;
+  background: #0070f4 !important;
+  box-shadow: none !important;
+}
+
+/* Nav items — KiotViet: 36px tall, 8px radius, 14px/600, white, pad 8px 12px */
+.kv-shell .kv-horizontal-nav .kv-top-item {
+  height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 20px !important;
+}
+.kv-shell .kv-horizontal-nav .kv-top-item:hover,
+.kv-shell .kv-horizontal-nav .kv-top-item:focus,
+.kv-shell .kv-horizontal-nav .kv-top-item.active {
+  background: #005ac3 !important;
+  color: #fff !important;
+}
+
+/* Content offsets shift up by 8px (96 = 48+48 header/nav) */
+.product-page { --product-header-height: 96px; }
+
+.report-toolbar,
+.analytics-toolbar,
+.sale-report-heading,
+.financial-heading,
+.customers-page .customer-actions,
+.cash-tabs {
+  top: 96px !important;
+}
+.report-sidebar,
+.analytics-sidebar,
+.sale-report-sidebar,
+.financial-sidebar,
+.customers-page .customer-sidebar {
+  top: 156px !important;
+  height: calc(100vh - 156px) !important;
+}
+.report-workspace,
+.analytics-workspace,
+.sale-report-layout,
+.financial-layout,
+.customers-page .customer-workspace {
+  min-height: calc(100vh - 156px) !important;
+}
+.order-sidebar {
+  top: 155px !important;
+  height: calc(100vh - 155px) !important;
+}
+.cashflow-page .product-actions { top: 142px !important; }
+.cashflow-page .product-filter-sidebar,
+.cashflow-page .cash-sidebar {
+  top: 202px !important;
+  height: calc(100vh - 202px) !important;
+}
+.cashflow-page .product-workspace { min-height: calc(100vh - 202px) !important; }
+.pricebook-notice,
+.stocktake-notice,
+.suppliers-notice,
+.purchase-notice,
+.damage-notice,
+.internal-use-page .product-notice {
+  top: 166px !important;
+}
+
+/* Table header — KiotViet: bg #e6f1fe, 12px/16px 600, #15171a, border #b3d4fc */
+.product-page .product-table th,
+.business-table th,
+.order-table th,
+.customer-table th,
+.cash-table th {
+  background: #e6f1fe !important;
+  color: #15171a !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 16px !important;
+  border-bottom: 1px solid #b3d4fc !important;
+  padding: 0 10px !important;
+}
+.product-page .product-table td,
+.business-table td,
+.order-table td,
+.customer-table td,
+.cash-table td {
+  border-bottom: 1px solid #e8eaed !important;
+  color: #15171a !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
