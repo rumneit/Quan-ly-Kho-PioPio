@@ -838,3 +838,6 @@
 .pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 13px !important; }
 .pos-error { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #fff0f0 !important; color: #b33232 !important; font-size: 13px !important; }
 .pos-success { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
+.pos-delivery-fields { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 10px !important; }
+.pos-delivery-fields input { height: 34px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 13px !important; }
+.pos-delivery-fields input:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
