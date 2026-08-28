@@ -39,7 +39,7 @@ export default function EndOfDayReportClient({ profile, orders, vouchers }: { pr
   function exportCsv() {
     const lines = interest === "Thu chi"
       ? [["Mã phiếu", "Thời gian", "Loại thu chi", "Người nộp/nhận", "Giá trị", "Trạng thái"], ...cashRows.map((voucher) => [voucherCode(voucher.type, voucher.voucher_number), dateTime(voucher.occurred_at), kindLabels[voucher.kind] || voucher.kind, voucher.partner_name || "---", voucher.type === "expense" ? -Number(voucher.amount) : Number(voucher.amount), voucher.status === "cancelled" ? "Đã hủy" : "Hoàn thành"])]
-      : [["Mã giao dịch", "Thời gian", "Khách hàng", "Doanh thu", "Thực thu", "SL", "Thu khác", "Làm tròn", "Phí trả hàng", "VAT"], ...rows.map((row) => [`HD${String(row.order_number).padStart(6, "0")}`, dateTime(row.created_at), row.customers?.name || "Khách lẻ", row.total, row.status === "paid" ? row.total : 0, qty(row), 0, 0, 0, 0])];
+      : [["Mã giao dịch", "Thời gian", "SL", "Doanh thu", "Thực thu", "Thu khác", "Làm tròn", "Phí trả hàng", "VAT"], ...rows.map((row) => [`HD${String(row.order_number).padStart(6, "0")}`, dateTime(row.created_at), qty(row), row.total, row.status === "paid" ? row.total : 0, 0, 0, 0, 0])];
     const csv = lines.map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a"); a.href = url; a.download = `bao-cao-cuoi-ngay-${selectedDate}.csv`; a.click(); URL.revokeObjectURL(url);
@@ -83,9 +83,9 @@ export default function EndOfDayReportClient({ profile, orders, vouchers }: { pr
               <>
                 <div className="report-kpis"><article><span>Doanh thu</span><b>{money(revenue)}</b></article><article><span>Thực thu</span><b>{money(revenue)}</b></article><article><span>Số giao dịch</span><b>{paid.length}</b></article><article><span>Giảm giá</span><b>{money(discount)}</b></article></div>
                 <table>
-                  <thead><tr><th>Mã giao dịch</th><th>Thời gian</th><th>Khách hàng</th><th>Doanh thu</th><th>Thực thu</th><th>SL</th><th>Thu khác</th><th>Làm tròn</th><th>Phí trả hàng</th><th>VAT</th></tr></thead>
-                  <tbody>{rows.map((row) => <tr key={row.id}><td>HD{String(row.order_number).padStart(6, "0")}</td><td>{dateTime(row.created_at)}</td><td>{row.customers?.name || "Khách lẻ"}</td><td>{money(Number(row.total))}</td><td>{row.status === "paid" ? money(Number(row.total)) : 0}</td><td>{qty(row)}</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>)}{!rows.length && <tr><td colSpan={10}><div className="report-empty">Báo cáo không có dữ liệu</div></td></tr>}</tbody>
-                  <tfoot><tr><th colSpan={3}>Chi nhánh trung tâm:</th><th>{money(gross)}</th><th>{money(revenue)}</th><th>{totalQty}</th><th>0</th><th>0</th><th>0</th><th>0</th></tr></tfoot>
+                  <thead><tr><th>Mã giao dịch</th><th>Thời gian</th><th>SL</th><th>Doanh thu</th><th>Thực thu</th><th>Thu khác</th><th>Làm tròn</th><th>Phí trả hàng</th><th>VAT</th></tr></thead>
+                  <tbody>{rows.map((row) => <tr key={row.id}><td>HD{String(row.order_number).padStart(6, "0")}</td><td>{dateTime(row.created_at)}</td><td>{qty(row)}</td><td>{money(Number(row.total))}</td><td>{row.status === "paid" ? money(Number(row.total)) : 0}</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>)}{!rows.length && <tr><td colSpan={9}><div className="report-empty">Báo cáo không có dữ liệu</div></td></tr>}</tbody>
+                  <tfoot><tr><th colSpan={2}>Chi nhánh trung tâm:</th><th>{totalQty}</th><th>{money(gross)}</th><th>{money(revenue)}</th><th>0</th><th>0</th><th>0</th><th>0</th></tr></tfoot>
                 </table>
               </>
             )}
