@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, GripVertical, Plus, Search } from "lucide-react";
 import DateFilter from "./date-filter";
+import DateRangePicker from "@/app/date-range-picker";
 import FilterPopover from "./filter-popover";
 import { FilterOption, ProductFilters } from "./product-types";
 
@@ -62,7 +63,7 @@ export default function ProductFilterSidebar({ filters, categories, suppliers, l
     <section><h2>Nhóm hàng <button type="button" onClick={() => setShowCategoryModal(true)}>Tạo mới</button></h2><FilterSelect label="Chọn nhóm hàng" value={selectedCategoryLabel} expanded={active === "category"} onClick={(element) => open("category", element)} /></section>
     <section><h2>Tồn kho</h2><span className="filter-caption">Tiêu chí tồn</span><FilterSelect label="Tất cả" value={inventoryLabel} expanded={active === "inventory"} onClick={(element) => open("inventory", element)} />{filters.inventoryCriteria === "custom" && <div className="inventory-custom"><select value={filters.inventoryOperator} onChange={(event) => set("inventoryOperator", event.target.value as ProductFilters["inventoryOperator"])}><option>=</option><option>&gt;</option><option>&gt;=</option><option>&lt;</option><option>&lt;=</option><option value="between">Khoảng</option></select><input type="number" aria-label="Giá trị tồn tối thiểu" value={filters.inventoryMin ?? ""} onChange={(event) => set("inventoryMin", event.target.value ? Number(event.target.value) : undefined)} />{filters.inventoryOperator === "between" && <input type="number" aria-label="Giá trị tồn tối đa" value={filters.inventoryMax ?? ""} onChange={(event) => set("inventoryMax", event.target.value ? Number(event.target.value) : undefined)} />}</div>}</section>
     <section><h2>Dự kiến hết hàng</h2><DateFilter mode="future" value={{ preset: filters.expectedPreset, from: filters.expectedFrom, to: filters.expectedTo }} onChange={(value) => onChange({ ...filters, expectedPreset: value.preset, expectedFrom: value.from, expectedTo: value.to })} /></section>
-    <section><h2>Thời gian tạo</h2><DateFilter mode="past" value={{ preset: filters.createdPreset, from: filters.createdFrom, to: filters.createdTo }} onChange={(value) => onChange({ ...filters, createdPreset: value.preset, createdFrom: value.from, createdTo: value.to })} /></section>
+    <section><h2>Thời gian tạo</h2><DateRangePicker value={{ preset: filters.createdPreset, from: filters.createdFrom, to: filters.createdTo }} onChange={(value) => onChange({ ...filters, createdPreset: value.preset, createdFrom: value.from, createdTo: value.to })} /></section>
     <section><h2>Nhà cung cấp</h2><FilterSelect label="Chọn nhà cung cấp" value={selectedSupplierLabel} expanded={active === "supplier"} onClick={(element) => open("supplier", element)} /></section>
     <section><h2>Vị trí</h2><FilterSelect label="Chọn vị trí" value={selectedLocationLabel} expanded={active === "location"} onClick={(element) => open("location", element)} /></section>
     <section><h2>Loại hàng</h2><FilterSelect label="Chọn loại hàng" value={typeLabel} expanded={active === "type"} onClick={(element) => open("type", element)} /></section>
