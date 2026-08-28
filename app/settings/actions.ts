@@ -260,3 +260,30 @@ export async function deleteExchangeRate(id: string): Promise<void> {
   await admin.from("currency_exchange_rates").delete().eq("store_id", profile.store_id).eq("id", id);
   await recordAudit("settings.exchange_rate.delete", "currency", id, {});
 }
+
+export async function deleteStoreTransactions(password: string): Promise<{ ok: boolean; error?: string; count?: number }> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  // verify password via the user's real session
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { error: verifyError } = await supabase.auth.signInWithPassword({ email: `${profile.username}@auth.khopiopio.app`, password });
+  if (verifyError) return { ok: false, error: "Mật khẩu không đúng. Không thể xóa dữ liệu." };
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("delete_store_transactions", { p_store_id: profile.store_id });
+  if (error) return { ok: false, error: error.message };
+  await recordAudit("data.delete_transactions", "store", profile.store_id, {});
+  return { ok: true, count: data ?? 0 };
+}
+
+export async function deleteAllStoreData(password: string): Promise<{ ok: boolean; error?: string; count?: number }> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { error: verifyError } = await supabase.auth.signInWithPassword({ email: `${profile.username}@auth.khopiopio.app`, password });
+  if (verifyError) return { ok: false, error: "Mật khẩu không đúng. Không thể xóa dữ liệu." };
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("delete_store_all_data", { p_store_id: profile.store_id });
+  if (error) return { ok: false, error: error.message };
+  await recordAudit("data.delete_all", "store", profile.store_id, {});
+  return { ok: true, count: data ?? 0 };
+}
