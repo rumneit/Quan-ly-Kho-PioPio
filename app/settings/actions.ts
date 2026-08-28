@@ -287,3 +287,15 @@ export async function deleteAllStoreData(password: string): Promise<{ ok: boolea
   await recordAudit("data.delete_all", "store", profile.store_id, {});
   return { ok: true, count: data ?? 0 };
 }
+
+export async function getProductStats(): Promise<{ categories: number; brands: number; products: number; groups: number }> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  const [c, b, p, g] = await Promise.all([
+    admin.from("product_categories").select("id", { count: "exact", head: true }).eq("store_id", profile.store_id),
+    admin.from("product_brands").select("id", { count: "exact", head: true }).eq("store_id", profile.store_id),
+    admin.from("products").select("id", { count: "exact", head: true }).eq("store_id", profile.store_id),
+    admin.from("customer_groups").select("id", { count: "exact", head: true }).eq("store_id", profile.store_id),
+  ]);
+  return { categories: c.count || 0, brands: b.count || 0, products: p.count || 0, groups: g.count || 0 };
+}

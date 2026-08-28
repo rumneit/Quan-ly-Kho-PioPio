@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Bell, Settings, ShoppingCart } from "lucide-react";
+import { Bell, ShoppingCart } from "lucide-react";
 import type { Profile } from "@/lib/auth";
+import HeaderSettings from "@/app/header-settings";
 
 export type ManagementSection =
   | "dashboard" | "products" | "pricebook" | "stocktakes" | "internal-use" | "damage-items"
@@ -17,7 +18,7 @@ export default function ManagementHeader({ profile, active }: { profile: Profile
   return <>
     <header className="kv-header">
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><button className="kv-round" aria-label="Cài đặt"><Settings size={20} /></button><button className="kv-avatar">{initials}</button></div>
+      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><HeaderSettings profile={profile} /><button className="kv-avatar">{initials}</button></div>
     </header>
     <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items">
       <Link className={`kv-top-item ${active === "dashboard" ? "active" : ""}`} href="/dashboard">Tổng quan</Link>
@@ -27,7 +28,6 @@ export default function ManagementHeader({ profile, active }: { profile: Profile
       <div className="kv-nav-dropdown"><button className={`kv-top-item ${active === "customers" ? "active" : ""}`} aria-haspopup="true">Khách hàng</button><div className="kv-submenu customer-submenu"><section><h3>Khách hàng</h3><Link className={active === "customers" ? "active" : ""} href="/customers">Khách hàng</Link></section></div></div>
       <Link className={`kv-top-item ${active === "cashflow" ? "active" : ""}`} href="/cashflow">Sổ quỹ</Link>
       <div className="kv-nav-dropdown"><button className={`kv-top-item ${reportActive ? "active" : ""}`} aria-haspopup="true">Báo cáo</button><div className="kv-submenu report-submenu"><section><h3>Báo cáo</h3><Link className={active === "end-of-day-report" ? "active" : ""} href="/end-of-day-report">Cuối ngày</Link><Link className={active === "sale-report" ? "active" : ""} href="/sale-report">Bán hàng</Link><Link className={active === "order-report" ? "active" : ""} href="/order-report">Đặt hàng</Link><Link className={active === "product-report" ? "active" : ""} href="/product-report">Hàng hóa</Link><Link className={active === "customer-report" ? "active" : ""} href="/customer-report">Khách hàng</Link><Link className={active === "supplier-report" ? "active" : ""} href="/supplier-report">Nhà cung cấp</Link><Link className={active === "sale-channel-report" ? "active" : ""} href="/sale-channel-report">Kênh bán hàng</Link><Link className={active === "financial-report" ? "active" : ""} href="/financial-report">Tài chính</Link></section></div></div>
-      <Link className={`kv-top-item ${active === "settings" || active === "settings-store" || active === "settings-branches" || active === "settings-users" || active === "settings-product-info" || active === "settings-data" ? "active" : ""}`} href="/settings">Cài đặt</Link>
       <span className="kv-top-item">Bán online</span>
     </div><Link className="kv-sale-link" href="/sales"><ShoppingCart size={20} />Bán hàng</Link></nav>
   </>;

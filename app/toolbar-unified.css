@@ -841,3 +841,41 @@
 .pos-delivery-fields { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 10px !important; }
 .pos-delivery-fields input { height: 34px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 13px !important; }
 .pos-delivery-fields input:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
+
+/* =====================================================================
+   SETTINGS DRAWER — opens from header gear icon (KiotViet style)
+   ===================================================================== */
+.header-settings-btn { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.settings-drawer-root { position: fixed !important; inset: 0 !important; z-index: 200 !important; }
+.settings-drawer-backdrop { position: absolute !important; inset: 0 !important; background: rgba(16,30,54,.42) !important; border: 0 !important; }
+.settings-drawer { position: absolute !important; top: 0 !important; right: 0 !important; bottom: 0 !important; width: min(900px, calc(100vw - 24px)) !important; display: flex !important; flex-direction: column !important; background: #f7f8f9 !important; box-shadow: -12px 0 40px rgba(16,30,54,.24) !important; }
+.settings-drawer-head { display: flex !important; align-items: center !important; justify-content: space-between !important; flex: 0 0 auto !important; padding: 14px 20px !important; border-bottom: 1px solid #e8eaed !important; background: #fff !important; }
+.settings-drawer-head h3 { margin: 0 !important; font-size: 17px !important; font-weight: 700 !important; color: #15171a !important; line-height: 24px !important; }
+.settings-drawer-head p { margin: 2px 0 0 !important; font-size: 12px !important; color: #6b7a8d !important; }
+.settings-drawer-head button { display: inline-flex !important; width: 32px !important; height: 32px !important; align-items: center !important; justify-content: center !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #6b7a8d !important; cursor: pointer !important; }
+.settings-drawer-head button:hover { background: #f2f4f6 !important; color: #15171a !important; }
+.settings-drawer-body { flex: 1 !important; display: grid !important; grid-template-columns: 230px minmax(0, 1fr) !important; min-height: 0 !important; }
+.settings-drawer-nav { overflow-y: auto !important; padding: 14px 10px !important; border-right: 1px solid #e8eaed !important; background: #fff !important; }
+.settings-drawer-nav section { margin-bottom: 16px !important; }
+.settings-drawer-nav h4 { margin: 0 0 6px !important; padding: 0 10px !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .4px !important; color: #8a96a7 !important; }
+.settings-drawer-nav button { display: flex !important; align-items: center !important; gap: 8px !important; width: 100% !important; height: 34px !important; padding: 0 10px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #3e464f !important; font-size: 13px !important; text-align: left !important; cursor: pointer !important; }
+.settings-drawer-nav button:hover { background: #f2f4f6 !important; }
+.settings-drawer-nav button.active { background: #edf6ff !important; color: #0070f4 !important; font-weight: 600 !important; }
+.settings-drawer-nav button svg { flex: 0 0 auto !important; }
+.settings-drawer-nav button span { flex: 1 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.settings-drawer-nav button svg:last-child { flex: 0 0 auto !important; opacity: .5 !important; }
+.settings-drawer-content { min-height: 0 !important; overflow-y: auto !important; padding: 18px 22px 40px !important; }
+.settings-drawer-title { margin-bottom: 16px !important; padding-bottom: 10px !important; border-bottom: 1px solid #eef1f4 !important; }
+.settings-drawer-title h5 { margin: 0 !important; font-size: 16px !important; font-weight: 700 !important; color: #15171a !important; }
+.settings-drawer-content .settings-section { max-width: 720px !important; }
+.settings-drawer-content .settings-loading { padding: 40px 0 !important; }
+.settings-categories { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+.settings-category-chip { padding: 7px 12px !important; border: 1px solid #d8dde3 !important; border-radius: 16px !important; background: #fff !important; color: #3e464f !important; font-size: 13px !important; }
+.settings-btn-primary { text-decoration: none !important; display: inline-flex !important; align-items: center !important; }
+.settings-info-grid-compact { grid-template-columns: repeat(2, 1fr) !important; }
+@media (max-width: 700px) {
+  .settings-drawer-body { grid-template-columns: 1fr !important; }
+  .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }
+  .settings-drawer-nav section { flex: 0 0 auto !important; margin-bottom: 0 !important; }
+  .settings-drawer-nav h4 { display: none !important; }
+}
