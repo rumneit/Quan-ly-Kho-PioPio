@@ -9,10 +9,12 @@ const NAV_GROUPS: Array<{ title: string; items: Array<{ href: string; label: str
     items: [
       { href: "/settings/store-info", label: "Thông tin cửa hàng" },
       { href: "/settings/store", label: "Cửa hàng & Hàng hóa" },
+      { href: "/settings/currency", label: "Quản lý tiền tệ" },
       { href: "/settings/branches", label: "Quản lý chi nhánh" },
       { href: "/settings/users", label: "Quản lý người dùng" },
       { href: "/settings/user-permissions", label: "Phân quyền nhóm hàng" },
       { href: "/settings/security", label: "Bảo mật" },
+      { href: "/settings/api", label: "Kết nối API" },
       { href: "/settings/print-templates", label: "Mẫu in" },
     ],
   },

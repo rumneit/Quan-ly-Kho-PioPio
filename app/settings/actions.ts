@@ -203,3 +203,60 @@ export async function unpairDevice(id: string): Promise<void> {
   await admin.from("devices").delete().eq("store_id", profile.store_id).eq("id", id);
   await recordAudit("settings.device.unpair", "device", id, {});
 }
+
+export type ApiToken = { id: string; name: string; scopes: string; tokenPrefix: string; createdAt: string; lastUsedAt: string | null; active: boolean };
+
+export async function getApiTokens(): Promise<ApiToken[]> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  const { data } = await admin.from("api_tokens").select("id,name,scopes,token_prefix,created_at,last_used_at,active").eq("store_id", profile.store_id).order("created_at", { ascending: false });
+  return (data || []).map((r) => ({ id: r.id, name: r.name, scopes: r.scopes, tokenPrefix: r.token_prefix, createdAt: r.created_at, lastUsedAt: r.last_used_at, active: r.active }));
+}
+
+export async function createApiToken(name: string, scopes: string): Promise<{ ok: boolean; token?: string; error?: string }> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  if (!name.trim() || name.length > 80) return { ok: false, error: "Tên token không hợp lệ." };
+  if (scopes !== "read" && scopes !== "read_write") return { ok: false, error: "Phạm vi không hợp lệ." };
+  const crypto = await import("node:crypto");
+  const raw = `pip_${crypto.randomBytes(24).toString("hex")}`;
+  const tokenHash = crypto.createHash("sha256").update(raw).digest("hex");
+  const { error } = await admin.from("api_tokens").insert({ store_id: profile.store_id, name: name.trim(), scopes, token_hash: tokenHash, token_prefix: raw.slice(0, 12), created_by: profile.id });
+  if (error) return { ok: false, error: "Không thể tạo token." };
+  await recordAudit("settings.api_token.create", "api_token", name.trim(), { scopes });
+  return { ok: true, token: raw };
+}
+
+export async function revokeApiToken(id: string): Promise<void> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  await admin.from("api_tokens").delete().eq("store_id", profile.store_id).eq("id", id);
+  await recordAudit("settings.api_token.revoke", "api_token", id, {});
+}
+
+export type ExchangeRate = { id: string; currency: string; rate: number };
+
+export async function getExchangeRates(): Promise<ExchangeRate[]> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  const { data } = await admin.from("currency_exchange_rates").select("id,currency,rate").eq("store_id", profile.store_id).order("currency");
+  return (data || []).map((r) => ({ id: r.id, currency: r.currency, rate: Number(r.rate) }));
+}
+
+export async function upsertExchangeRate(currency: string, rate: number): Promise<{ ok: boolean; error?: string }> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  if (!currency.trim() || currency.length > 8) return { ok: false, error: "Mã tiền tệ không hợp lệ." };
+  if (!Number.isFinite(rate) || rate <= 0) return { ok: false, error: "Tỷ giá phải lớn hơn 0." };
+  const { error } = await admin.from("currency_exchange_rates").upsert({ store_id: profile.store_id, currency: currency.trim().toUpperCase(), rate, updated_by: profile.id, updated_at: new Date().toISOString() }).eq("store_id", profile.store_id);
+  if (error) return { ok: false, error: "Không thể lưu tỷ giá." };
+  await recordAudit("settings.exchange_rate.upsert", "currency", currency, { rate });
+  return { ok: true };
+}
+
+export async function deleteExchangeRate(id: string): Promise<void> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  await admin.from("currency_exchange_rates").delete().eq("store_id", profile.store_id).eq("id", id);
+  await recordAudit("settings.exchange_rate.delete", "currency", id, {});
+}
