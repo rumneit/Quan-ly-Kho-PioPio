@@ -823,3 +823,18 @@
 .kv-today-compare b { margin-left: 6px !important; font-size: 13px !important; font-weight: 600 !important; }
 .kv-today-compare b.up { color: #188448 !important; }
 .kv-today-compare b.down { color: #d64545 !important; }
+
+/* =====================================================================
+   POS / BÁN HÀNG — real checkout wiring additions
+   ===================================================================== */
+.pos-customer-selected { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 8px !important; padding: 8px 12px !important; border: 1px solid #d8e6f7 !important; border-radius: 6px !important; background: #f4f9ff !important; color: #1f5f9e !important; font-size: 13px !important; }
+.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #8a96a7 !important; font-size: 15px !important; cursor: pointer !important; }
+.pos-customer-search { position: relative !important; }
+.pos-customer-list { position: absolute !important; z-index: 50 !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important; max-height: 220px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important; background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.14) !important; }
+.pos-customer-list button { display: flex !important; flex-direction: column !important; width: 100% !important; padding: 8px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
+.pos-customer-list button:hover { background: #f2f8ff !important; }
+.pos-customer-list strong { font-size: 13px !important; color: #2e3541 !important; }
+.pos-customer-list small { font-size: 12px !important; color: #8a96a7 !important; }
+.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 13px !important; }
+.pos-error { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #fff0f0 !important; color: #b33232 !important; font-size: 13px !important; }
+.pos-success { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
