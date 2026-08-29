@@ -922,6 +922,47 @@
 .pos-qty-control button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
 .pos-footer a { text-decoration: none !important; color: inherit !important; }
 .pos-footer svg { flex: 0 0 auto !important; }
+
+/* =====================================================================
+   POS — KiotViet sale layout: search header, CART LEFT, panel RIGHT
+   ===================================================================== */
+.pos-search-wrap { position: relative !important; display: inline-flex !important; flex: 0 1 392px !important; }
+.pos-search-results { position: absolute !important; z-index: 70 !important; top: calc(100% + 6px) !important; left: 0 !important; width: max-content !important; min-width: 100% !important; max-width: 460px !important; max-height: 380px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important; background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.16) !important; }
+.pos-search-results button { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
+.pos-search-results button:hover { background: #f2f8ff !important; }
+.pos-search-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; font-size: 13px !important; color: #2e3541 !important; }
+.pos-search-name small { font-size: 12px !important; color: #8a96a7 !important; }
+.pos-search-results b { flex: 0 0 auto !important; font-size: 13px !important; color: #0070f4 !important; font-weight: 600 !important; }
+.pos-workspace { display: grid !important; grid-template-columns: minmax(0, 1fr) 421px !important; gap: 0 !important; height: calc(100vh - 93px) !important; min-height: 0 !important; background: #f0f1f3 !important; }
+.pos-cart-panel { display: flex !important; flex-direction: column !important; min-height: 0 !important; padding: 9px !important; }
+.pos-cart-head { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 0 2px 8px !important; }
+.pos-cart-head > span { font-size: 13px !important; color: #6b7a8d !important; }
+.pos-cart-head button { display: inline-flex !important; align-items: center !important; gap: 5px !important; height: 30px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #b33232 !important; font-size: 12px !important; cursor: pointer !important; }
+.pos-cart-head button:disabled { opacity: .45 !important; cursor: not-allowed !important; }
+.pos-cart-panel .pos-cart-list { flex: 1 !important; min-height: 0 !important; overflow-y: auto !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; padding: 4px 0 !important; }
+.pos-cart-panel .pos-cart-list article { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; padding: 10px 14px !important; border-bottom: 1px solid #f0f2f5 !important; }
+.pos-cart-info { display: flex !important; flex-direction: column !important; min-width: 0 !important; }
+.pos-cart-info strong { font-size: 14px !important; color: #15171a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.pos-cart-info small { font-size: 12px !important; color: #8a96a7 !important; }
+.pos-cart-right { display: flex !important; align-items: center !important; gap: 14px !important; flex: 0 0 auto !important; }
+.pos-cart-right > b { min-width: 90px !important; text-align: right !important; font-size: 14px !important; color: #15171a !important; }
+.pos-line-remove { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 28px !important; height: 28px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #c0392b !important; cursor: pointer !important; }
+.pos-line-remove:hover { background: #fff0f0 !important; }
+.pos-cart-panel .pos-empty-cart { height: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 8px !important; color: #b6c0ca !important; }
+.pos-cart-panel .pos-empty-cart strong { color: #6b7a8d !important; font-size: 15px !important; }
+.pos-cart-panel .pos-empty-cart p { margin: 0 !important; font-size: 13px !important; }
+.pos-checkout-panel { width: 421px !important; min-width: 421px !important; border-left: 1px solid #e3e7ec !important; overflow-y: auto !important; }
+.pos-totals { padding: 10px 0 4px !important; }
+.pos-totals p { display: flex !important; align-items: center !important; justify-content: space-between !important; margin: 0 !important; padding: 5px 0 !important; font-size: 14px !important; color: #3e464f !important; }
+.pos-totals p.strong { border-top: 1px dashed #dfe4ea !important; margin-top: 4px !important; padding-top: 10px !important; font-size: 16px !important; font-weight: 700 !important; color: #15171a !important; }
+.pos-totals p span { color: #6b7a8d !important; }
+.pos-totals p b { color: #15171a !important; }
+.pos-totals p.strong b { font-size: 18px !important; }
+.pos-checkout-panel .pos-customer-search { margin-bottom: 8px !important; }
+@media (max-width: 850px) {
+  .pos-workspace { grid-template-columns: 1fr !important; height: auto !important; }
+  .pos-checkout-panel { width: 100% !important; min-width: 0 !important; border-left: 0 !important; border-top: 1px solid #e3e7ec !important; }
+}
 @media (max-width: 700px) {
   .settings-drawer-body { grid-template-columns: 1fr !important; }
   .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }
