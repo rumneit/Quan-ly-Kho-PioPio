@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Profile } from "@/lib/auth";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
@@ -37,6 +37,19 @@ export default function SalesClient({ profile, products, customers }: Props) {
   const [newCustPhone, setNewCustPhone] = useState("");
   // account menu
   const [menuOpen, setMenuOpen] = useState(false);
+  // shortcuts
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const productSearchRef = useRef<HTMLInputElement>(null);
+  const customerSearchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "F3") { e.preventDefault(); productSearchRef.current?.focus(); }
+      else if (e.key === "F4") { e.preventDefault(); customerSearchRef.current?.focus(); setCustomerListOpen(true); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   const filtered = useMemo(() => products.filter(product => `${product.name} ${product.sku}`.toLowerCase().includes(query.toLowerCase())), [products, query]);
   const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
@@ -98,11 +111,11 @@ export default function SalesClient({ profile, products, customers }: Props) {
 
   return <main className="pos-shell">
     <header className="pos-topbar">
-      <label className="pos-global-search"><span>⌕</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm hàng hóa (F3)" autoFocus /></label>
+      <label className="pos-global-search"><span>⌕</span><input ref={productSearchRef} value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm hàng hóa (F3)" autoFocus /></label>
       <div className="pos-invoice-tab"><span>⇄</span><strong>{lastOrder || "Hóa đơn 1"}</strong><b>×</b></div><button className="pos-add-tab">＋</button>
       <div className="pos-tools"><button aria-label="Đơn hàng">▣</button><button aria-label="Hoàn tác">↶</button><button aria-label="Đồng bộ">↻</button><button aria-label="In">▤</button>
         <div className="pos-user-menu-wrap"><button className="pos-user" aria-label="Tài khoản" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>{profile.username}</button>
-          {menuOpen && <div className="pos-user-menu"><Link href="/end-of-day-report">Xem báo cáo cuối ngày</Link><Link href="/orders">Xử lý đặt hàng</Link><Link href="/cashflow">Lập phiếu thu</Link><Link href="/dashboard">Quản lý</Link><form action="/auth/signout" method="post"><button>Đăng xuất</button></form></div>}
+          {menuOpen && <div className="pos-user-menu"><Link href="/end-of-day-report">Xem báo cáo cuối ngày</Link><Link href="/orders">Xử lý đặt hàng</Link><Link href="/returns">Chọn hóa đơn trả hàng</Link><Link href="/cashflow">Lập phiếu thu</Link><button onClick={() => { setMenuOpen(false); setShowShortcuts(true); }}>Phím tắt</button><Link href="/dashboard">Quản lý</Link><form action="/auth/signout" method="post"><button>Đăng xuất</button></form></div>}
         </div>
       </div>
     </header>
@@ -114,14 +127,14 @@ export default function SalesClient({ profile, products, customers }: Props) {
       </section>
       <aside className="pos-checkout-panel">
         <div className="pos-staff-row"><span>{profile.full_name}</span><b>⌄</b><time>{new Intl.DateTimeFormat("vi-VN").format(new Date())}</time></div>
-        <label className="pos-customer-search">⌕ <input placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={event => { setCustomerQuery(event.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng">＋</button></label>
+        <label className="pos-customer-search">⌕ <input ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={event => { setCustomerQuery(event.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng">＋</button></label>
         {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => { setCustomerId(""); }}>×</button></div>}
         {customerListOpen && <div className="pos-customer-list">{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">Không tìm thấy khách hàng</p>}</div>}
         {isDelivery && <div className="pos-delivery-fields"><input placeholder="Người nhận *" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại *" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /><input placeholder="Địa chỉ" value={address} onChange={e => setAddress(e.target.value)} /><input placeholder="Khu vực" value={area} onChange={e => setArea(e.target.value)} /><div className="pos-pack-row"><span>Số kiện</span><button onClick={() => setPackCount(Math.max(1, packCount - 1))}>−</button><b>{packCount}</b><button onClick={() => setPackCount(packCount + 1)}>＋</button></div></div>}
         <div className="pos-cart-list">{lines.length ? lines.map(line => <article key={line.id}><div><strong>{line.name}</strong><small>{line.sku}</small></div><div className="pos-quantity"><button onClick={() => changeQuantity(line,-1)}>−</button><span>{line.quantity}</span><button onClick={() => changeQuantity(line,1)}>＋</button></div><b>{money(Number(line.price)*line.quantity)}</b></article>) : <div className="pos-empty-cart"><span>▣</span><strong>Hóa đơn chưa có hàng hóa</strong><p>Tìm kiếm hoặc chọn hàng hóa bên trái để bắt đầu.</p></div>}</div>
         <div className="pos-payment"><div className="pos-cod"><strong>Thu hộ tiền (COD)</strong><button aria-label="Bật thu hộ"><i /></button><b>{money(total)}</b></div><div className="pos-payment-total"><span>Khách cần trả</span><strong>{money(total)}</strong></div>{error && <p className="pos-error" role="alert">{error}</p>}{notice && <p className="pos-success">{notice}</p>}<div className="pos-payment-actions">
           {isDelivery ? <><button className="delivery" disabled={!lines.length || saving || !receiverName || !receiverPhone} onClick={() => doOrder("paid")}>{saving ? "ĐANG TẠO..." : "ĐẶT HÀNG + VẬN ĐƠN"}</button><button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN + VẬN ĐƠN"}</button></>
-          : <><button className="delivery" disabled>GIAO HÀNG</button><button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN"}</button></>}
+          : <><button className="delivery" disabled={!lines.length} onClick={() => setMode("delivery")}>GIAO HÀNG</button><button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN"}</button></>}
         </div></div>
       </aside>
     </div>
@@ -130,5 +143,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
     {qtyTarget && <div className="modal-backdrop" onClick={() => setQtyTarget(null)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>{qtyTarget.name}</h3><p className="pos-qty-price">{money(Number(qtyTarget.price))} · Tồn {qtyTarget.stock_quantity}</p><div className="pos-qty-control"><button onClick={() => setQty(Math.max(1, qty - 1))}>−</button><span>{qty}</span><button onClick={() => setQty(Math.min(qtyTarget.stock_quantity, qty + 1))}>＋</button></div><div className="settings-form-actions"><button onClick={() => setQtyTarget(null)}>Hủy</button><button className="settings-btn-primary" onClick={confirmQty} disabled={qty < 1}>Thêm vào đơn</button></div></section></div>}
 
     {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
+
+    {showShortcuts && <div className="modal-backdrop" onClick={() => setShowShortcuts(false)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>Phím tắt</h3><div className="pos-shortcuts"><div><kbd>F3</kbd><span>Tìm hàng hóa</span></div><div><kbd>F4</kbd><span>Tìm khách hàng</span></div><div><kbd>Esc</kbd><span>Đóng cửa sổ</span></div></div><div className="settings-form-actions"><button className="settings-btn-primary" onClick={() => setShowShortcuts(false)}>Đã hiểu</button></div></section></div>}
   </main>;
 }

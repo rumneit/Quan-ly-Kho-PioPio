@@ -892,6 +892,10 @@
 .pos-qty-control { display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; margin-bottom: 16px !important; }
 .pos-qty-control button { width: 36px !important; height: 36px !important; border: 1px solid #d0d7de !important; border-radius: 8px !important; background: #fff !important; color: #3e464f !important; font-size: 18px !important; cursor: pointer !important; }
 .pos-qty-control span { min-width: 48px !important; text-align: center !important; font-size: 20px !important; font-weight: 600 !important; }
+.pos-shortcuts { display: grid !important; gap: 8px !important; margin-bottom: 16px !important; }
+.pos-shortcuts > div { display: flex !important; align-items: center !important; gap: 10px !important; }
+.pos-shortcuts kbd { display: inline-flex !important; align-items: center !important; justify-content: center !important; min-width: 40px !important; height: 28px !important; padding: 0 8px !important; border: 1px solid #d0d7de !important; border-bottom-width: 2px !important; border-radius: 6px !important; background: #f7f8f9 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important; }
+.pos-shortcuts span { font-size: 13px !important; color: #3e464f !important; }
 @media (max-width: 700px) {
   .settings-drawer-body { grid-template-columns: 1fr !important; }
   .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }
