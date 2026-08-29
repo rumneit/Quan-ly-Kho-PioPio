@@ -963,6 +963,57 @@
   .pos-workspace { grid-template-columns: 1fr !important; height: auto !important; }
   .pos-checkout-panel { width: 100% !important; min-width: 0 !important; border-left: 0 !important; border-top: 1px solid #e3e7ec !important; }
 }
+
+/* =====================================================================
+   POS — exact KiotViet metrics (measured at 1272px viewport)
+   ===================================================================== */
+.pos-shell { font-size: 12.544px !important; }
+.pos-topbar { height: 41px !important; }
+.pos-global-search { width: 352px !important; height: 29px !important; border-radius: 4px !important; background: #fff !important; }
+.pos-global-search input { font-size: 12.544px !important; }
+.pos-invoice-tab { min-width: 129px !important; height: 36px !important; align-self: flex-end !important; border-radius: 6px 6px 0 0 !important; background: #f0f1f3 !important; }
+.pos-invoice-tab strong { font-size: 12.544px !important; }
+.pos-tools button { width: 29px !important; height: 29px !important; }
+.pos-tools button svg, .pos-add-tab svg, .pos-user-menu-wrap svg { width: 14px !important; height: 14px !important; }
+.pos-user { height: 29px !important; font-size: 12px !important; }
+.pos-workspace { height: calc(100vh - 100px) !important; padding: 9px 9px 9px 0 !important; gap: 1px !important; }
+.pos-cart-panel { padding: 0 !important; }
+.pos-cart-panel .pos-cart-list { border: 0 !important; background: transparent !important; border-radius: 0 !important; padding: 1px !important; }
+.pos-cart-head { padding: 0 2px 6px !important; }
+.pos-cart-head > span { font-size: 12.544px !important; }
+.pos-cart-head button { height: 26px !important; font-size: 11px !important; }
+.pos-cart-info strong { font-size: 12.544px !important; }
+.pos-cart-info small { font-size: 11px !important; color: #8a96a7 !important; }
+.pos-cart-right > b { font-size: 12.544px !important; }
+.pos-checkout-panel { border: 0 !important; border-radius: 9px !important; background: #fff !important; }
+.pos-checkout-panel .pos-staff-row { font-size: 12.544px !important; }
+.pos-checkout-panel .pos-customer-search { height: 29px !important; background: #f0f1f3 !important; border: 0 !important; border-radius: 4px !important; }
+.pos-checkout-panel .pos-customer-search input { font-size: 12.544px !important; background: transparent !important; }
+.pos-checkout-panel .pos-delivery-fields input { font-size: 12.544px !important; }
+.pos-totals p { font-size: 12.544px !important; }
+.pos-totals p.strong b { font-size: 14.336px !important; }
+.pos-checkout-panel .pos-cod strong { font-size: 12.544px !important; }
+.pos-payment-actions { gap: 9px !important; }
+.pos-payment-actions .pay, .pos-payment-actions .delivery { height: 45px !important; padding: 0 23px !important; font-size: 14.336px !important; font-weight: 500 !important; }
+.pos-payment-actions .delivery { min-width: 131px !important; }
+.pos-footer { height: 45px !important; background: #fff !important; padding: 0 9px !important; }
+.pos-footer button, .pos-footer a { font-size: 12.544px !important; }
+.pos-search-results button { padding: 8px 11px !important; }
+.pos-search-name { font-size: 12.544px !important; }
+.pos-search-name small { font-size: 11px !important; }
+.pos-search-results b { font-size: 12.544px !important; }
+@media (max-width: 850px) {
+  .pos-workspace { grid-template-columns: 1fr !important; height: auto !important; padding: 9px !important; }
+  .pos-checkout-panel { width: 100% !important; min-width: 0 !important; }
+}
+
+/* Final pixel tweaks from KiotViet deep audit */
+.pos-topbar { padding-left: 5px !important; }
+.pos-invoice-tab { margin-left: 42px !important; }
+.pos-checkout-panel { padding-left: 20px !important; padding-right: 20px !important; }
+.pos-shell .pos-global-search input, .pos-shell .pos-customer-search input { font-size: 12.544px !important; }
+.pos-shell .pos-global-search svg, .pos-shell .pos-customer-search svg { width: 14px !important; height: 14px !important; }
+.pos-search-wrap { flex: 0 0 352px !important; }
 @media (max-width: 700px) {
   .settings-drawer-body { grid-template-columns: 1fr !important; }
   .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }

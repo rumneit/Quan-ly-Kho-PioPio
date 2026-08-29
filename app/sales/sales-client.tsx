@@ -141,7 +141,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
         <div className="pos-payment"><div className="pos-cod"><strong>Thu hộ tiền (COD)</strong><b>{money(total)}</b></div>{error && <p className="pos-error" role="alert">{error}</p>}{notice && <p className="pos-success">{notice}</p>}<div className="pos-payment-actions">
           {isDelivery
             ? <button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN + VẬN ĐƠN"}</button>
-            : <button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN"}</button>}
+            : <><button className="delivery" onClick={() => setMode("delivery")}>GIAO HÀNG</button><button className="pay" disabled={!lines.length || saving} onClick={() => doOrder("paid")}>{saving ? "ĐANG LƯU..." : "THANH TOÁN"}</button></>}
         </div></div>
       </aside>
     </div>
