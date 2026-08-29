@@ -1,6 +1,6 @@
 /* =====================================================================
-   UNIFIED MANAGEMENT TOOLBAR — loaded last for maximum specificity.
-   Metrics measured from KiotViet "Danh sách hàng hóa" (#/Products/) at
+   UNIFIED MANAGEMENT TOOLBAR â€” loaded last for maximum specificity.
+   Metrics measured from KiotViet "Danh sÃ¡ch hÃ ng hÃ³a" (#/Products/) at
    1272px viewport:
      H1        250x28, x=16, font 20px/28px 700, margin-right 12px
      Search    430x32 wrapper, radius 8px, border 1px #d1d5da
@@ -66,7 +66,7 @@
   box-shadow: none !important;
 }
 /* Products page defines .kv-btn-icon / .column-control > button with
-   radius 6px !important outside .product-toolbar — override to 8px. */
+   radius 6px !important outside .product-toolbar â€” override to 8px. */
 .product-page .kv-btn-icon,
 .product-page .kv-toolbar-100 .kv-btn,
 .product-page .kv-toolbar-100 .kv-btn-icon,
@@ -101,7 +101,7 @@
   padding: 0 !important;
 }
 
-/* Products page wraps the search in .product-actions-center — pin it to
+/* Products page wraps the search in .product-actions-center â€” pin it to
    the same 430px slot so the search box lands at x=278 like KiotViet. */
 .product-page .product-actions .product-actions-center {
   flex: 0 0 var(--kv-search-width) !important;
@@ -206,7 +206,7 @@
   display: none !important;
 }
 
-/* Primary "Tạo mới" — KiotViet outline style, not filled */
+/* Primary "Táº¡o má»›i" â€” KiotViet outline style, not filled */
 .product-page .product-toolbar > .primary,
 .product-page .product-toolbar > .kv-btn-create,
 .product-page .product-toolbar .kv-create-wrap > .kv-btn-create,
@@ -234,7 +234,7 @@
   color: var(--kv-tool-primary) !important;
 }
 
-/* Icons inside buttons — uniform 18px */
+/* Icons inside buttons â€” uniform 18px */
 .product-page .product-toolbar button svg,
 .product-page .product-toolbar .kv-btn svg,
 .product-page .product-toolbar .column-control button svg {
@@ -421,7 +421,7 @@
 }
 
 /* =====================================================================
-   HEADER + NAV + TABLE — KiotViet "Danh sách hàng hóa" measurements.
+   HEADER + NAV + TABLE â€” KiotViet "Danh sÃ¡ch hÃ ng hÃ³a" measurements.
    Top bar = 48px header + 48px blue nav = 96px (project was 56+48=104).
    ===================================================================== */
 
@@ -439,7 +439,7 @@
   box-shadow: none !important;
 }
 
-/* Nav items — KiotViet: 36px tall, 8px radius, 14px/600, white, pad 8px 12px */
+/* Nav items â€” KiotViet: 36px tall, 8px radius, 14px/600, white, pad 8px 12px */
 .kv-shell .kv-horizontal-nav .kv-top-item {
   height: 36px !important;
   padding: 0 12px !important;
@@ -503,7 +503,7 @@
   top: 166px !important;
 }
 
-/* Table header — KiotViet: bg #e6f1fe, 12px/16px 600, #15171a, border #b3d4fc */
+/* Table header â€” KiotViet: bg #e6f1fe, 12px/16px 600, #15171a, border #b3d4fc */
 .product-page .product-table th,
 .business-table th,
 .order-table th,
@@ -529,7 +529,7 @@
 }
 
 /* =====================================================================
-   DATE RANGE PICKER — KiotViet-style calendar popover (date-range-picker.tsx)
+   DATE RANGE PICKER â€” KiotViet-style calendar popover (date-range-picker.tsx)
    ===================================================================== */
 .date-range-picker {
   position: relative !important;
@@ -646,7 +646,7 @@
 }
 
 /* =====================================================================
-   SETTINGS — KiotViet-style sidebar + content layout
+   SETTINGS â€” KiotViet-style sidebar + content layout
    ===================================================================== */
 .settings-shell {
   display: grid !important;
@@ -775,7 +775,7 @@
 }
 
 /* =====================================================================
-   SETTINGS — interactive components (store, security, permissions, etc.)
+   SETTINGS â€” interactive components (store, security, permissions, etc.)
    ===================================================================== */
 .settings-loading { padding: 60px 0 !important; text-align: center !important; color: #85909d !important; }
 .settings-toast { margin-bottom: 14px !important; padding: 10px 14px !important; border: 1px solid #b9e2c9 !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
@@ -814,7 +814,7 @@
 .settings-table code { padding: 2px 6px !important; border-radius: 4px !important; background: #f4f5f7 !important; color: #2e3541 !important; font-size: 12px !important; }
 
 /* =====================================================================
-   DASHBOARD — KiotViet "Kết quả bán hàng hôm nay" additions
+   DASHBOARD â€” KiotViet "Káº¿t quáº£ bÃ¡n hÃ ng hÃ´m nay" additions
    ===================================================================== */
 .kv-stat-icon.green { background: #20ae5b !important; }
 .kv-today-stats article:nth-child(3) { padding-left: 24px !important; border-left: 1px solid #e7ebef !important; }
@@ -824,248 +824,3 @@
 .kv-today-compare b.up { color: #188448 !important; }
 .kv-today-compare b.down { color: #d64545 !important; }
 
-/* =====================================================================
-   POS / BÁN HÀNG — real checkout wiring additions
-   ===================================================================== */
-.pos-customer-selected { display: flex !important; align-items: center !important; gap: 8px !important; margin-bottom: 8px !important; padding: 8px 12px !important; border: 1px solid #d8e6f7 !important; border-radius: 6px !important; background: #f4f9ff !important; color: #1f5f9e !important; font-size: 13px !important; }
-.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #8a96a7 !important; font-size: 15px !important; cursor: pointer !important; }
-.pos-customer-search { position: relative !important; }
-.pos-customer-list { position: absolute !important; z-index: 50 !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important; max-height: 220px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important; background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.14) !important; }
-.pos-customer-list button { display: flex !important; flex-direction: column !important; width: 100% !important; padding: 8px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
-.pos-customer-list button:hover { background: #f2f8ff !important; }
-.pos-customer-list strong { font-size: 13px !important; color: #2e3541 !important; }
-.pos-customer-list small { font-size: 12px !important; color: #8a96a7 !important; }
-.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 13px !important; }
-.pos-error { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #fff0f0 !important; color: #b33232 !important; font-size: 13px !important; }
-.pos-success { margin: 8px 0 0 !important; padding: 8px 12px !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
-.pos-delivery-fields { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 10px !important; }
-.pos-delivery-fields input { height: 34px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 13px !important; }
-.pos-delivery-fields input:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
-
-/* =====================================================================
-   SETTINGS DRAWER — opens from header gear icon (KiotViet style)
-   ===================================================================== */
-.header-settings-btn { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.settings-drawer-root { position: fixed !important; inset: 0 !important; z-index: 200 !important; }
-.settings-drawer-backdrop { position: absolute !important; inset: 0 !important; background: rgba(16,30,54,.42) !important; border: 0 !important; }
-.settings-drawer { position: absolute !important; top: 0 !important; right: 0 !important; bottom: 0 !important; width: min(900px, calc(100vw - 24px)) !important; display: flex !important; flex-direction: column !important; background: #f7f8f9 !important; box-shadow: -12px 0 40px rgba(16,30,54,.24) !important; }
-.settings-drawer-head { display: flex !important; align-items: center !important; justify-content: space-between !important; flex: 0 0 auto !important; padding: 14px 20px !important; border-bottom: 1px solid #e8eaed !important; background: #fff !important; }
-.settings-drawer-head h3 { margin: 0 !important; font-size: 17px !important; font-weight: 700 !important; color: #15171a !important; line-height: 24px !important; }
-.settings-drawer-head p { margin: 2px 0 0 !important; font-size: 12px !important; color: #6b7a8d !important; }
-.settings-drawer-head button { display: inline-flex !important; width: 32px !important; height: 32px !important; align-items: center !important; justify-content: center !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #6b7a8d !important; cursor: pointer !important; }
-.settings-drawer-head button:hover { background: #f2f4f6 !important; color: #15171a !important; }
-.settings-drawer-body { flex: 1 !important; display: grid !important; grid-template-columns: 230px minmax(0, 1fr) !important; min-height: 0 !important; }
-.settings-drawer-nav { overflow-y: auto !important; padding: 14px 10px !important; border-right: 1px solid #e8eaed !important; background: #fff !important; }
-.settings-drawer-nav section { margin-bottom: 16px !important; }
-.settings-drawer-nav h4 { margin: 0 0 6px !important; padding: 0 10px !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: .4px !important; color: #8a96a7 !important; }
-.settings-drawer-nav button { display: flex !important; align-items: center !important; gap: 8px !important; width: 100% !important; height: 34px !important; padding: 0 10px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #3e464f !important; font-size: 13px !important; text-align: left !important; cursor: pointer !important; }
-.settings-drawer-nav button:hover { background: #f2f4f6 !important; }
-.settings-drawer-nav button.active { background: #edf6ff !important; color: #0070f4 !important; font-weight: 600 !important; }
-.settings-drawer-nav button svg { flex: 0 0 auto !important; }
-.settings-drawer-nav button span { flex: 1 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-.settings-drawer-nav button svg:last-child { flex: 0 0 auto !important; opacity: .5 !important; }
-.settings-drawer-content { min-height: 0 !important; overflow-y: auto !important; padding: 18px 22px 40px !important; }
-.settings-drawer-title { margin-bottom: 16px !important; padding-bottom: 10px !important; border-bottom: 1px solid #eef1f4 !important; }
-.settings-drawer-title h5 { margin: 0 !important; font-size: 16px !important; font-weight: 700 !important; color: #15171a !important; }
-.settings-drawer-content .settings-section { max-width: 720px !important; }
-.settings-drawer-content .settings-loading { padding: 40px 0 !important; }
-.settings-categories { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
-.settings-category-chip { padding: 7px 12px !important; border: 1px solid #d8dde3 !important; border-radius: 16px !important; background: #fff !important; color: #3e464f !important; font-size: 13px !important; }
-.settings-btn-primary { text-decoration: none !important; display: inline-flex !important; align-items: center !important; }
-.settings-info-grid-compact { grid-template-columns: repeat(2, 1fr) !important; }
-
-/* =====================================================================
-   POS — KiotViet additions (user menu, quantity modal, pack row)
-   ===================================================================== */
-.pos-user-menu-wrap { position: relative !important; display: inline-flex !important; align-items: center !important; }
-.pos-user { height: 32px !important; padding: 0 10px !important; border: 1px solid #dfe4ea !important; border-radius: 6px !important; background: #fff !important; color: #3e464f !important; font-size: 13px !important; cursor: pointer !important; }
-.pos-user-menu { position: absolute !important; top: calc(100% + 6px) !important; right: 0 !important; z-index: 60 !important; min-width: 200px !important; padding: 6px !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important; background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.16) !important; }
-.pos-user-menu a, .pos-user-menu button { display: flex !important; align-items: center !important; width: 100% !important; height: 34px !important; padding: 0 10px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #3e464f !important; font-size: 13px !important; text-align: left !important; text-decoration: none !important; cursor: pointer !important; }
-.pos-user-menu a:hover, .pos-user-menu button:hover { background: #f2f4f6 !important; }
-.pos-pack-row { display: flex !important; align-items: center !important; gap: 8px !important; grid-column: 1 / -1 !important; }
-.pos-pack-row span { font-size: 13px !important; color: #6b7a8d !important; flex: 1 !important; }
-.pos-pack-row button { width: 28px !important; height: 28px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #3e464f !important; cursor: pointer !important; }
-.pos-pack-row b { min-width: 28px !important; text-align: center !important; font-size: 14px !important; }
-.pos-qty-modal { width: min(360px, calc(100vw - 28px)) !important; padding: 20px 22px !important; border-radius: 10px !important; background: #fff !important; box-shadow: 0 16px 48px rgba(16,30,54,.24) !important; }
-.pos-qty-modal h3 { margin: 0 0 4px !important; font-size: 16px !important; font-weight: 700 !important; color: #15171a !important; }
-.pos-qty-price { margin: 0 0 14px !important; font-size: 13px !important; color: #6b7a8d !important; }
-.pos-qty-control { display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; margin-bottom: 16px !important; }
-.pos-qty-control button { width: 36px !important; height: 36px !important; border: 1px solid #d0d7de !important; border-radius: 8px !important; background: #fff !important; color: #3e464f !important; font-size: 18px !important; cursor: pointer !important; }
-.pos-qty-control span { min-width: 48px !important; text-align: center !important; font-size: 20px !important; font-weight: 600 !important; }
-.pos-shortcuts { display: grid !important; gap: 8px !important; margin-bottom: 16px !important; }
-.pos-shortcuts > div { display: flex !important; align-items: center !important; gap: 10px !important; }
-.pos-shortcuts kbd { display: inline-flex !important; align-items: center !important; justify-content: center !important; min-width: 40px !important; height: 28px !important; padding: 0 8px !important; border: 1px solid #d0d7de !important; border-bottom-width: 2px !important; border-radius: 6px !important; background: #f7f8f9 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important; }
-.pos-shortcuts span { font-size: 13px !important; color: #3e464f !important; }
-
-/* =====================================================================
-   POS — SVG icon normalization (replaces Unicode glyphs)
-   ===================================================================== */
-.pos-topbar button, .pos-footer button, .pos-footer a { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; }
-.pos-tools button { width: 32px !important; height: 32px !important; padding: 0 !important; }
-.pos-tools button svg { width: 16px !important; height: 16px !important; }
-.pos-add-tab { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-add-tab svg { width: 16px !important; height: 16px !important; }
-.pos-invoice-tab svg { flex: 0 0 auto !important; opacity: .85 !important; }
-.pos-global-search { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
-.pos-global-search svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
-.pos-customer-search { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
-.pos-customer-search svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
-.pos-customer-search > button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-catalog-head > div button { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 28px !important; height: 28px !important; padding: 0 !important; }
-.pos-order-summary label { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
-.pos-order-summary label svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
-.pos-catalog-item { display: flex !important; flex-direction: column !important; }
-.pos-catalog-item em { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-quantity { display: inline-flex !important; align-items: center !important; gap: 4px !important; }
-.pos-quantity button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-pack-row button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-qty-control button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-.pos-footer a { text-decoration: none !important; color: inherit !important; }
-.pos-footer svg { flex: 0 0 auto !important; }
-
-/* =====================================================================
-   POS — KiotViet sale layout: search header, CART LEFT, panel RIGHT
-   ===================================================================== */
-.pos-search-wrap { position: relative !important; display: inline-flex !important; flex: 0 1 392px !important; }
-.pos-search-results { position: absolute !important; z-index: 70 !important; top: calc(100% + 6px) !important; left: 0 !important; width: max-content !important; min-width: 100% !important; max-width: 460px !important; max-height: 380px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important; background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.16) !important; }
-.pos-search-results button { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
-.pos-search-results button:hover { background: #f2f8ff !important; }
-.pos-search-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; font-size: 13px !important; color: #2e3541 !important; }
-.pos-search-name small { font-size: 12px !important; color: #8a96a7 !important; }
-.pos-search-results b { flex: 0 0 auto !important; font-size: 13px !important; color: #0070f4 !important; font-weight: 600 !important; }
-.pos-workspace { display: grid !important; grid-template-columns: minmax(0, 1fr) 421px !important; gap: 0 !important; height: calc(100vh - 93px) !important; min-height: 0 !important; background: #f0f1f3 !important; }
-.pos-cart-panel { display: flex !important; flex-direction: column !important; min-height: 0 !important; padding: 9px !important; }
-.pos-cart-head { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 0 2px 8px !important; }
-.pos-cart-head > span { font-size: 13px !important; color: #6b7a8d !important; }
-.pos-cart-head button { display: inline-flex !important; align-items: center !important; gap: 5px !important; height: 30px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #b33232 !important; font-size: 12px !important; cursor: pointer !important; }
-.pos-cart-head button:disabled { opacity: .45 !important; cursor: not-allowed !important; }
-.pos-cart-panel .pos-cart-list { flex: 1 !important; min-height: 0 !important; overflow-y: auto !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; padding: 4px 0 !important; }
-.pos-cart-panel .pos-cart-list article { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; padding: 10px 14px !important; border-bottom: 1px solid #f0f2f5 !important; }
-.pos-cart-info { display: flex !important; flex-direction: column !important; min-width: 0 !important; }
-.pos-cart-info strong { font-size: 14px !important; color: #15171a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-.pos-cart-info small { font-size: 12px !important; color: #8a96a7 !important; }
-.pos-cart-right { display: flex !important; align-items: center !important; gap: 14px !important; flex: 0 0 auto !important; }
-.pos-cart-right > b { min-width: 90px !important; text-align: right !important; font-size: 14px !important; color: #15171a !important; }
-.pos-line-remove { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 28px !important; height: 28px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #c0392b !important; cursor: pointer !important; }
-.pos-line-remove:hover { background: #fff0f0 !important; }
-.pos-cart-panel .pos-empty-cart { height: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 8px !important; color: #b6c0ca !important; }
-.pos-cart-panel .pos-empty-cart strong { color: #6b7a8d !important; font-size: 15px !important; }
-.pos-cart-panel .pos-empty-cart p { margin: 0 !important; font-size: 13px !important; }
-.pos-checkout-panel { width: 421px !important; min-width: 421px !important; border-left: 1px solid #e3e7ec !important; overflow-y: auto !important; }
-.pos-totals { padding: 10px 0 4px !important; }
-.pos-totals p { display: flex !important; align-items: center !important; justify-content: space-between !important; margin: 0 !important; padding: 5px 0 !important; font-size: 14px !important; color: #3e464f !important; }
-.pos-totals p.strong { border-top: 1px dashed #dfe4ea !important; margin-top: 4px !important; padding-top: 10px !important; font-size: 16px !important; font-weight: 700 !important; color: #15171a !important; }
-.pos-totals p span { color: #6b7a8d !important; }
-.pos-totals p b { color: #15171a !important; }
-.pos-totals p.strong b { font-size: 18px !important; }
-.pos-checkout-panel .pos-customer-search { margin-bottom: 8px !important; }
-@media (max-width: 850px) {
-  .pos-workspace { grid-template-columns: 1fr !important; height: auto !important; }
-  .pos-checkout-panel { width: 100% !important; min-width: 0 !important; border-left: 0 !important; border-top: 1px solid #e3e7ec !important; }
-}
-
-/* =====================================================================
-   POS — exact KiotViet metrics (measured at 1272px viewport)
-   ===================================================================== */
-.pos-shell { font-size: 12.544px !important; }
-.pos-topbar { height: 41px !important; }
-.pos-global-search { width: 352px !important; height: 29px !important; border-radius: 4px !important; background: #fff !important; }
-.pos-global-search input { font-size: 12.544px !important; }
-.pos-invoice-tab { min-width: 129px !important; height: 36px !important; align-self: flex-end !important; border-radius: 6px 6px 0 0 !important; background: #f0f1f3 !important; }
-.pos-invoice-tab strong { font-size: 12.544px !important; }
-.pos-tools button { width: 29px !important; height: 29px !important; }
-.pos-tools button svg, .pos-add-tab svg, .pos-user-menu-wrap svg { width: 14px !important; height: 14px !important; }
-.pos-user { height: 29px !important; font-size: 12px !important; }
-.pos-workspace { height: calc(100vh - 100px) !important; padding: 9px 9px 9px 0 !important; gap: 1px !important; }
-.pos-cart-panel { padding: 0 !important; }
-.pos-cart-panel .pos-cart-list { border: 0 !important; background: transparent !important; border-radius: 0 !important; padding: 1px !important; }
-.pos-cart-head { padding: 0 2px 6px !important; }
-.pos-cart-head > span { font-size: 12.544px !important; }
-.pos-cart-head button { height: 26px !important; font-size: 11px !important; }
-.pos-cart-info strong { font-size: 12.544px !important; }
-.pos-cart-info small { font-size: 11px !important; color: #8a96a7 !important; }
-.pos-cart-right > b { font-size: 12.544px !important; }
-.pos-checkout-panel { border: 0 !important; border-radius: 9px !important; background: #fff !important; }
-.pos-checkout-panel .pos-staff-row { font-size: 12.544px !important; }
-.pos-checkout-panel .pos-customer-search { height: 29px !important; background: #f0f1f3 !important; border: 0 !important; border-radius: 4px !important; }
-.pos-checkout-panel .pos-customer-search input { font-size: 12.544px !important; background: transparent !important; }
-.pos-checkout-panel .pos-delivery-fields input { font-size: 12.544px !important; }
-.pos-totals p { font-size: 12.544px !important; }
-.pos-totals p.strong b { font-size: 14.336px !important; }
-.pos-checkout-panel .pos-cod strong { font-size: 12.544px !important; }
-.pos-payment-actions { gap: 9px !important; }
-.pos-payment-actions .pay, .pos-payment-actions .delivery { height: 45px !important; padding: 0 23px !important; font-size: 14.336px !important; font-weight: 500 !important; }
-.pos-payment-actions .delivery { min-width: 131px !important; }
-.pos-footer { height: 45px !important; background: #fff !important; padding: 0 9px !important; }
-.pos-footer button, .pos-footer a { font-size: 12.544px !important; }
-.pos-footer > div:first-child { display: flex !important; align-items: center !important; height: 100% !important; }
-.pos-footer > div:first-child button { height: 44px !important; align-self: stretch !important; padding: 0 15px !important; border: 0 !important; border-bottom: 0 !important; border-radius: 2.24px 2.24px 0 0 !important; background: transparent !important; color: #15171a !important; }
-.pos-footer > div:first-child button.active { background: #d9edf9 !important; }
-.pos-footer > div:last-child { display: flex !important; align-items: center !important; gap: 12px !important; height: 100% !important; }
-.pos-footer > div:last-child a, .pos-footer > div:last-child span, .pos-footer > div:last-child button { height: 44px !important; padding: 0 4px !important; border: 0 !important; background: transparent !important; color: #15171a !important; }
-.pos-search-results button { padding: 8px 11px !important; }
-.pos-search-name { font-size: 12.544px !important; }
-.pos-search-name small { font-size: 11px !important; }
-.pos-search-results b { font-size: 12.544px !important; }
-@media (max-width: 850px) {
-  .pos-workspace { grid-template-columns: 1fr !important; height: auto !important; padding: 9px !important; }
-  .pos-checkout-panel { width: 100% !important; min-width: 0 !important; }
-}
-
-/* Final pixel tweaks from KiotViet deep audit */
-.pos-topbar { padding-left: 5px !important; }
-.pos-invoice-tab { margin-left: 42px !important; }
-.pos-checkout-panel { padding-left: 20px !important; padding-right: 20px !important; }
-.pos-shell .pos-global-search input, .pos-shell .pos-customer-search input { font-size: 12.544px !important; }
-.pos-shell .pos-global-search svg, .pos-shell .pos-customer-search svg { width: 14px !important; height: 14px !important; }
-.pos-search-wrap { flex: 0 0 352px !important; }
-
-/* =====================================================================
-   POS — KiotViet exact structure (page-header / col-left / col-right)
-   ===================================================================== */
-.pos-shell .page-header { display: flex !important; align-items: center !important; height: 41px !important; background: #0070f4 !important; padding: 0 0 0 5px !important; }
-.pos-shell .header-left { display: flex !important; align-items: center !important; flex: 1 !important; min-width: 0 !important; }
-.pos-shell .col-left-control { display: flex !important; align-items: center !important; flex: 0 0 401px !important; padding-left: 0 !important; }
-.pos-shell .cart-tabs { display: flex !important; align-items: center !important; gap: 0 !important; flex: 0 0 592px !important; }
-.pos-shell .cart-tabs .pos-invoice-tab { margin-left: 0 !important; }
-.pos-shell .header-right { display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 10px !important; margin-left: auto !important; padding: 0 12px !important; }
-.pos-shell .icon-list.header-nav { display: flex !important; align-items: center !important; gap: 2px !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
-.pos-shell .icon-list.header-nav li { display: flex !important; align-items: center !important; }
-.pos-shell .icon-list.header-nav button { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #fff !important; cursor: pointer !important; }
-.pos-shell .icon-list.header-nav button:hover { background: rgba(255,255,255,.18) !important; }
-.pos-shell .pos-user-menu-wrap { display: flex !important; align-items: center !important; }
-.pos-shell .pos-user { display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 29px !important; padding: 0 8px !important; border: 0 !important; border-radius: 4px !important; background: rgba(255,255,255,.12) !important; color: #fff !important; font-size: 12px !important; cursor: pointer !important; }
-.pos-shell .page-content { display: flex !important; align-items: stretch !important; height: calc(100vh - 95px) !important; min-height: 0 !important; background: #f0f1f3 !important; padding: 9px 9px 9px 0 !important; gap: 1px !important; }
-.pos-shell .col-left { flex: 1 1 auto !important; min-width: 0 !important; overflow: hidden !important; }
-.pos-shell .cart-container { height: 100% !important; overflow: hidden !important; }
-.pos-shell .pos-cart-list { height: 100% !important; overflow-y: auto !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; padding: 6px 2px !important; }
-.pos-shell .col-right { flex: 0 0 421px !important; width: 421px !important; min-width: 421px !important; display: flex !important; flex-direction: column !important; }
-.pos-shell .delivery-component { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; }
-.pos-shell .form-delivery { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; border-radius: 9px !important; background: #fff !important; }
-.pos-shell .transport-content { flex: 1 !important; overflow-y: auto !important; padding: 0 20px !important; }
-.pos-shell .col-right-header { padding: 10px 0 6px !important; border-bottom: 1px solid #eef1f4 !important; }
-.pos-shell .col-wrap { padding: 12px 0 8px !important; }
-.pos-shell .cart-actions { display: flex !important; align-items: center !important; gap: 9px !important; padding: 4px 12px 5px !important; border-top: 1px solid #eef1f4 !important; min-height: 54px !important; flex-shrink: 0 !important; }
-.pos-shell .btn-pay { flex: 1 !important; }
-.pos-shell .btn-select-ship-partner { flex: 0 0 131px !important; }
-.pos-shell .btn-xl { display: inline-flex !important; align-items: center !important; justify-content: center !important; height: 45px !important; padding: 0 23px !important; border-radius: 9px !important; font-size: 14.336px !important; font-weight: 500 !important; cursor: pointer !important; }
-.pos-shell .btn-primary { border: 1px solid #0070f4 !important; background: #0070f4 !important; color: #fff !important; }
-.pos-shell .btn-primary:disabled { opacity: .45 !important; cursor: not-allowed !important; }
-.pos-shell .btn-outline-primary { border: 1px solid #0070f4 !important; background: #fff !important; color: #0070f4 !important; }
-.pos-shell .page-footer { display: flex !important; align-items: center !important; justify-content: space-between !important; height: 45px !important; background: #fff !important; padding: 0 9px !important; }
-.pos-shell .kv-tab.tabs-pos { display: flex !important; align-items: stretch !important; height: 45px !important; }
-.pos-shell .nav-tabs { display: flex !important; align-items: stretch !important; gap: 0 !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
-.pos-shell .nav-tabs li { display: flex !important; align-items: stretch !important; }
-.pos-shell .nav-tabs .nav-link { display: inline-flex !important; align-items: center !important; gap: 6px !important; height: 44px !important; padding: 0 15px !important; border: 0 !important; border-radius: 2.24px 2.24px 0 0 !important; background: transparent !important; color: #15171a !important; font-size: 12.544px !important; cursor: pointer !important; text-decoration: none !important; }
-.pos-shell .nav-tabs .nav-link.active { background: #d9edf9 !important; }
-.pos-shell .nav-tabs .nav-link svg { flex: 0 0 auto !important; }
-.pos-shell .page-footer-right { display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 8px !important; flex: 1 !important; min-width: 0 !important; }
-.pos-shell .pos-support { display: inline-flex !important; align-items: center !important; gap: 6px !important; height: 44px !important; padding: 0 4px !important; color: #15171a !important; font-size: 12.544px !important; text-decoration: none !important; }
-.pos-shell .page-footer-usemanual, .pos-shell .page-footer-rating { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 22px !important; height: 22px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #6b7a8d !important; cursor: pointer !important; }
-.pos-shell .page-footer-usemanual:hover, .pos-shell .page-footer-rating:hover { background: #f0f1f3 !important; }
-@media (max-width: 700px) {
-  .settings-drawer-body { grid-template-columns: 1fr !important; }
-  .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }
-  .settings-drawer-nav section { flex: 0 0 auto !important; margin-bottom: 0 !important; }
-  .settings-drawer-nav h4 { display: none !important; }
-}
