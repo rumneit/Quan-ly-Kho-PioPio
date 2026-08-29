@@ -896,6 +896,32 @@
 .pos-shortcuts > div { display: flex !important; align-items: center !important; gap: 10px !important; }
 .pos-shortcuts kbd { display: inline-flex !important; align-items: center !important; justify-content: center !important; min-width: 40px !important; height: 28px !important; padding: 0 8px !important; border: 1px solid #d0d7de !important; border-bottom-width: 2px !important; border-radius: 6px !important; background: #f7f8f9 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important; }
 .pos-shortcuts span { font-size: 13px !important; color: #3e464f !important; }
+
+/* =====================================================================
+   POS — SVG icon normalization (replaces Unicode glyphs)
+   ===================================================================== */
+.pos-topbar button, .pos-footer button, .pos-footer a { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; }
+.pos-tools button { width: 32px !important; height: 32px !important; padding: 0 !important; }
+.pos-tools button svg { width: 16px !important; height: 16px !important; }
+.pos-add-tab { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-add-tab svg { width: 16px !important; height: 16px !important; }
+.pos-invoice-tab svg { flex: 0 0 auto !important; opacity: .85 !important; }
+.pos-global-search { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+.pos-global-search svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
+.pos-customer-search { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+.pos-customer-search svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
+.pos-customer-search > button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-catalog-head > div button { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 28px !important; height: 28px !important; padding: 0 !important; }
+.pos-order-summary label { display: inline-flex !important; align-items: center !important; gap: 6px !important; }
+.pos-order-summary label svg { flex: 0 0 auto !important; color: #8a96a7 !important; }
+.pos-catalog-item { display: flex !important; flex-direction: column !important; }
+.pos-catalog-item em { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-quantity { display: inline-flex !important; align-items: center !important; gap: 4px !important; }
+.pos-quantity button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-pack-row button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-qty-control button { display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+.pos-footer a { text-decoration: none !important; color: inherit !important; }
+.pos-footer svg { flex: 0 0 auto !important; }
 @media (max-width: 700px) {
   .settings-drawer-body { grid-template-columns: 1fr !important; }
   .settings-drawer-nav { display: flex !important; overflow-x: auto !important; gap: 16px !important; padding: 10px !important; }
