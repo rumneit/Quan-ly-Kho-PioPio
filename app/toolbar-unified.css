@@ -998,6 +998,11 @@
 .pos-payment-actions .delivery { min-width: 131px !important; }
 .pos-footer { height: 45px !important; background: #fff !important; padding: 0 9px !important; }
 .pos-footer button, .pos-footer a { font-size: 12.544px !important; }
+.pos-footer > div:first-child { display: flex !important; align-items: center !important; height: 100% !important; }
+.pos-footer > div:first-child button { height: 44px !important; align-self: stretch !important; padding: 0 15px !important; border: 0 !important; border-bottom: 0 !important; border-radius: 2.24px 2.24px 0 0 !important; background: transparent !important; color: #15171a !important; }
+.pos-footer > div:first-child button.active { background: #d9edf9 !important; }
+.pos-footer > div:last-child { display: flex !important; align-items: center !important; gap: 12px !important; height: 100% !important; }
+.pos-footer > div:last-child a, .pos-footer > div:last-child span, .pos-footer > div:last-child button { height: 44px !important; padding: 0 4px !important; border: 0 !important; background: transparent !important; color: #15171a !important; }
 .pos-search-results button { padding: 8px 11px !important; }
 .pos-search-name { font-size: 12.544px !important; }
 .pos-search-name small { font-size: 11px !important; }

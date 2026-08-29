@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeftRight, ClipboardList, Clock, LayoutDashboard, Menu, Minus, Phone, Plus, Printer, RefreshCw, Search, ShoppingCart, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
+import { ArrowLeftRight, ClipboardList, Clock, Menu, Minus, Phone, Plus, Printer, RefreshCw, Search, ShoppingCart, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
@@ -145,7 +145,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
         </div></div>
       </aside>
     </div>
-    <footer className="pos-footer"><div><button className={mode === "quick" ? "active" : ""} onClick={() => setMode("quick")}><Zap size={15} /> Bán nhanh</button><button className={mode === "normal" ? "active" : ""} onClick={() => setMode("normal")}><Clock size={15} /> Bán thường</button><button className={mode === "delivery" ? "active" : ""} onClick={() => setMode("delivery")}><Truck size={15} /> Bán giao hàng</button></div><div><Link href="/dashboard"><LayoutDashboard size={15} /> Quản lý</Link><a href="tel:0704040044" className="pos-support"><Phone size={15} /> Hỗ trợ</a></div></footer>
+    <footer className="pos-footer"><div><button className={mode === "quick" ? "active" : ""} onClick={() => setMode("quick")}><Zap size={15} /> Bán nhanh</button><button className={mode === "normal" ? "active" : ""} onClick={() => setMode("normal")}><Clock size={15} /> Bán thường</button><button className={mode === "delivery" ? "active" : ""} onClick={() => setMode("delivery")}><Truck size={15} /> Bán giao hàng</button></div><div><a href="tel:0704040044" className="pos-support"><Phone size={15} /> 1900 6522</a></div></footer>
 
     {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
 
