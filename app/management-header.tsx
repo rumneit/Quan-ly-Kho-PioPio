@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Bell, ShoppingCart } from "lucide-react";
+import { Bell, Settings, ShoppingCart } from "lucide-react";
 import type { Profile } from "@/lib/auth";
-import HeaderSettings from "@/app/header-settings";
 
 export type ManagementSection =
   | "dashboard" | "products" | "pricebook" | "stocktakes" | "internal-use" | "damage-items"
@@ -18,7 +17,7 @@ export default function ManagementHeader({ profile, active }: { profile: Profile
   return <>
     <header className="kv-header">
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><HeaderSettings profile={profile} /><button className="kv-avatar">{initials}</button></div>
+      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><Link className="kv-round" aria-label="Cài đặt" href="/settings"><Settings size={20} /></Link><button className="kv-avatar">{initials}</button></div>
     </header>
     <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items">
       <Link className={`kv-top-item ${active === "dashboard" ? "active" : ""}`} href="/dashboard">Tổng quan</Link>
