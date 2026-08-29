@@ -199,7 +199,7 @@
 
 .cart-actions {
   display: flex; align-items: center; justify-content: flex-end; gap: 9px;
-  padding: 4px 12px 5px; border-top: 1px solid #eef1f4; min-height: 54px; flex-shrink: 0;
+  padding: 4px 8px 5px; border-top: 1px solid #eef1f4; min-height: 54px; flex-shrink: 0;
 }
 .btn-xl {
   display: inline-flex; align-items: center; justify-content: center;
@@ -216,7 +216,7 @@
 .nav-tabs li { display: flex; align-items: stretch; }
 .nav-tabs .nav-link {
   display: inline-flex; align-items: center; gap: 6px; height: 44px;
-  padding: 0 15px; border: 0; border-radius: 2.24px 2.24px 0 0;
+  padding: 0 14px; border: 0; border-radius: 2.24px 2.24px 0 0;
   background: transparent; color: #15171a; font-size: 12.544px; cursor: pointer; text-decoration: none;
 }
 .nav-tabs .nav-link.active { background: #d9edf9; }
