@@ -118,7 +118,6 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const [rankingRange, setRankingRange] = useState<DateRange>("Tháng này");
   const [customerRange, setCustomerRange] = useState<DateRange>("Tháng này");
   const [activityOpen, setActivityOpen] = useState(true);
-  const [showNotifications, setShowNotifications] = useState(false);
 
   // Single branch mode - no branch filtering needed
   const filteredOrders = orders;
@@ -127,7 +126,6 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const lowStockProducts = useMemo(() => products.filter(p => p.active && p.stock_quantity <= 5).slice(0, 8), [products]);
   const outOfStockCount = useMemo(() => products.filter(p => p.active && p.stock_quantity === 0).length, [products]);
   const lowStockCount = lowStockProducts.length;
-  const totalActiveProducts = useMemo(() => products.filter(p => p.active).length, [products]);
 
   const todayOrders = useMemo(() => filteredOrders.filter((order) => inRangeVN(order.created_at, "Hôm nay")), [filteredOrders]);
   const todayRevenue = todayOrders.filter((order) => order.status === "paid").reduce((sum, order) => sum + Number(order.total), 0);
@@ -254,34 +252,19 @@ export default function DashboardClient({ profile, products: initialProducts, cu
 
   return <div className="kv-shell dashboard-page">
     <ManagementHeader profile={profile} active="dashboard" />
-    {/* Filter bar - single branch, only date + notifications */}
-    <div className="kv-dashboard-filters" style={{maxWidth:"none", margin:"0 auto", padding:"10px 16px", display:"flex", gap:"10px", alignItems:"center", flexWrap:"wrap", background:"#fff", borderBottom:"1px solid #e6ebef"}}>
-      <div style={{display:"flex", alignItems:"center", gap:"8px"}}>
-        <span style={{fontSize:"11px", color:"#8895a3"}}>{filteredOrders.length} đơn • {totalActiveProducts} SP đang bán</span>
-      </div>
-      <div style={{marginLeft:"auto", display:"flex", gap:"8px", alignItems:"center"}}>
-        {dateRange==="Tùy chỉnh" && <>
+    {(dateRange==="Tùy chỉnh" || rankingRange==="Tùy chỉnh" || customerRange==="Tùy chỉnh") && (
+      <div className="kv-dashboard-filters" style={{maxWidth:"none", margin:"0 auto", padding:"10px 16px", display:"flex", gap:"10px", alignItems:"center", justifyContent:"flex-end", flexWrap:"wrap", background:"#fff", borderBottom:"1px solid #e6ebef"}}>
+        <div style={{display:"flex", gap:"8px", alignItems:"center"}}>
+          <span style={{fontSize:"12px", color:"#344054"}}>Tùy chỉnh:</span>
           <input type="date" value={customStart} onChange={e=>setCustomStart(e.target.value)} style={{height:"32px", border:"1px solid #dfe5e9", borderRadius:"6px", padding:"0 8px"}} />
           <span>—</span>
           <input type="date" value={customEnd} onChange={e=>setCustomEnd(e.target.value)} style={{height:"32px", border:"1px solid #dfe5e9", borderRadius:"6px", padding:"0 8px"}} />
-        </>}
-        <button onClick={()=> setShowNotifications(v=>!v)} aria-label="Thông báo" style={{height:"32px", padding:"0 12px", border:"1px solid #dfe5e9", borderRadius:"6px", background: showNotifications?"#eaf6fd":"#fff", fontSize:"12px"}}>
-          🔔 {lowStockCount + outOfStockCount >0 ? `(${lowStockCount + outOfStockCount})`:""}
-        </button>
+        </div>
       </div>
-    </div>
+    )}
 
     <main className="kv-main">
       {message && <div className="kv-toast-message" role="status">✓ {message}</div>}
-      {showNotifications && <div className="kv-card" style={{marginBottom:"12px", padding:"14px"}}>
-        <h3 style={{margin:0, fontSize:"13px"}}>Thông báo</h3>
-        <ul style={{margin:"8px 0 0", paddingLeft:"16px", fontSize:"12px", color:"#4c5966"}}>
-          {lowStockCount===0 && outOfStockCount===0 && <li>Không có cảnh báo nào. Hệ thống hoạt động bình thường.</li>}
-          {outOfStockCount>0 && <li><b>{outOfStockCount} sản phẩm hết hàng</b> cần nhập thêm — <Link href="/products" style={{color:"#0070f4"}}>Xem danh sách</Link></li>}
-          {lowStockCount>0 && <li><b>{lowStockCount} sản phẩm sắp hết hàng (≤5)</b> — {lowStockProducts.map(p=>p.name).join(", ")}</li>}
-          <li>{filteredOrders.filter(o=>o.status==="draft").length} đơn hàng nháp chưa thanh toán</li>
-        </ul>
-      </div>}
       <div className="kv-dashboard-grid">
         <div className="kv-main-column">
           <section className="kv-card kv-today-card kv-enter">
