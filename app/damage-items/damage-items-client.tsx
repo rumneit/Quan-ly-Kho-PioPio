@@ -66,6 +66,14 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const importInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [modal]);
 
   async function loadVouchers() {
     setLoading(true);
@@ -136,7 +144,10 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   const safePage = Math.min(page, totalPages);
   const rows = filtered.slice((safePage - 1) * settings.pageSize, safePage * settings.pageSize);
 
-  const createProducts = useMemo(() => initialProducts.filter((product) => `${product.sku} ${product.name}`.toLowerCase().includes(productQuery.trim().toLowerCase())), [initialProducts, productQuery]);
+  const createProducts = useMemo(() => {
+    const q = productQuery.trim().toLowerCase();
+    return !q ? initialProducts : initialProducts.filter((product) => `${product.sku} ${product.name} ${product.base_unit || ""}`.toLowerCase().includes(q));
+  }, [initialProducts, productQuery]);
   const totalValue = useMemo(() => initialProducts.reduce((sum, product) => sum + Number(quantities[product.id] || 0) * Number(product.cost || product.price || 0), 0), [initialProducts, quantities]);
   const selectedCount = useMemo(() => initialProducts.filter((product) => Number(quantities[product.id] || 0) > 0).length, [initialProducts, quantities]);
 
@@ -319,7 +330,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
           <footer className="damage-create-footer"><span>{selectedCount} hàng hóa được chọn</span><button type="button" disabled={!selectedCount || saving} onClick={() => saveVoucher("draft")}>Lưu tạm</button><button type="button" className="primary" disabled={!selectedCount || saving} onClick={() => saveVoucher("completed")}><Check size={16} />Hoàn thành</button></footer>
         </section>
         <aside className="damage-create-panel">
-          <label>Mã xuất hủy<input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Tự động sinh khi lưu" /></label>
+          <label>Mã xuất hủy<input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Tự động sinh khi lưu" readOnly style={{background:"#f7f9fb", color:"#6b7a8d"}} title="Mã tự động sinh khi lưu" /></label>
           <label>Trạng thái<select value={createStatus} onChange={(event) => setCreateStatus(event.target.value as "draft" | "completed")}><option value="draft">Phiếu tạm</option><option value="completed">Hoàn thành</option></select></label>
           <label>Ghi chú<textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Nhập ghi chú phiếu xuất hủy" /></label>
           <div className="damage-create-total"><span>Tổng giá trị hủy</span><b>{money(totalValue)}</b></div>

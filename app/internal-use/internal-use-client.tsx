@@ -61,7 +61,6 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   const [statuses, setStatuses] = useState<Status[]>(["draft", "completed", "cancelled"]);
   const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; return { preset: "this_month", from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)) }; });
   const [creatorFilter, setCreatorFilter] = useState("all");
-  const [exporterFilter, setExporterFilter] = useState("all");
   const [purposeFilter, setPurposeFilter] = useState("all");
   const [receiverFilter, setReceiverFilter] = useState("all");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -70,6 +69,14 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   const [modal, setModal] = useState<Modal>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [modal]);
 
   const [productQuery, setProductQuery] = useState("");
   const [code, setCode] = useState("");
@@ -108,18 +115,20 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
         && item.note.toLowerCase().includes(noteQuery.trim().toLowerCase())
         && statuses.includes(item.status)
         && (creatorFilter === "all" || item.creator === creatorFilter)
-        && (exporterFilter === "all" || item.creator === exporterFilter)
         && (purposeFilter === "all" || item.purpose === purposeFilter)
         && (receiverFilter === "all" || item.receiver === receiverFilter)
         && dateOk;
     });
-  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, exporterFilter, purposeFilter, receiverFilter, dateValue]);
+  }, [vouchers, query, codeQuery, noteQuery, statuses, creatorFilter, purposeFilter, receiverFilter, dateValue]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const rows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const createProducts = useMemo(() => initialProducts.filter((product) => `${product.sku} ${product.name}`.toLowerCase().includes(productQuery.trim().toLowerCase())), [initialProducts, productQuery]);
+  const createProducts = useMemo(() => {
+    const q = productQuery.trim().toLowerCase();
+    return !q ? initialProducts : initialProducts.filter((product) => `${product.sku} ${product.name} ${product.base_unit || ""}`.toLowerCase().includes(q));
+  }, [initialProducts, productQuery]);
   const totalValue = useMemo(() => initialProducts.reduce((sum, product) => sum + (Number(quantities[product.id]) || 0) * (Number(product.cost) || Number(product.price) || 0), 0), [initialProducts, quantities]);
   const selectedCount = Object.values(quantities).filter((value) => Number(value) > 0).length;
 
@@ -189,7 +198,9 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   }
 
   function setQuantity(productId: string, raw: string) {
-    const value = Math.max(0, Math.floor(Number(raw) || 0));
+    const product = initialProducts.find((p) => p.id === productId);
+    const stock = Number(product?.stock_quantity || 0);
+    const value = Math.min(stock, Math.max(0, Math.floor(Number(raw) || 0)));
     setQuantities((current) => ({ ...current, [productId]: value }));
   }
 
@@ -264,7 +275,6 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
                 <DateRangePicker value={dateValue} onChange={setDateValue} />
               </section>
               <section><h2>Người tạo</h2><select aria-label="Người tạo" value={creatorFilter} onChange={(event) => setCreatorFilter(event.target.value)}><option value="all">Chọn người tạo</option>{creatorOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>
-              <section><h2>Người xuất dùng nội bộ</h2><select aria-label="Người xuất dùng nội bộ" value={exporterFilter} onChange={(event) => setExporterFilter(event.target.value)}><option value="all">Chọn người xuất dùng nội bộ</option>{creatorOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>
               <section><h2>Loại xuất</h2><select aria-label="Loại xuất" value={purposeFilter} onChange={(event) => setPurposeFilter(event.target.value)}><option value="all">Tất cả</option><option>Sử dụng nội bộ</option><option>Khác</option></select></section>
               <section><h2>Người nhận</h2><select aria-label="Người nhận" value={receiverFilter} onChange={(event) => setReceiverFilter(event.target.value)}><option value="all">Chọn người nhận</option>{receiverOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></section>
               <button type="button" className="sidebar-collapse" aria-label="Thu gọn bộ lọc" onClick={() => setSidebarCollapsed(true)}><ChevronLeft /></button>
@@ -374,7 +384,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
           </section>
           <aside className="internal-create-panel">
             <h2>Thông tin phiếu</h2>
-            <label>Mã xuất dùng nội bộ<input value={code} onChange={(event) => setCode(event.target.value)} /></label>
+            <label>Mã xuất dùng nội bộ<input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Tự động sinh" readOnly style={{background:"#f7f9fb", color:"#6b7a8d"}} title="Mã tự động sinh khi lưu" /></label>
             <label>Trạng thái<select value={status} onChange={(event) => setStatus(event.target.value as "draft" | "completed")}><option value="draft">Phiếu tạm</option><option value="completed">Hoàn thành</option></select></label>
             <label>Loại xuất<select value={purpose} onChange={(event) => setPurpose(event.target.value)}><option>Sử dụng nội bộ</option><option>Khác</option></select></label>
             <label>Người nhận<input value={receiver} onChange={(event) => setReceiver(event.target.value)} placeholder="Nhập người nhận" /></label>

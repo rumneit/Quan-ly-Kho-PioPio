@@ -84,6 +84,14 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [modal, setModal] = useState<"settings" | "help" | null>(null);
   const [page, setPage] = useState(1);
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [modal]);
 
   const [productQuery, setProductQuery] = useState("");
   const [chipFilter, setChipFilter] = useState<ChipFilter>("all");
@@ -178,7 +186,10 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   };
 
   const getActual = (product: Product) => Number(counts[product.id] ?? Number(product.stock_quantity));
-  const searchedProducts = useMemo(() => initialProducts.filter((product) => `${product.sku} ${product.name}`.toLowerCase().includes(productQuery.trim().toLowerCase())), [initialProducts, productQuery]);
+  const searchedProducts = useMemo(() => {
+    const q = productQuery.trim().toLowerCase();
+    return !q ? initialProducts : initialProducts.filter((product) => `${product.sku} ${product.name} ${product.base_unit || ""}`.toLowerCase().includes(q));
+  }, [initialProducts, productQuery]);
   const chips = useMemo(() => ({
     all: searchedProducts.length,
     match: searchedProducts.filter((product) => getActual(product) === Number(product.stock_quantity)).length,
@@ -404,7 +415,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
             </section>
             <aside className="stock-create-side">
               <div className="stock-side-block">
-                <label className="stock-field"><span>Mã kiểm kho</span><input value={code} onChange={(event) => setCode(event.target.value)} placeholder="KK..." /></label>
+                <label className="stock-field"><span>Mã kiểm kho</span><input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Tự động sinh (KK...)" readOnly style={{background:"#f7f9fb", color:"#6b7a8d"}} title="Mã tự động sinh khi lưu" /></label>
                 <label className="stock-field"><span>Trạng thái</span><select value={status} onChange={(event) => setStatus(event.target.value as SaveStatus)}><option value="draft">Phiếu tạm</option><option value="balanced">Hoàn thành</option></select></label>
                 <label className="stock-field"><span>Ghi chú</span><input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Nhập ghi chú" /></label>
               </div>
