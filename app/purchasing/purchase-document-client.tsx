@@ -277,6 +277,9 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
         ? {
             status: nextStatus,
             supplier_id: supplierId || null,
+            code: code.trim() || undefined,
+            created_at: createdAt ? new Date(createdAt).toISOString() : undefined,
+            purchase_order_code: sourceCode.trim() || undefined,
             invoice_number: invoice.trim(),
             note: note.trim(),
             lines: selected.map((product) => ({
@@ -289,7 +292,11 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
         : {
             status: nextStatus,
             supplier_id: supplierId || null,
+            code: code.trim() || undefined,
+            purchase_id: sourceCode.trim() || null,
+            purchase_code: sourceCode.trim() || null,
             refund_type: refundType,
+            refund_amount: Math.max(0, Number(refundAmount) || 0),
             note: note.trim(),
             lines: selected.map((product) => ({
               product_id: product.id,

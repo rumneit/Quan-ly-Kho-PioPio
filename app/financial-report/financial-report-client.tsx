@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Printer, RefreshCw } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import { toVnDateKey, VN_TZ } from "@/lib/vn-time";
 
+type Branch = { id: string; name: string; is_default: boolean };
 type Order = {
   id: string;
   status: string;
@@ -12,6 +14,7 @@ type Order = {
   discount: number;
   total: number;
   created_at: string;
+  branch_id?: string | null;
   order_items?: { quantity: number; products?: { cost?: number | null } | null }[];
 };
 
@@ -30,7 +33,7 @@ const isoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() 
 const displayDate = (value: string) => value ? value.split("-").reverse().join("/") : "---";
 const months = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 
-export default function FinancialReportClient({ profile, orders, vouchers }: { profile: Profile; orders: Order[]; vouchers: Voucher[] }) {
+export default function FinancialReportClient({ profile, orders, vouchers, branches, truncated }: { profile: Profile; orders: Order[]; vouchers: Voucher[]; branches: Branch[]; truncated?: boolean }) {
   const today = useMemo(() => new Date(), []);
   const [timeMode, setTimeMode] = useState<"month" | "custom">("custom");
   const [year, setYear] = useState(today.getFullYear());
@@ -47,10 +50,13 @@ export default function FinancialReportClient({ profile, orders, vouchers }: { p
     return { from: isoDate(start), to: isoDate(end) };
   }, [timeMode, from, to, year, month]);
 
+  const [branchId, setBranchId] = useState("all");
+  const branchName = branchId === "all" ? (branches.find(b=>b.is_default)?.name || branches[0]?.name || "Tất cả chi nhánh") : (branches.find(b=>b.id===branchId)?.name || "---");
+
   const totals = useMemo(() => {
     const filtered = orders.filter((order) => {
-      const day = order.created_at.slice(0, 10);
-      return day >= bounds.from && day <= bounds.to;
+      const day = toVnDateKey(order.created_at);
+      return day >= bounds.from && day <= bounds.to && (branchId === "all" || order.branch_id === branchId);
     });
     const paid = filtered.filter((order) => order.status === "paid");
     const refunded = filtered.filter((order) => order.status === "refunded");
@@ -59,12 +65,13 @@ export default function FinancialReportClient({ profile, orders, vouchers }: { p
     const returns = refunded.reduce((sum, order) => sum + Number(order.total || 0), 0);
     const net = sales - discount - returns;
     const cost = paid.reduce((sum, order) => sum + (order.order_items || []).reduce((itemSum, item) => itemSum + Number(item.quantity || 0) * Number(item.products?.cost || 0), 0), 0);
-    const inRangeVouchers = vouchers.filter((voucher) => voucher.status === "completed" && voucher.affects_profit && voucher.occurred_at.slice(0, 10) >= bounds.from && voucher.occurred_at.slice(0, 10) <= bounds.to);
-    const otherIncome = inRangeVouchers.filter((voucher) => voucher.type === "receipt" && (voucher.kind === "other_income" || voucher.kind === "transfer_in")).reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
-    const otherExpense = inRangeVouchers.filter((voucher) => voucher.type === "expense" && (voucher.kind === "other_expense" || voucher.kind === "transfer_out")).reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
+    // P0 fix: Thu/Chi ảnh hưởng lợi nhuận mở rộng - tính tất cả phiếu có affects_profit=true thay vì chỉ other_income/transfer_in hẹp
+    const inRangeVouchers = vouchers.filter((voucher) => voucher.status === "completed" && voucher.affects_profit && toVnDateKey(voucher.occurred_at) >= bounds.from && toVnDateKey(voucher.occurred_at) <= bounds.to);
+    const otherIncome = inRangeVouchers.filter((voucher) => voucher.type === "receipt").reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
+    const otherExpense = inRangeVouchers.filter((voucher) => voucher.type === "expense").reduce((sum, voucher) => sum + Number(voucher.amount || 0), 0);
     const grossProfit = net - cost;
     return { sales, discount, returns, net, cost, grossProfit, otherIncome, otherExpense, operatingProfit: grossProfit - otherExpense, netProfit: grossProfit - otherExpense + otherIncome };
-  }, [orders, vouchers, bounds]);
+  }, [orders, vouchers, bounds, branchId]);
 
   const rows = [
     ["Doanh thu bán hàng (1)", totals.sales, "major"],
@@ -95,6 +102,8 @@ export default function FinancialReportClient({ profile, orders, vouchers }: { p
     <main className="financial-layout">
       <aside className="financial-sidebar">
         <section><h2>Kiểu hiển thị</h2><button className="financial-chip active">Báo cáo</button></section>
+        {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 10px", borderRadius:"6px", fontSize:"11px"}}>⚠️ Đã đạt giới hạn 2.000 bản ghi.</div>}
+        <section><h2>Chi nhánh</h2><select value={branchId} onChange={e=>setBranchId(e.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map(b=> <option key={b.id} value={b.id}>{b.name}</option>)}</select></section>
         <section><h2>Thời gian</h2>
           <select aria-label="Năm" value={year} onChange={(event) => setYear(Number(event.target.value))}>{Array.from({ length: 5 }, (_, index) => today.getFullYear() - index).map((value) => <option key={value}>{value}</option>)}</select>
           <label className="financial-radio"><input type="radio" checked={timeMode === "month"} onChange={() => setTimeMode("month")} /><select aria-label="Theo tháng" value={month} onChange={(event) => { setMonth(Number(event.target.value)); setTimeMode("month"); }}>{months.map((label, index) => <option value={index} key={label}>{label}</option>)}</select></label>
@@ -111,7 +120,7 @@ export default function FinancialReportClient({ profile, orders, vouchers }: { p
           <button onClick={exportCsv}><Download size={17} /> Xuất file</button><button onClick={() => window.print()}><Printer size={17} /> In</button>
         </div>
         <div className="financial-canvas"><article className="financial-paper" style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top center", marginBottom: `${(zoom / 100 - 1) * 1093}px` }}>
-          <header><h2>Báo cáo kết quả hoạt động kinh doanh</h2><p>Ngày lập: {new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(today)}</p><strong>Chi nhánh trung tâm</strong><p>Từ ngày {displayDate(bounds.from)} đến ngày {displayDate(bounds.to)}</p></header>
+          <header><h2>Báo cáo kết quả hoạt động kinh doanh</h2><p>Ngày lập: {new Intl.DateTimeFormat("vi-VN", { timeZone: VN_TZ, dateStyle: "short", timeStyle: "short" }).format(today)}</p><strong>{branchName}</strong><p>Từ ngày {displayDate(bounds.from)} đến ngày {displayDate(bounds.to)}</p></header>
           <table><thead><tr><th>Chỉ tiêu</th><th>Tổng</th></tr></thead><tbody>{rows.map(([label, value, kind], index) => <tr className={kind} key={`${label}-${index}`}><td>{label}</td><td>{money(value)}</td></tr>)}</tbody></table>
           <footer>Trang 1 / 1</footer>
         </article></div>

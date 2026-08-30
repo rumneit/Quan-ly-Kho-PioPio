@@ -6,6 +6,10 @@ const receiptKinds = ["sale_payment", "debt_collection", "other_income", "transf
 const expenseKinds = ["purchase_payment", "debt_payment", "other_expense", "transfer_out"];
 const voucherSelect = "id,voucher_number,account_id,type,kind,amount,partner_kind,partner_id,partner_name,note,affects_profit,status,occurred_at,created_at,cancelled_at,created_by,creator:profiles!cash_vouchers_created_by_fkey(full_name),cash_accounts(id,name,account_type,bank_name,bank_account)";
 
+function escapePostgrestIlike(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_").replaceAll(",", "\\,");
+}
+
 function readBody(parsed: unknown) {
   return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : null;
 }
@@ -13,7 +17,8 @@ function readBody(parsed: unknown) {
 export async function GET(request: Request) {
   const { supabase } = await requireProfile("manager");
   const params = new URL(request.url).searchParams;
-  const fund = params.get("fund") || "all";
+  const rawFund = params.get("fund") || "all";
+  const fund = (["all", "cash", "bank", "ewallet"] as const).includes(rawFund as never) ? rawFund : "all";
   const page = Math.max(1, Number(params.get("page")) || 1);
   const pageSize = Math.min(100, Math.max(1, Number(params.get("pageSize")) || 15));
   const search = (params.get("q") || "").trim();
@@ -34,6 +39,7 @@ export async function GET(request: Request) {
   const accountIds = fundAccounts.map((account) => account.id);
 
   let query = supabase.from("cash_vouchers").select(voucherSelect, { count: "exact" });
+  // Fund isolation: always lock to selected fund's account_ids (or empty sentinel)
   query = query.in("account_id", accountIds.length ? accountIds : ["00000000-0000-0000-0000-000000000000"]);
   if (statusValues.length) query = query.in("status", statusValues);
   if (type === "receipt" || type === "expense") query = query.eq("type", type);
@@ -41,11 +47,17 @@ export async function GET(request: Request) {
   if (creatorId && uuidPattern.test(creatorId)) query = query.eq("created_by", creatorId);
   if (partnerKind === "customer" || partnerKind === "supplier") query = query.eq("partner_kind", partnerKind);
   if (partnerId && uuidPattern.test(partnerId)) query = query.eq("partner_id", partnerId);
-  if (partnerQuery) query = query.ilike("partner_name", `%${partnerQuery.replaceAll(",", "")}%`);
+  if (partnerQuery) {
+    const safe = escapePostgrestIlike(partnerQuery);
+    query = query.ilike("partner_name", `%${safe}%`);
+  }
   if (profit === "1") query = query.eq("affects_profit", true);
   if (profit === "0") query = query.eq("affects_profit", false);
   if (/^P[TC]\d+$/i.test(search)) query = query.eq("voucher_number", Number(search.slice(2)));
-  else if (search) query = query.or(`partner_name.ilike.%${search.replaceAll(",", "")}%,note.ilike.%${search.replaceAll(",", "")}%`);
+  else if (search) {
+    const safe = escapePostgrestIlike(search);
+    query = query.or(`partner_name.ilike.%${safe}%,note.ilike.%${safe}%`);
+  }
   if (dateFrom) query = query.gte("occurred_at", `${dateFrom}T00:00:00+07:00`);
   if (dateTo) query = query.lte("occurred_at", `${dateTo}T23:59:59.999+07:00`);
 

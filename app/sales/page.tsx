@@ -10,7 +10,6 @@ export default async function SalesPage() {
       .from("products")
       .select("id,name,sku,price,stock_quantity,active")
       .eq("active", true)
-      .gt("stock_quantity", 0)
       .order("name"),
     supabase.from("customers").select("id,name,phone").order("name").limit(200),
   ]);

@@ -5,6 +5,10 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const customerSelect = "id,customer_number,name,phone,secondary_phone,email,birthday,gender,customer_type,facebook,address,area,ward,note,tax_code,identity_number,organization,buyer_name,invoice_address,invoice_email,bank_name,bank_account,total_spent,active,favorite,group_id,created_at,updated_at,created_by,creator:profiles!customers_created_by_fkey(full_name),customer_groups(id,name),orders(id,order_number,status,total,created_at,shipments(status,cod_amount,collected_cod),sales_returns(id,return_number,status,refund_amount,created_at))";
 
+function escapePostgrestIlike(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_").replaceAll(",", "\\,");
+}
+
 type CustomerInput = Record<string, unknown>;
 
 async function readBody(request: Request) {
@@ -68,14 +72,17 @@ function customerPayload(input: CustomerInput, storeId: string, createdBy?: stri
 }
 
 export async function GET(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const { supabase, profile } = await requireProfile("manager");
   const params = new URL(request.url).searchParams;
   const page = Math.max(1, Number(params.get("page")) || 1);
   const pageSize = Math.min(params.get("export") === "1" ? 5000 : 100, Math.max(1, Number(params.get("pageSize")) || 15));
   const search = (params.get("q") || "").trim();
-  let query = supabase.from("customers").select(customerSelect, { count: "exact" });
+  let query = supabase.from("customers").select(customerSelect, { count: "exact" }).eq("store_id", profile.store_id);
   if (/^KH\d+$/i.test(search)) query = query.eq("customer_number", Number(search.slice(2)));
-  else if (search) query = query.or(`name.ilike.%${search.replaceAll(",", "") }%,phone.ilike.%${search.replaceAll(",", "")}%,email.ilike.%${search.replaceAll(",", "")}%`);
+  else if (search) {
+    const safe = escapePostgrestIlike(search);
+    query = query.or(`name.ilike.%${safe}%,phone.ilike.%${safe}%,email.ilike.%${safe}%`);
+  }
   const status = params.get("status");
   const type = params.get("type");
   const gender = params.get("gender");
@@ -93,24 +100,101 @@ export async function GET(request: Request) {
   if (params.get("totalMin")) query = query.gte("total_spent", Number(params.get("totalMin")) || 0);
   if (params.get("totalMax")) query = query.lte("total_spent", Number(params.get("totalMax")) || 0);
   if (params.get("transactionFrom") || params.get("transactionTo")) {
-    let orderQuery = supabase.from("orders").select("customer_id").not("customer_id", "is", null);
-    if (params.get("transactionFrom")) orderQuery = orderQuery.gte("created_at", `${params.get("transactionFrom")}T00:00:00+07:00`);
-    if (params.get("transactionTo")) orderQuery = orderQuery.lte("created_at", `${params.get("transactionTo")}T23:59:59.999+07:00`);
-    const orderCustomers = await orderQuery;
-    const ids = Array.from(new Set((orderCustomers.data || []).map((order) => order.customer_id).filter(Boolean))) as string[];
+    const batchSize = 1000;
+    let offset = 0;
+    const idsSet = new Set<string>();
+    while (true) {
+      let orderQuery = supabase
+        .from("orders")
+        .select("customer_id")
+        .not("customer_id", "is", null)
+        .eq("store_id", profile.store_id)
+        .range(offset, offset + batchSize - 1);
+      if (params.get("transactionFrom")) orderQuery = orderQuery.gte("created_at", `${params.get("transactionFrom")}T00:00:00+07:00`);
+      if (params.get("transactionTo")) orderQuery = orderQuery.lte("created_at", `${params.get("transactionTo")}T23:59:59.999+07:00`);
+      const orderCustomers = await orderQuery;
+      if (orderCustomers.error) break;
+      const batchIds = (orderCustomers.data || []).map((order) => (order as { customer_id: string | null }).customer_id).filter(Boolean) as string[];
+      batchIds.forEach((id) => idsSet.add(id));
+      if ((orderCustomers.data || []).length < batchSize) break;
+      offset += batchSize;
+      if (offset > 20000) break;
+    }
+    const ids = Array.from(idsSet);
     query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
   }
   if (params.get("debtMin") || params.get("debtMax")) {
-    const shipmentResult = await supabase.from("shipments").select("cod_amount,collected_cod,orders(customer_id)");
-    const debtByCustomer = new Map<string, number>();
-    for (const shipment of shipmentResult.data || []) {
-      const order = Array.isArray(shipment.orders) ? shipment.orders[0] : shipment.orders;
-      const customerId = order?.customer_id;
-      if (customerId) debtByCustomer.set(customerId, (debtByCustomer.get(customerId) || 0) + Math.max(0, Number(shipment.cod_amount) - Number(shipment.collected_cod)));
+    const rawMin = params.get("debtMin") ? Number(params.get("debtMin")) : null;
+    const rawMax = params.get("debtMax") ? Number(params.get("debtMax")) : null;
+    const rpcMin = rawMin !== null && Number.isFinite(rawMin) ? rawMin : null;
+    const rpcMax = rawMax !== null && Number.isFinite(rawMax) ? rawMax : null;
+    let ids: string[] = [];
+    let usedRpc = false;
+    try {
+      const rpcResult = await supabase.rpc("customers_by_debt", { p_min: rpcMin, p_max: rpcMax });
+      if (!rpcResult.error && Array.isArray(rpcResult.data)) {
+        ids = (rpcResult.data as Array<{ customer_id: string }>).map((r) => r.customer_id).filter(Boolean);
+        usedRpc = true;
+      }
+    } catch {
+      usedRpc = false;
     }
-    const min = params.get("debtMin") ? Number(params.get("debtMin")) : Number.NEGATIVE_INFINITY;
-    const max = params.get("debtMax") ? Number(params.get("debtMax")) : Number.POSITIVE_INFINITY;
-    const ids = Array.from(debtByCustomer.entries()).filter(([, debt]) => debt >= min && debt <= max).map(([id]) => id);
+    if (!usedRpc) {
+      const min = rpcMin !== null ? rpcMin : Number.NEGATIVE_INFINITY;
+      const max = rpcMax !== null ? rpcMax : Number.POSITIVE_INFINITY;
+      const debtByCustomer = new Map<string, number>();
+      const batchSize = 1000;
+      let offset = 0;
+      while (true) {
+        const shipmentResult = await supabase
+          .from("shipments")
+          .select("cod_amount,collected_cod,status,orders!inner(customer_id,status)")
+          .eq("store_id", profile.store_id)
+          .neq("status", "cancelled")
+          .range(offset, offset + batchSize - 1);
+        if (shipmentResult.error) break;
+        const rows = (shipmentResult.data || []) as unknown as Array<{
+          cod_amount: number;
+          collected_cod: number;
+          status: string;
+          orders: { customer_id: string | null; status: string } | Array<{ customer_id: string | null; status: string }>;
+        }>;
+        for (const shipment of rows) {
+          const order = Array.isArray(shipment.orders) ? shipment.orders[0] : shipment.orders;
+          const customerId = order?.customer_id;
+          const orderStatus = order?.status;
+          if (!customerId) continue;
+          if (orderStatus === "draft" || orderStatus === "cancelled") continue;
+          if (shipment.status === "cancelled") continue;
+          debtByCustomer.set(customerId, (debtByCustomer.get(customerId) || 0) + Math.max(0, Number(shipment.cod_amount) - Number(shipment.collected_cod)));
+        }
+        if (rows.length < batchSize) break;
+        offset += batchSize;
+        if (offset > 20000) break;
+      }
+      let fallbackIds = Array.from(debtByCustomer.entries())
+        .filter(([, debt]) => debt >= min && debt <= max)
+        .map(([id]) => id);
+      if (min <= 0 && 0 <= max) {
+        const cBatchSize = 1000;
+        let cOffset = 0;
+        const allCustomerIds: string[] = [];
+        while (true) {
+          const res = await supabase.from("customers").select("id").eq("store_id", profile.store_id).range(cOffset, cOffset + cBatchSize - 1);
+          if (res.error) break;
+          const batch = (res.data || []).map((c) => (c as { id: string }).id);
+          allCustomerIds.push(...batch);
+          if (batch.length < cBatchSize) break;
+          cOffset += cBatchSize;
+          if (cOffset > 20000) break;
+        }
+        for (const cid of allCustomerIds) {
+          if (!debtByCustomer.has(cid)) fallbackIds.push(cid);
+        }
+        fallbackIds = Array.from(new Set(fallbackIds));
+      }
+      ids = fallbackIds;
+    }
     query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
   }
   const from = (page - 1) * pageSize;

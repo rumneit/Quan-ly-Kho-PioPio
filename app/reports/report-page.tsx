@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 
 export default async function ReportPage({ mode }: { mode: ReportMode }) {
   const { supabase, profile } = await requireProfile("manager");
-  const [orders, products, customers, suppliers, purchases, purchaseReturns, categories, brands, customerGroups, sellers] = await Promise.all([
-    supabase.from("orders").select("id,order_number,status,subtotal,discount,total,channel,created_at,created_by,customer_id,customers(name,phone),order_items(quantity,line_total,unit_price,products(id,sku,name,cost,category_id,brand_id))").order("created_at", { ascending: false }).limit(1000),
+  const [orders, products, customers, suppliers, purchases, purchaseReturns, categories, brands, customerGroups, sellers, branches] = await Promise.all([
+    supabase.from("orders").select("id,order_number,status,subtotal,discount,total,channel,created_at,created_by,branch_id,customer_id,customers(name,phone),order_items(quantity,line_total,unit_price,products(id,sku,name,cost,category_id,brand_id))").order("created_at", { ascending: false }).limit(1000),
     supabase.from("products").select("id,sku,name,price,cost,stock_quantity,active,category_id,brand_id").order("name"),
     supabase.from("customers").select("id,customer_number,name,phone,total_spent,created_at,group_id").order("name"),
     supabase.from("suppliers").select("id,code,name,created_at").order("name"),
@@ -16,6 +16,7 @@ export default async function ReportPage({ mode }: { mode: ReportMode }) {
     supabase.from("product_brands").select("id,name").order("name"),
     supabase.from("customer_groups").select("id,name").order("name"),
     supabase.from("profiles").select("id,full_name").eq("active", true).order("full_name"),
+    supabase.from("store_branches").select("id,name,is_default").order("created_at"),
   ]);
   return (
     <ReportDashboard
@@ -31,6 +32,8 @@ export default async function ReportPage({ mode }: { mode: ReportMode }) {
       brands={(brands.data || []) as never}
       customerGroups={(customerGroups.data || []) as never}
       sellers={(sellers.data || []) as never}
+      branches={(branches.data || []) as never}
+      truncated={orders.data?.length === 1000 || purchases.data?.length === 1000 || purchaseReturns.data?.length === 1000}
     />
   );
 }

@@ -5,10 +5,11 @@ import { BarChart3, Download, FileSpreadsheet, Printer, TrendingUp } from "lucid
 import ManagementHeader, { type ManagementSection } from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { toVnDateKey, VN_TZ } from "@/lib/vn-time";
 
 export type ReportMode = "sales" | "orders" | "products" | "customers" | "suppliers" | "channels";
 type OrderItem = { quantity: number; line_total: number; unit_price: number; products?: { id?: string; sku?: string; name?: string; cost?: number; category_id?: string | null; brand_id?: string | null } | null };
-type Order = { id: string; order_number: number; status: string; subtotal: number; discount: number; total: number; channel?: string | null; created_at: string; created_by?: string | null; customer_id?: string | null; customers?: { name?: string; phone?: string } | null; order_items?: OrderItem[] };
+type Order = { id: string; order_number: number; status: string; subtotal: number; discount: number; total: number; channel?: string | null; created_at: string; created_by?: string | null; branch_id?: string | null; customer_id?: string | null; customers?: { name?: string; phone?: string } | null; order_items?: OrderItem[] };
 type Product = { id: string; sku: string; name: string; price: number; cost: number; stock_quantity: number; active: boolean; category_id?: string | null; brand_id?: string | null };
 type Customer = { id: string; customer_number?: number | null; name: string; phone?: string | null; total_spent: number; created_at: string; group_id?: string | null };
 type Supplier = { id: string; code?: string | null; name: string; created_at?: string };
@@ -18,6 +19,7 @@ type Category = { id: string; name: string };
 type Brand = { id: string; name: string };
 type CustomerGroup = { id: string; name: string };
 type Seller = { id: string; full_name: string };
+type Branch = { id: string; name: string; is_default: boolean };
 type Row = { id: string; label: string; code: string; orders: number; quantity: number; gross: number; discount: number; returns: number; net: number; cost: number; profit: number; payable: number };
 type Metrics = { orders: number; quantity: number; gross: number; discount: number; returns: number; net: number; cost: number; profit: number; payable: number };
 type Config = { title: string; active: ManagementSection; interests: string[]; filters: string[]; columns: Array<[keyof Row, string]>; note?: string };
@@ -36,7 +38,7 @@ const channelLabel = (channel?: string | null) => channelNames[channel || "direc
 const customerCode = (value?: number | null) => (value == null ? "" : `KH${String(value).padStart(6, "0")}`);
 
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
-const day = (value: string) => new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
+const day = (value: string) => new Intl.DateTimeFormat("vi-VN", { timeZone: VN_TZ, day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
 
 const emptyTotals: Metrics = { orders: 0, quantity: 0, gross: 0, discount: 0, returns: 0, net: 0, cost: 0, profit: 0, payable: 0 };
 function sumRows(rows: Row[]): Metrics {
@@ -56,7 +58,7 @@ function extractMetric(interest: string): keyof Metrics {
 
 const moneyKeys = ["gross", "discount", "returns", "net", "cost", "profit", "payable"];
 
-export default function ReportDashboard({ mode, profile, orders, products, customers, suppliers, purchases, purchaseReturns, categories, brands, customerGroups, sellers }: { mode: ReportMode; profile: Profile; orders: Order[]; products: Product[]; customers: Customer[]; suppliers: Supplier[]; purchases: Purchase[]; purchaseReturns: PurchaseReturn[]; categories: Category[]; brands: Brand[]; customerGroups: CustomerGroup[]; sellers: Seller[] }) {
+export default function ReportDashboard({ mode, profile, orders, products, customers, suppliers, purchases, purchaseReturns, categories, brands, customerGroups, sellers, branches, truncated }: { mode: ReportMode; profile: Profile; orders: Order[]; products: Product[]; customers: Customer[]; suppliers: Supplier[]; purchases: Purchase[]; purchaseReturns: PurchaseReturn[]; categories: Category[]; brands: Brand[]; customerGroups: CustomerGroup[]; sellers: Seller[]; branches: Branch[]; truncated?: boolean }) {
   const config = configs[mode];
   const [view, setView] = useState("Biểu đồ");
   const [interest, setInterest] = useState(config.interests[0]);
@@ -69,6 +71,9 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
   const [groupFilter, setGroupFilter] = useState("all");
   const [sellerId, setSellerId] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [branchId, setBranchId] = useState("all");
+  const [selectedCustomerId, setSelectedCustomerId] = useState("all");
+  const [selectedSupplierId, setSelectedSupplierId] = useState("all");
 
   const orderedProducts = useMemo(() => products.filter((product) => (categoryId === "all" || product.category_id === categoryId) && (brandId === "all" || product.brand_id === brandId) && (productId === "all" || product.id === productId)), [products, categoryId, brandId, productId]);
 
@@ -76,19 +81,41 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
     const orderedProductIds = new Set(orderedProducts.map((product) => product.id));
     const orderedItemsHas = (item: OrderItem) => (item.products?.id ? orderedProductIds.has(item.products.id) : false);
     return orders.filter((order) => {
-      const dateOk = dateValue.preset === "all" || ((!dateValue.from || order.created_at.slice(0, 10) >= dateValue.from) && (!dateValue.to || order.created_at.slice(0, 10) <= dateValue.to));
+      const dateKey = toVnDateKey(order.created_at);
+      const dateOk = dateValue.preset === "all" || ((!dateValue.from || dateKey >= dateValue.from) && (!dateValue.to || dateKey <= dateValue.to));
       const statusOk = status === "all" || order.status === status;
       const sellerOk = sellerId === "all" || order.created_by === sellerId;
+      const branchOk = branchId === "all" || order.branch_id === branchId;
       const channelOk = channelFilter === "all" || (order.channel || "direct") === channelFilter;
       const productOk = (categoryId === "all" && brandId === "all" && productId === "all") || (order.order_items || []).some(orderedItemsHas);
-      return dateOk && statusOk && sellerOk && channelOk && productOk;
+      return dateOk && statusOk && sellerOk && branchOk && channelOk && productOk;
     });
-  }, [orders, dateValue, status, categoryId, brandId, productId, sellerId, channelFilter, orderedProducts]);
+  }, [orders, dateValue, status, categoryId, brandId, productId, sellerId, channelFilter, branchId, orderedProducts]);
 
   const rows = useMemo<Row[]>(() => {
     const paid = filteredOrders.filter((order) => order.status === "paid");
 
     if (mode === "products") {
+      // P0 fix: "Gộp hàng hóa cùng loại" checkbox now actually controls aggregation
+      if (!groupProducts) {
+        // Not grouped: each order-item line is a row (unique per order-product)
+        const flat: Row[] = [];
+        for (const order of paid) {
+          for (const item of order.order_items || []) {
+            const pid = item.products?.id;
+            if (!pid) continue;
+            if (!orderedProducts.some((p) => p.id === pid)) continue;
+            const prod = orderedProducts.find((p) => p.id === pid) || products.find((p) => p.id === pid);
+            if (!prod) continue;
+            const gross = Number(item.line_total);
+            const qty = Number(item.quantity);
+            const cost = qty * Number(prod.cost || 0);
+            flat.push({ id: `${order.id}-${pid}`, code: prod.sku, label: prod.name, orders: 1, quantity: qty, gross, discount: 0, returns: 0, net: gross, cost, profit: gross - cost, payable: 0 });
+          }
+        }
+        // when not grouped, keep flat without further aggregation
+        return flat;
+      }
       return orderedProducts.map((product) => {
         const related = paid.flatMap((order) => (order.order_items || []).filter((item) => item.products?.id === product.id));
         const quantity = related.reduce((sum, item) => sum + Number(item.quantity), 0);
@@ -99,7 +126,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
     }
 
     if (mode === "customers") {
-      const scopedCustomers = customers.filter((customer) => groupFilter === "all" || customer.group_id === groupFilter);
+      const scopedCustomers = customers.filter((customer) => (groupFilter === "all" || customer.group_id === groupFilter) && (selectedCustomerId === "all" || customer.id === selectedCustomerId));
       return scopedCustomers.map((customer) => {
         const related = paid.filter((order) => order.customer_id === customer.id);
         const refunded = filteredOrders.filter((order) => order.customer_id === customer.id && order.status === "refunded");
@@ -118,8 +145,15 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
         if (!map.has(key)) map.set(key, { id: key, code: supplier?.code || "", label: supplier?.name || "Khách lẻ", orders: 0, quantity: 0, gross: 0, discount: 0, returns: 0, net: 0, cost: 0, profit: 0, payable: 0 });
         return map.get(key)!;
       };
+      const inDateRange = (iso: string) => {
+        if (dateValue.preset === "all") return true;
+        const k = toVnDateKey(iso);
+        return (!dateValue.from || k >= dateValue.from) && (!dateValue.to || k <= dateValue.to);
+      };
       for (const purchase of purchases) {
         if (purchase.status !== "completed") continue;
+        if (!inDateRange(purchase.created_at)) continue;
+        if (selectedSupplierId !== "all" && purchase.supplier_id !== selectedSupplierId) continue;
         const row = ensure(purchase.supplier_id || "");
         row.orders += 1;
         row.gross += Number(purchase.payable || 0);
@@ -127,6 +161,8 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
       }
       for (const ret of purchaseReturns) {
         if (ret.status !== "completed") continue;
+        if (!inDateRange(ret.created_at)) continue;
+        if (selectedSupplierId !== "all" && ret.supplier_id !== selectedSupplierId) continue;
         const row = ensure(ret.supplier_id || "");
         row.returns += Number(ret.payable || 0);
       }
@@ -152,7 +188,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
 
     const groups = new Map<string, Row>();
     for (const order of filteredOrders) {
-      const key = order.created_at.slice(0, 10);
+      const key = toVnDateKey(order.created_at);
       const current = groups.get(key) || { id: key, code: key, label: day(order.created_at), orders: 0, quantity: 0, gross: 0, discount: 0, returns: 0, net: 0, cost: 0, profit: 0, payable: 0 };
       current.orders += 1;
       current.quantity += (order.order_items || []).reduce((sum, item) => sum + Number(item.quantity), 0);
@@ -168,7 +204,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
       groups.set(key, current);
     }
     return Array.from(groups.values()).sort((a, b) => b.id.localeCompare(a.id));
-  }, [mode, filteredOrders, products, customers, suppliers, purchases, purchaseReturns, orderedProducts, groupFilter]);
+  }, [mode, filteredOrders, products, customers, suppliers, purchases, purchaseReturns, orderedProducts, groupFilter, selectedCustomerId, selectedSupplierId, dateValue]);
 
   const totals = useMemo(() => sumRows(rows), [rows]);
   const metric = extractMetric(interest);
@@ -207,6 +243,13 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
             {config.interests.map((value) => <label className="stock-radio" key={value}><input type="radio" name={`${mode}-interest`} checked={interest === value} onChange={() => setInterest(value)} /><span>{value}</span></label>)}
             {config.note && <p className="analytics-note">{config.note}</p>}
           </section>
+          {/* P0: Branch filter for order-based reports */}
+          {mode !== "suppliers" && (
+            <section>
+              <h2>Chi nhánh</h2>
+              <select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select>
+            </section>
+          )}
           {config.filters.map((filter) => (
             <section key={filter}>
               <h2>{filter}</h2>
@@ -217,11 +260,14 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
                   <option value="all">Chọn trạng thái</option><option value="draft">Phiếu tạm</option><option value="paid">Hoàn thành</option><option value="cancelled">Đã hủy</option>
                 </select>
               ) : filter === "Khách hàng" ? (
-                <select defaultValue="all"><option value="all">Tất cả khách hàng</option>{customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select>
+                <select value={selectedCustomerId} onChange={(event) => setSelectedCustomerId(event.target.value)}><option value="all">Tất cả khách hàng</option>{customers.slice(0, 200).map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select>
               ) : filter === "Nhà cung cấp" ? (
-                <select defaultValue="all"><option value="all">Tất cả nhà cung cấp</option>{suppliers.map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select>
+                <select value={selectedSupplierId} onChange={(event) => setSelectedSupplierId(event.target.value)}><option value="all">Tất cả nhà cung cấp</option>{suppliers.slice(0, 200).map((supplier) => <option key={supplier.id} value={supplier.id}>{supplier.name}</option>)}</select>
               ) : filter === "Hàng hóa" ? (
-                <select value={productId} onChange={(event) => setProductId(event.target.value)}><option value="all">Tất cả hàng hóa</option>{products.slice(0, 300).map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select>
+                <>
+                  <select value={productId} onChange={(event) => setProductId(event.target.value)}><option value="all">Tất cả hàng hóa</option>{products.slice(0, 300).map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select>
+                  {products.length > 300 && <p style={{fontSize:"11px", color:"#b54708", marginTop:"4px"}}>Chỉ hiện 300 / {products.length} hàng hóa – hãy lọc theo loại/thương hiệu.</p>}
+                </>
               ) : filter === "Loại hàng" || filter === "Nhóm hàng" ? (
                 <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="all">Tất cả loại hàng</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>
               ) : filter === "Thương hiệu" ? (
@@ -232,6 +278,8 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
                 <select value={channelFilter} onChange={(event) => setChannelFilter(event.target.value)}><option value="all">Tất cả kênh bán</option>{Object.entries(channelNames).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
               ) : filter === "Người bán" || filter === "Nhân viên" ? (
                 <select value={sellerId} onChange={(event) => setSellerId(event.target.value)}><option value="all">Tất cả nhân viên</option>{sellers.map((seller) => <option key={seller.id} value={seller.id}>{seller.full_name}</option>)}</select>
+              ) : filter === "Công nợ" ? (
+                <select value={groupFilter} onChange={(event) => setGroupFilter(event.target.value)}><option value="all">Tất cả công nợ</option><option value="has_debt">Còn nợ</option><option value="no_debt">Không nợ</option></select>
               ) : (
                 <select defaultValue="all"><option value="all">Tất cả</option></select>
               )}
@@ -239,6 +287,7 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
           ))}
         </aside>
         <section className="analytics-content">
+          {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 1.000 bản ghi. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
           <div className="analytics-kpis">
             <article><TrendingUp /><span>Tổng doanh thu<b>{money(totals.gross)}</b></span></article>
             <article><BarChart3 /><span>Doanh thu thuần<b>{money(totals.net)}</b></span></article>

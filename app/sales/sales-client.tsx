@@ -29,6 +29,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
   const [receiverPhone, setReceiverPhone] = useState("");
   const [address, setAddress] = useState("");
   const [area, setArea] = useState("");
+  const [ward, setWard] = useState("");
   const [packCount, setPackCount] = useState(1);
   const [weight, setWeight] = useState("500");
   const [dimL, setDimL] = useState("10");
@@ -60,11 +61,35 @@ export default function SalesClient({ profile, products, customers }: Props) {
   const isDelivery = mode === "delivery";
 
   function addProduct(product: Product) {
-    setError(""); setLastOrder(""); setSearchOpen(false); setQuery("");
-    setCart(c => { const e = c[product.id]; const q = Math.min((e?.quantity || 0) + 1, product.stock_quantity); return { ...c, [product.id]: { ...product, quantity: q } }; });
+    setError(""); setNotice(""); setLastOrder(""); setSearchOpen(false); setQuery("");
+    setCart(c => {
+      const e = c[product.id];
+      const nextQty = (e?.quantity || 0) + 1;
+      if (nextQty > product.stock_quantity) {
+        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}.`);
+        // vẫn cho phép thêm vượt tồn để server quyết định (nếu cho phép âm tồn)
+        // nhưng giới hạn hiển thị: nếu muốn chặn, uncomment dòng dưới
+        // return c;
+      }
+      const q = Math.min(nextQty, Math.max(product.stock_quantity, nextQty));
+      // P0 fix: không im lặng cắt số lượng; nếu vượt tồn, giữ nguyên nextQty và báo lỗi để server check
+      const finalQty = nextQty > product.stock_quantity ? nextQty : q;
+      return { ...c, [product.id]: { ...product, quantity: finalQty } };
+    });
   }
   function changeQuantity(product: Product, amount: number) {
-    setCart(c => { const e = c[product.id]; if (!e) return c; const q = e.quantity + amount; if (q <= 0) { const n = { ...c }; delete n[product.id]; return n; } return { ...c, [product.id]: { ...e, quantity: Math.min(q, product.stock_quantity) } }; });
+    setCart(c => {
+      const e = c[product.id];
+      if (!e) return c;
+      const q = e.quantity + amount;
+      if (q <= 0) { const n = { ...c }; delete n[product.id]; return n; }
+      if (q > product.stock_quantity) {
+        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}.`);
+      } else {
+        setError("");
+      }
+      return { ...c, [product.id]: { ...e, quantity: q } };
+    });
   }
   function removeLine(id: string) { setCart(c => { const n = { ...c }; delete n[id]; return n; }); }
 
@@ -80,7 +105,14 @@ export default function SalesClient({ profile, products, customers }: Props) {
 
   async function pay() {
     if (!lines.length || saving) return;
+    // P0: client stock check before pay (server cũng check, nhưng báo sớm ở UI)
+    const outOfStock = lines.find(l => l.quantity > l.stock_quantity);
+    if (outOfStock) {
+      setError(`Tồn kho không đủ cho ${outOfStock.name}: yêu cầu ${outOfStock.quantity}, còn ${outOfStock.stock_quantity}. Vui lòng giảm số lượng.`);
+      return;
+    }
     if (isDelivery && (!receiverName || !receiverPhone)) { setError("Vui lòng nhập tên và số điện thoại người nhận."); return; }
+    if (isDelivery && !area) { setError("Vui lòng chọn khu vực (Tỉnh/TP) giao hàng."); return; }
     setSaving(true); setError(""); setNotice(""); setLastOrder("");
     const items = lines.map(l => ({ product_id: l.id, quantity: l.quantity, unit_price: Number(l.price) }));
     try {
@@ -89,12 +121,13 @@ export default function SalesClient({ profile, products, customers }: Props) {
       if (!orderRes.ok) { setError(orderData.error || "Không thể lưu đơn hàng."); return; }
       const orderId = orderData.order?.id; const orderNum = orderData.order?.order_number;
       if (isDelivery && orderId) {
-        const shipRes = await fetch("/api/waybills", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, receiver_name: receiverName, receiver_phone: receiverPhone, address, area, cod_amount: total, shipping_fee: 0, partner_fee: 0, note: "" }) });
+        const fullAddress = [address, ward, area].filter(Boolean).join(", ");
+        const shipRes = await fetch("/api/waybills", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, receiver_name: receiverName, receiver_phone: receiverPhone, address: fullAddress, area, cod_amount: total, shipping_fee: 0, partner_fee: 0, note: deliveryNote }) });
         const shipData = await shipRes.json();
         if (!shipRes.ok) { setError("Đơn đã tạo nhưng không thể tạo vận đơn: " + (shipData.error || "")); return; }
         setNotice("Đã tạo đơn hàng và vận đơn!");
       } else { setNotice("Thanh toán thành công!"); }
-      setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setPackCount(1);
+      setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1);
     } catch { setError("Không thể kết nối máy chủ."); } finally { setSaving(false); }
   }
 
@@ -155,8 +188,8 @@ export default function SalesClient({ profile, products, customers }: Props) {
                   <div className="pos-delivery-form">
                     <div className="pos-form-row"><input placeholder="Tên người nhận" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Địa chỉ chi tiết (Số nhà, ngõ, đường)" value={address} onChange={e => setAddress(e.target.value)} />
-                    <div className="pos-form-row full"><select className="pos-select" value={area} onChange={e => setArea(e.target.value)}><option value="">Khu vực (Tỉnh/TP)</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                    <div className="pos-form-row full"><select className="pos-select" value={address} onChange={e => setAddress(e.target.value)} disabled={!area}><option value="">Phường/Xã</option>{(VN_WARDS[area] || []).map(w => <option key={w} value={w}>{w}</option>)}</select></div>
+                    <div className="pos-form-row full"><select className="pos-select" value={area} onChange={e => { setArea(e.target.value); setWard(""); }}><option value="">Khu vực (Tỉnh/TP)</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                    <div className="pos-form-row full"><select className="pos-select" value={ward} onChange={e => setWard(e.target.value)} disabled={!area}><option value="">Phường/Xã</option>{(VN_WARDS[area] || []).map(w => <option key={w} value={w}>{w}</option>)}</select></div>
                     <div className="pos-pack-row"><span>Cân nặng</span><input className="pos-pack-input" value={weight} onChange={e => setWeight(e.target.value)} placeholder="500" /><span>gram</span></div>
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Download } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import { getTodayVnKey, toVnDateKey, VN_TZ } from "@/lib/vn-time";
 
 type OrderItem = {
   quantity: number;
@@ -18,8 +19,14 @@ type Order = {
   discount: number;
   total: number;
   created_at: string;
+  branch_id?: string | null;
+  channel?: string | null;
+  payment_method?: string | null;
+  created_by?: string | null;
   order_items?: OrderItem[];
 };
+type Branch = { id: string; name: string; is_default: boolean };
+type Seller = { id: string; full_name: string };
 
 type SaleRow = {
   id: string;
@@ -36,7 +43,10 @@ type SaleRow = {
 
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 const formatDay = (value: string) =>
-  new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" }).format(new Date(value));
+  new Intl.DateTimeFormat("vi-VN", { timeZone: VN_TZ, day: "2-digit", month: "2-digit" }).format(new Date(value));
+function monthKeyVn(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: VN_TZ, year: "numeric", month: "2-digit" }).format(new Date(iso));
+}
 
 function totalsOf(rows: SaleRow[]) {
   return rows.reduce(
@@ -54,42 +64,68 @@ function totalsOf(rows: SaleRow[]) {
   );
 }
 
-export default function SalesReportClient({ profile, orders }: { profile: Profile; orders: Order[] }) {
+export default function SalesReportClient({ profile, orders, branches, sellers, truncated }: { profile: Profile; orders: Order[]; branches: Branch[]; sellers: Seller[]; truncated?: boolean }) {
   const [view, setView] = useState<"chart" | "data">("chart");
   const [interest, setInterest] = useState("Thời gian");
   const [range, setRange] = useState("Tuần này");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [priceBook, setPriceBook] = useState("all");
+  const [branchId, setBranchId] = useState("all");
   const [saleMethod, setSaleMethod] = useState("all");
   const [channel, setChannel] = useState("all");
   const [seller, setSeller] = useState("all");
   const [vat, setVat] = useState<"excluded" | "included">("excluded");
 
   const filteredOrders = useMemo(() => {
-    const now = new Date();
+    const todayKey = getTodayVnKey();
+    const curMonthKey = new Intl.DateTimeFormat("en-CA", { timeZone: VN_TZ, year: "numeric", month: "2-digit" }).format(new Date());
+    // compute yesterday key
+    const [y, m, d] = todayKey.split("-").map(Number);
+    const yestDate = new Date(Date.UTC(y, m - 1, d - 1));
+    const yestKey = `${yestDate.getUTCFullYear()}-${String(yestDate.getUTCMonth() + 1).padStart(2, "0")}-${String(yestDate.getUTCDate()).padStart(2, "0")}`;
+    const weekStart = (() => {
+      // VN week starts Monday; compute start of week for todayKey
+      const base = new Date(Date.UTC(y, m - 1, d));
+      // get VN weekday: Monday=1 .. Sunday=7
+      const vnWeekday = new Intl.DateTimeFormat("en-US", { timeZone: VN_TZ, weekday: "short" }).format(new Date());
+      const map: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+      const offset = map[vnWeekday] ?? 0;
+      const startUTC = Date.UTC(y, m - 1, d - offset);
+      const sd = new Date(startUTC);
+      return `${sd.getUTCFullYear()}-${String(sd.getUTCMonth() + 1).padStart(2, "0")}-${String(sd.getUTCDate()).padStart(2, "0")}`;
+    })();
     return orders.filter((order) => {
-      const created = new Date(order.created_at);
-      const age = now.getTime() - created.getTime();
+      const key = toVnDateKey(order.created_at);
       const inRange =
         range === "Toàn thời gian" ||
         range === "Tùy chỉnh" ||
-        (range === "Hôm nay" && created.toDateString() === now.toDateString()) ||
-        (range === "Hôm qua" && age >= 86400000 && age < 172800000) ||
-        (range === "7 ngày qua" && age <= 7 * 86400000) ||
-        (range === "Tuần này" && age <= 7 * 86400000) ||
-        (range === "Tháng này" && created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear());
+        (range === "Hôm nay" && key === todayKey) ||
+        (range === "Hôm qua" && key === yestKey) ||
+        (range === "7 ngày qua" && (() => {
+          const start = new Date(Date.UTC(y, m - 1, d - 6));
+          const sKey = `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, "0")}-${String(start.getUTCDate()).padStart(2, "0")}`;
+          return key >= sKey && key <= todayKey;
+        })()) ||
+        (range === "Tuần này" && key >= weekStart && key <= todayKey) ||
+        (range === "Tháng này" && monthKeyVn(order.created_at) === curMonthKey);
       const customOk =
         range !== "Tùy chỉnh" ||
-        ((!from || order.created_at.slice(0, 10) >= from) && (!to || order.created_at.slice(0, 10) <= to));
-      return inRange && customOk;
+        ((!from || key >= from) && (!to || key <= to));
+      const branchOk = branchId === "all" || order.branch_id === branchId;
+      const sellerOk = seller === "all" || order.created_by === seller;
+      const channelOk = channel === "all" || (order.channel || "direct") === channel;
+      const saleMethodOk = saleMethod === "all" || (order.channel || "direct") === saleMethod;
+      // priceBook and vat are display-only; keep filter pass but noted as not filtering data (P0: avoid fake filtering)
+      void priceBook; void vat;
+      return inRange && customOk && branchOk && sellerOk && channelOk && saleMethodOk;
     });
-  }, [orders, range, from, to]);
+  }, [orders, range, from, to, branchId, seller, channel, saleMethod, priceBook, vat]);
 
   const rows = useMemo<SaleRow[]>(() => {
     const groups = new Map<string, SaleRow>();
     for (const order of filteredOrders) {
-      const key = order.created_at.slice(0, 10);
+      const key = toVnDateKey(order.created_at);
       const row = groups.get(key) || {
         id: key,
         label: formatDay(order.created_at),
@@ -180,6 +216,11 @@ export default function SalesReportClient({ profile, orders }: { profile: Profil
               <option value="all">Chọn bảng giá</option>
               <option value="general">Bảng giá chung</option>
             </select>
+            <p style={{fontSize:"11px", color:"#8895a3", marginTop:"4px"}}>Áp dụng 1 bảng giá chung (chưa tách theo chi nhánh).</p>
+          </section>
+          <section>
+            <h2>Chi nhánh</h2>
+            <select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map(b=> <option key={b.id} value={b.id}>{b.name}</option>)}</select>
           </section>
           <section>
             <h2>Thời gian</h2>
@@ -197,15 +238,15 @@ export default function SalesReportClient({ profile, orders }: { profile: Profil
           </section>
           <section>
             <h2>Phương thức bán hàng</h2>
-            <select value={saleMethod} onChange={(event) => setSaleMethod(event.target.value)}><option value="all">Chọn phương thức bán hàng</option><option value="direct">Bán trực tiếp</option></select>
+            <select value={saleMethod} onChange={(event) => setSaleMethod(event.target.value)}><option value="all">Tất cả phương thức</option><option value="direct">Bán trực tiếp</option><option value="delivery">Giao hàng</option></select>
           </section>
           <section>
             <h2>Kênh bán</h2>
-            <select value={channel} onChange={(event) => setChannel(event.target.value)}><option value="all">Chọn kênh bán</option><option value="direct">Bán trực tiếp</option></select>
+            <select value={channel} onChange={(event) => setChannel(event.target.value)}><option value="all">Tất cả kênh bán</option><option value="direct">Bán trực tiếp</option><option value="delivery">Giao hàng</option><option value="facebook">Facebook</option><option value="website">Website</option></select>
           </section>
           <section>
             <h2>Nhân viên</h2>
-            <select value={seller} onChange={(event) => setSeller(event.target.value)}><option value="all">Chọn nhân viên</option></select>
+            <select value={seller} onChange={(event) => setSeller(event.target.value)}><option value="all">Tất cả nhân viên</option>{sellers.map(s=> <option key={s.id} value={s.id}>{s.full_name}</option>)}</select>
           </section>
           <section>
             <h2>Thuế</h2>
@@ -217,6 +258,7 @@ export default function SalesReportClient({ profile, orders }: { profile: Profil
         </aside>
 
         <section className="sale-report-content">
+          {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 1.000 đơn. Hãy thu hẹp khoảng thời gian để tránh thiếu dữ liệu.</div>}
           {view === "chart" ? (
             <div className="sale-report-chart-card">
               <h2>{interest === "Thời gian" ? `Doanh thu thuần ${range.toLowerCase()}` : `${interest} ${range.toLowerCase()}`}</h2>

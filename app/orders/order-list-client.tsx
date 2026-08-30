@@ -31,6 +31,7 @@ export type SourceOrder = {
   id: string;
   order_number: number;
   customer_id?: string | null;
+  branch_id?: string | null;
   status: string;
   subtotal: number;
   discount: number;
@@ -42,6 +43,7 @@ export type SourceOrder = {
   updated_at?: string;
   customers?: Customer | null;
   creator?: { full_name?: string } | null;
+  store_branches?: { name?: string } | null;
   order_items?: OrderItem[];
   shipments?: ShipmentSummary[];
   sales_returns?: Array<{ id: string; return_number: number }>;
@@ -119,17 +121,17 @@ const configs: Record<Mode, Config> = {
   orders: {
     title: "Đặt hàng",
     placeholder: "Theo mã phiếu đặt",
-    columns: columns([["waybill", "Mã vận đơn"], ["code", "Mã đặt hàng"], ["invoice", "Mã hóa đơn"], ["time", "Thời gian"], ["createdAt", "Thời gian tạo"], ["updatedAt", "Ngày cập nhật"], ["deliveryAt", "Thời gian giao hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["phone", "Điện thoại"], ["partner", "Đối tác giao hàng"], ["creator", "Người tạo"], ["channel", "Kênh bán"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["status", "Trạng thái"]]),
-    visible: ["code", "time", "customerCode", "customer", "payable", "paid", "status"],
-    filters: ["Thời gian", "Trạng thái", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người nhận đặt", "Kênh bán"],
+    columns: columns([["waybill", "Mã vận đơn"], ["code", "Mã đặt hàng"], ["invoice", "Mã hóa đơn"], ["time", "Thời gian"], ["createdAt", "Thời gian tạo"], ["updatedAt", "Ngày cập nhật"], ["deliveryAt", "Thời gian giao hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["branch", "Chi nhánh"], ["phone", "Điện thoại"], ["partner", "Đối tác giao hàng"], ["creator", "Người tạo"], ["channel", "Kênh bán"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["status", "Trạng thái"]]),
+    visible: ["code", "time", "customerCode", "customer", "branch", "payable", "paid", "status"],
+    filters: ["Thời gian", "Trạng thái", "Chi nhánh", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người nhận đặt", "Kênh bán"],
     statusLabels: { draft: "Phiếu tạm", paid: "Hoàn thành", cancelled: "Đã hủy", refunded: "Đã trả hàng" },
   },
   invoices: {
     title: "Hóa đơn",
     placeholder: "Theo mã hóa đơn",
-    columns: columns([["code", "Mã hóa đơn"], ["waybill", "Mã vận đơn"], ["deliveryStatus", "Trạng thái giao hàng"], ["time", "Thời gian"], ["returnCode", "Mã trả hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["phone", "Điện thoại"], ["creator", "Người tạo"], ["partner", "Đối tác giao hàng"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["cod", "Còn cần thu (COD)"], ["shippingFee", "Phí trả ĐTGH"], ["status", "Trạng thái"]]),
-    visible: ["code", "time", "returnCode", "customerCode", "customer", "subtotal", "discount", "paid"],
-    filters: ["Thời gian", "Giao hàng", "Trạng thái hóa đơn", "Trạng thái giao hàng", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người bán", "Kênh bán"],
+    columns: columns([["code", "Mã hóa đơn"], ["waybill", "Mã vận đơn"], ["deliveryStatus", "Trạng thái giao hàng"], ["time", "Thời gian"], ["returnCode", "Mã trả hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["branch", "Chi nhánh"], ["phone", "Điện thoại"], ["creator", "Người tạo"], ["partner", "Đối tác giao hàng"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["cod", "Còn cần thu (COD)"], ["shippingFee", "Phí trả ĐTGH"], ["status", "Trạng thái"]]),
+    visible: ["code", "time", "returnCode", "customerCode", "customer", "branch", "subtotal", "discount", "paid"],
+    filters: ["Thời gian", "Giao hàng", "Trạng thái hóa đơn", "Trạng thái giao hàng", "Chi nhánh", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người bán", "Kênh bán"],
     statusLabels: { paid: "Hoàn thành", refunded: "Đã trả hàng" },
   },
   returns: {
@@ -161,10 +163,16 @@ const configs: Record<Mode, Config> = {
 const moneyKeys = new Set(["subtotal", "discount", "payable", "paid", "cod", "remainingCod", "shippingFee", "partnerFee"]);
 const dateKeys = new Set(["time", "createdAt", "updatedAt", "completedAt", "deliveryAt"]);
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+const vnDateString = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+const isSameVnMonth = (a: Date, b: Date) => {
+  const fa = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit" }).format(a);
+  const fb = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit" }).format(b);
+  return fa === fb;
+};
 const dateTime = (value: unknown) => {
   if (!value || value === "---") return "---";
   const parsed = new Date(String(value));
-  return Number.isNaN(parsed.getTime()) ? "---" : new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(parsed);
+  return Number.isNaN(parsed.getTime()) ? "---" : new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" }).format(parsed);
 };
 const documentCode = (prefix: string, value: number | undefined) => value == null ? "---" : `${prefix}${String(value).padStart(6, "0")}`;
 const customerCode = (customer?: Customer | null) => customer?.customer_number ? `KH${String(customer.customer_number).padStart(6, "0")}` : "---";
@@ -173,6 +181,7 @@ function orderRow(order: SourceOrder, mode: "orders" | "invoices"): GridRow {
   const shipment = order.shipments?.[0];
   const code = documentCode(mode === "orders" ? "DH" : "HD", order.order_number);
   const isPaid = order.status === "paid" || order.status === "refunded";
+  const branchName = order.store_branches?.name || "---";
   return {
     id: order.id,
     status: order.status,
@@ -188,6 +197,7 @@ function orderRow(order: SourceOrder, mode: "orders" | "invoices"): GridRow {
       deliveryAt: shipment?.delivery_at || "---",
       customerCode: customerCode(order.customers),
       customer: order.customers?.name || "Khách lẻ",
+      branch: branchName,
       phone: order.customers?.phone || "---",
       partner: shipment?.delivery_partners?.name || "---",
       area: shipment?.area || "---",
@@ -236,8 +246,8 @@ function partnerRow(partner: DeliveryPartner): GridRow {
   const collectable = shipments.filter((item) => item.status !== "cancelled" && item.status !== "returned");
   const cod = collectable.reduce((sum, item) => sum + Number(item.cod_amount || 0), 0);
   const collected = collectable.reduce((sum, item) => sum + Number(item.collected_cod || 0), 0);
-  const shippingFee = shipments.reduce((sum, item) => sum + Number(item.shipping_fee || 0), 0);
-  const partnerFee = shipments.reduce((sum, item) => sum + Number(item.partner_fee || 0), 0);
+  const shippingFee = collectable.reduce((sum, item) => sum + Number(item.shipping_fee || 0), 0);
+  const partnerFee = collectable.reduce((sum, item) => sum + Number(item.partner_fee || 0), 0);
   return { id: partner.id, status: partner.active ? "active" : "inactive", raw: partner, values: { code: documentCode("DTGH", partner.partner_number), partner: partner.name, orders: shipments.length, cod, remainingCod: Math.max(0, cod - collected), shippingFee, payable: Math.max(0, partnerFee) } };
 }
 
@@ -329,6 +339,9 @@ export default function OrderListClient({
   initialPartners = [],
   initialShipments = [],
   dataWarning = "",
+  serverPage,
+  serverPageSize,
+  serverTotal,
 }: {
   mode: Mode;
   profile: Profile;
@@ -339,6 +352,9 @@ export default function OrderListClient({
   initialPartners?: DeliveryPartner[];
   initialShipments?: SourceShipment[];
   dataWarning?: string;
+  serverPage?: number;
+  serverPageSize?: number;
+  serverTotal?: number;
 }) {
   const config = configs[mode];
   const seeded = useMemo(() => {
@@ -350,8 +366,8 @@ export default function OrderListClient({
   }, [initialOrders, initialPartners, initialReturns, initialShipments, mode]);
   const [rows, setRows] = useState<GridRow[]>(seeded);
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(15);
+  const [page, setPage] = useState(serverPage || 1);
+  const [pageSize, setPageSize] = useState(serverPageSize || 15);
   const [dateFilters, setDateFilters] = useState<Record<string, DateCriterion>>(() => Object.fromEntries(config.filters.filter((label) => label.includes("Thời gian")).map((label, index) => [label, { preset: index === 0 ? "month" : "all", from: "", to: "" }])));
   const [statuses, setStatuses] = useState<string[]>(Object.keys(config.statusLabels));
   const [deliveryStatuses, setDeliveryStatuses] = useState<string[]>([...Object.keys(configs.waybills.statusLabels), "---"]);
@@ -375,6 +391,7 @@ export default function OrderListClient({
   const [shippedOrderIds, setShippedOrderIds] = useState(() => new Set(initialOrders.filter((order) => order.shipments?.length).map((order) => order.id)));
   const [customerId, setCustomerId] = useState("");
   const [note, setNote] = useState("");
+  const [discountInput, setDiscountInput] = useState("0");
   const [productQuery, setProductQuery] = useState("");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [prices, setPrices] = useState<Record<string, number>>(() => Object.fromEntries(products.map((product) => [product.id, Number(product.price)])));
@@ -418,9 +435,9 @@ export default function OrderListClient({
       const rawDate = String(row.values[key] || "");
       if (!rawDate || rawDate === "---") return false;
       const date = new Date(rawDate);
-      const now = new Date();
-      if (criterion.preset === "month" && (date.getMonth() !== now.getMonth() || date.getFullYear() !== now.getFullYear())) return false;
-      const iso = rawDate.slice(0, 10);
+      if (Number.isNaN(date.getTime())) return false;
+      if (criterion.preset === "month" && !isSameVnMonth(date, new Date())) return false;
+      const iso = vnDateString(date);
       if (criterion.preset === "custom" && ((!criterion.from && !criterion.to) || (criterion.from && iso < criterion.from) || (criterion.to && iso > criterion.to))) return false;
     }
     if (codFilter !== "all") {
@@ -450,15 +467,20 @@ export default function OrderListClient({
   const toggleSort = (key: string) => setSort((current) => ({ key, direction: current.key === key && current.direction === "asc" ? "desc" : "asc" }));
   const toggleSelected = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
 
+  const canManage = profile.role === "manager";
   async function saveOrder(status: "draft" | "paid") {
+    if (!canManage) { setError("Bạn không có quyền tạo đơn hàng."); return; }
     const items = availableProducts.flatMap((product) => {
       const quantity = Math.trunc(Number(quantities[product.id] || 0));
       return quantity > 0 ? [{ product_id: product.id, quantity, unit_price: Number(prices[product.id] || 0) }] : [];
     });
     if (!items.length) { setError("Nhập số lượng cho ít nhất một hàng hóa."); return; }
+    const discount = Math.max(0, Number(discountInput) || 0);
+    const subtotal = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.unit_price), 0);
+    if (discount > subtotal) { setError("Giảm giá vượt quá tổng tiền hàng."); return; }
     setSaving(true); setError("");
     try {
-      const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status, note, items }) });
+      const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status, note, items, discount }) });
       const result = await response.json();
       if (!response.ok) { setError(result.error || "Không thể lưu đơn hàng."); return; }
       const raw = result.order as SourceOrder;
@@ -467,7 +489,7 @@ export default function OrderListClient({
         const sold = new Map(items.map((item) => [item.product_id, item.quantity]));
         setAvailableProducts((current) => current.map((product) => ({ ...product, stock_quantity: Math.max(0, product.stock_quantity - (sold.get(product.id) || 0)) })));
       }
-      setShowCreate(false); setQuantities({}); setCustomerId(""); setNote(""); setProductQuery(""); setPage(1);
+      setShowCreate(false); setQuantities({}); setCustomerId(""); setNote(""); setDiscountInput("0"); setProductQuery(""); setPage(1);
       setNotice(status === "paid" ? "Đã hoàn thành hóa đơn và cập nhật tồn kho." : "Đã lưu phiếu đặt hàng.");
     } catch {
       setError("Không thể kết nối máy chủ. Vui lòng thử lại.");
@@ -522,7 +544,8 @@ export default function OrderListClient({
     const items = raw.order_items || [];
     setQuantities(Object.fromEntries(items.map((item) => [item.product_id, item.quantity])));
     setPrices((current) => ({ ...current, ...Object.fromEntries(items.map((item) => [item.product_id, Number(item.unit_price)])) }));
-    setCustomerId(raw.customer_id || ""); setNote(raw.note || ""); setShowCreate(true);
+    const src = raw as SourceOrder;
+    setCustomerId(src.customer_id || ""); setNote(src.note || ""); setDiscountInput(String(src.discount ?? 0)); setShowCreate(true);
   }
 
   function exportCsv() {
@@ -549,7 +572,7 @@ export default function OrderListClient({
     return String(row.values[key] ?? "---");
   }
 
-  const filterKey = (label: string) => label.includes("Đối tác") ? "partner" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? (label === "Người bán" ? "seller" : "creator") : label.includes("Kênh") ? "channel" : "";
+  const filterKey = (label: string) => label.includes("Đối tác") ? "partner" : label.includes("Chi nhánh") ? "branch" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? (label === "Người bán" ? "seller" : "creator") : label.includes("Kênh") ? "channel" : "";
   const renderFilter = (label: string, index: number) => {
     if (label.includes("Thời gian")) {
       const criterion = dateFilters[label] || { preset: "all", from: "", to: "" };
@@ -567,7 +590,7 @@ export default function OrderListClient({
 
   const toolbar = <div className="product-toolbar order-toolbar">
     {config.placeholder && <label className="product-query"><Search size={18} /><input value={query} onChange={(event) => { setQuery(event.target.value); resetResults(); }} placeholder={config.placeholder} /><SlidersHorizontal size={16} /></label>}
-    {(mode === "orders" || mode === "invoices" || mode === "returns" || mode === "waybills" || (mode === "delivery-partners" && partnerTab === "other")) && <button type="button" className="order-tool primary" title="Tạo mới" aria-label="Tạo mới" onClick={() => { setError(""); setShowCreate(true); }}><Plus /></button>}
+    {canManage && (mode === "orders" || mode === "invoices" || mode === "returns" || mode === "waybills" || (mode === "delivery-partners" && partnerTab === "other")) && <button type="button" className="order-tool primary" title="Tạo mới" aria-label="Tạo mới" onClick={() => { setError(""); setShowCreate(true); }}><Plus /></button>}
     {mode === "orders" && <button type="button" className="order-tool" title="Sao chép phiếu đặt" aria-label="Sao chép phiếu đặt" disabled={selected.length !== 1} onClick={duplicateSelected}><Copy /></button>}
     <button type="button" className="order-tool" title="Xuất file" aria-label="Xuất file" disabled={!filtered.length} onClick={exportCsv}><Download /></button>
     {mode === "invoices" && <div className="order-more"><button type="button" className="order-tool" title="Khác" aria-label="Khác" aria-expanded={showMore} onClick={() => setShowMore((value) => !value)}><MoreHorizontal /></button>{showMore && <div className="order-more-menu"><button type="button" disabled={selected.length !== 1} onClick={() => { const row = rows.find((item) => item.id === selected[0]); if (row) window.location.href = `/returns?invoice=${row.id}`; }}>Tạo phiếu trả</button></div>}</div>}
@@ -583,7 +606,7 @@ export default function OrderListClient({
     <div className="product-actions order-actions"><h1>{config.title}</h1>{toolbar}</div>
     {mode === "delivery-partners" ? <main className="partner-workspace"><aside className="partner-sidebar"><nav><button type="button" className={partnerTab === "integrated" ? "active" : ""} onClick={() => setPartnerTab("integrated")}>Tích hợp</button><button type="button" className={partnerTab === "other" ? "active" : ""} onClick={() => setPartnerTab("other")}>Khác</button></nav><div className="partner-illustration"><Truck /><strong>{partnerTab === "integrated" ? "Kết nối đối tác vận chuyển" : "Đối tác giao hàng riêng"}</strong><p>{partnerTab === "integrated" ? "Theo dõi đơn giao, COD và phí vận chuyển trên cùng một màn hình." : "Quản lý đối tác giao hàng do cửa hàng tự vận hành."}</p></div></aside><section className="order-content partner-content">{notice && <Notice text={notice} onClose={() => setNotice("")} />}<nav className="partner-detail-tabs"><button className="active">Thông tin</button><button>Lịch sử giao hàng</button><button>Lịch sử đối soát</button></nav>{table}</section></main> : <main className="product-workspace order-workspace"><aside className="product-filter-sidebar order-sidebar">{config.filters.map(renderFilter)}</aside><section className="product-content order-content">{notice && <Notice text={notice} onClose={() => setNotice("")} />}{table}</section></main>}
     <a className="kv-help" href="tel:0704040044">💬 <span>0704 04 0044</span></a>
-    {showCreate && <CreateDialog mode={mode} products={modalProducts} customers={customers} paidOrders={paidOrders} shippableOrders={shippableOrders} partners={initialPartners} customerId={customerId} note={note} productQuery={productQuery} quantities={quantities} prices={prices} selectedCount={selectedCount} returnOrderId={returnOrderId} partnerForm={partnerForm} shipmentForm={shipmentForm} saving={saving} error={error} onClose={() => setShowCreate(false)} onCustomer={setCustomerId} onNote={setNote} onProductQuery={setProductQuery} onQuantity={(id, value) => setQuantities((current) => ({ ...current, [id]: Math.max(0, Math.trunc(value)) }))} onPrice={(id, value) => setPrices((current) => ({ ...current, [id]: Math.max(0, value) }))} onReturnOrder={setReturnOrderId} onPartnerForm={setPartnerForm} onShipmentForm={setShipmentForm} onSaveDraft={() => saveOrder("draft")} onSavePaid={() => saveOrder("paid")} onSaveReturn={saveReturn} onSavePartner={savePartner} onSaveShipment={saveShipment} />}
+    {showCreate && <CreateDialog mode={mode} products={modalProducts} customers={customers} paidOrders={paidOrders} shippableOrders={shippableOrders} partners={initialPartners} customerId={customerId} note={note} discount={discountInput} productQuery={productQuery} quantities={quantities} prices={prices} selectedCount={selectedCount} returnOrderId={returnOrderId} partnerForm={partnerForm} shipmentForm={shipmentForm} saving={saving} error={error} onClose={() => setShowCreate(false)} onCustomer={setCustomerId} onNote={setNote} onDiscount={setDiscountInput} onProductQuery={setProductQuery} onQuantity={(id, value) => setQuantities((current) => ({ ...current, [id]: Math.max(0, Math.trunc(value)) }))} onPrice={(id, value) => setPrices((current) => ({ ...current, [id]: Math.max(0, value) }))} onReturnOrder={setReturnOrderId} onPartnerForm={setPartnerForm} onShipmentForm={setShipmentForm} onSaveDraft={() => saveOrder("draft")} onSavePaid={() => saveOrder("paid")} onSaveReturn={saveReturn} onSavePartner={savePartner} onSaveShipment={saveShipment} />}
     {showSettings && <SimpleDialog title="Thiết lập danh sách" onClose={() => setShowSettings(false)}><label className="dialog-field">Số dòng mỗi trang<select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}><option value="15">15 dòng</option><option value="30">30 dòng</option><option value="50">50 dòng</option></select></label></SimpleDialog>}
     {showHelp && <SimpleDialog title={`Hướng dẫn ${config.title}`} onClose={() => setShowHelp(false)}><p>Tìm kiếm theo mã hoặc thông tin hiển thị, dùng bộ lọc bên trái và bấm mã chứng từ để xem chi tiết. Các thao tác lưu, trả hàng và vận đơn đều được kiểm tra lại ở máy chủ.</p></SimpleDialog>}
   </div>;
@@ -615,6 +638,7 @@ function CreateDialog(props: {
   partners: DeliveryPartner[];
   customerId: string;
   note: string;
+  discount: string;
   productQuery: string;
   quantities: Record<string, number>;
   prices: Record<string, number>;
@@ -627,6 +651,7 @@ function CreateDialog(props: {
   onClose: () => void;
   onCustomer: (value: string) => void;
   onNote: (value: string) => void;
+  onDiscount: (value: string) => void;
   onProductQuery: (value: string) => void;
   onQuantity: (id: string, value: number) => void;
   onPrice: (id: string, value: number) => void;
@@ -643,7 +668,7 @@ function CreateDialog(props: {
   if (props.mode === "delivery-partners") return <DialogShell title={title} onClose={props.onClose}><form className="order-compact-form" onSubmit={props.onSavePartner}><label>Tên đối tác *<input autoFocus required value={props.partnerForm.name} onChange={(event) => props.onPartnerForm({ ...props.partnerForm, name: event.target.value })} /></label><label>Điện thoại<input value={props.partnerForm.phone} onChange={(event) => props.onPartnerForm({ ...props.partnerForm, phone: event.target.value })} /></label>{props.error && <p className="order-form-error" role="alert">{props.error}</p>}<footer><button type="button" onClick={props.onClose}>Bỏ qua</button><button className="primary" disabled={props.saving}>{props.saving ? "Đang lưu..." : "Lưu"}</button></footer></form></DialogShell>;
   if (props.mode === "returns") return <DialogShell title={title} onClose={props.onClose}><div className="order-compact-form"><label>Hóa đơn *<select autoFocus value={props.returnOrderId} onChange={(event) => props.onReturnOrder(event.target.value)}><option value="">Chọn hóa đơn hoàn thành</option>{props.paidOrders.map((order) => <option key={order.id} value={order.id}>{documentCode("HD", order.order_number)} - {order.customers?.name || "Khách lẻ"} - {money(Number(order.total))}</option>)}</select></label><label>Ghi chú<textarea rows={3} value={props.note} onChange={(event) => props.onNote(event.target.value)} /></label><p className="order-return-note">Hệ thống hiện hỗ trợ trả toàn bộ hóa đơn. Tồn kho và tổng mua của khách sẽ được hoàn lại trong cùng giao dịch.</p>{props.error && <p className="order-form-error" role="alert">{props.error}</p>}<footer><button type="button" onClick={props.onClose}>Bỏ qua</button><button type="button" className="primary" disabled={props.saving || !props.returnOrderId} onClick={props.onSaveReturn}>{props.saving ? "Đang xử lý..." : "Hoàn thành"}</button></footer></div></DialogShell>;
   if (props.mode === "waybills") return <DialogShell title={title} onClose={props.onClose}><form className="order-compact-form shipment-form" onSubmit={props.onSaveShipment}><label>Đơn hàng / hóa đơn *<select required value={props.shipmentForm.order_id} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, order_id: event.target.value })}><option value="">Chọn chứng từ</option>{props.shippableOrders.map((order) => <option key={order.id} value={order.id}>{documentCode(order.status === "paid" ? "HD" : "DH", order.order_number)} - {order.customers?.name || "Khách lẻ"}</option>)}</select></label><label>Đối tác giao hàng<select value={props.shipmentForm.partner_id} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, partner_id: event.target.value })}><option value="">Cửa hàng tự giao</option>{props.partners.filter((partner) => partner.active).map((partner) => <option key={partner.id} value={partner.id}>{partner.name}</option>)}</select></label><label>Người nhận *<input required value={props.shipmentForm.receiver_name} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, receiver_name: event.target.value })} /></label><label>Điện thoại<input value={props.shipmentForm.receiver_phone} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, receiver_phone: event.target.value })} /></label><label>Địa chỉ<input value={props.shipmentForm.address} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, address: event.target.value })} /></label><label>Khu vực<input value={props.shipmentForm.area} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, area: event.target.value })} /></label><label>Thu hộ (COD)<input type="number" min="0" value={props.shipmentForm.cod_amount} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, cod_amount: event.target.value })} /></label><label>Phí giao hàng<input type="number" min="0" value={props.shipmentForm.shipping_fee} onChange={(event) => props.onShipmentForm({ ...props.shipmentForm, shipping_fee: event.target.value })} /></label>{props.error && <p className="order-form-error" role="alert">{props.error}</p>}<footer><button type="button" onClick={props.onClose}>Bỏ qua</button><button className="primary" disabled={props.saving}>{props.saving ? "Đang lưu..." : "Lưu vận đơn"}</button></footer></form></DialogShell>;
-  return <DialogShell title={title} onClose={props.onClose} large><div className="order-form-head"><label>Khách hàng<select value={props.customerId} onChange={(event) => props.onCustomer(event.target.value)}><option value="">Khách lẻ</option>{props.customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} {customer.phone || ""}</option>)}</select></label><label>Ghi chú<input value={props.note} onChange={(event) => props.onNote(event.target.value)} /></label></div><label className="product-query order-product-search"><Search size={18} /><input autoFocus value={props.productQuery} onChange={(event) => props.onProductQuery(event.target.value)} placeholder="Theo mã, tên hàng" /></label><div className="order-lines"><table><thead><tr><th>Mã hàng</th><th>Tên hàng</th><th>Tồn kho</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>{props.products.map((product) => { const quantity = Number(props.quantities[product.id] || 0); const price = Number(props.prices[product.id] || 0); return <tr key={product.id}><td>{product.sku}</td><td>{product.name}</td><td>{product.stock_quantity}</td><td><input type="number" min="0" max={props.mode === "invoices" ? product.stock_quantity : undefined} value={quantity} onChange={(event) => props.onQuantity(product.id, Number(event.target.value))} /></td><td><input type="number" min="0" value={price} onChange={(event) => props.onPrice(product.id, Number(event.target.value))} /></td><td>{money(quantity * price)}</td></tr>})}</tbody></table></div>{props.error && <p className="order-form-error" role="alert">{props.error}</p>}<footer className="order-create-footer"><span>{props.selectedCount} hàng hóa được chọn</span><div><button type="button" onClick={props.onClose}>Bỏ qua</button>{props.mode === "orders" && <button type="button" disabled={props.saving || !props.selectedCount} onClick={props.onSaveDraft}>Lưu tạm</button>}<button type="button" className="primary" disabled={props.saving || !props.selectedCount} onClick={props.onSavePaid}>{props.saving ? "Đang lưu..." : "Hoàn thành"}</button></div></footer></DialogShell>;
+  return <DialogShell title={title} onClose={props.onClose} large><div className="order-form-head"><label>Khách hàng<select value={props.customerId} onChange={(event) => props.onCustomer(event.target.value)}><option value="">Khách lẻ</option>{props.customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} {customer.phone || ""}</option>)}</select></label><label>Ghi chú<input value={props.note} onChange={(event) => props.onNote(event.target.value)} /></label><label>Giảm giá<input type="number" min="0" value={props.discount} onChange={(event) => props.onDiscount(event.target.value)} /></label></div><label className="product-query order-product-search"><Search size={18} /><input autoFocus value={props.productQuery} onChange={(event) => props.onProductQuery(event.target.value)} placeholder="Theo mã, tên hàng" /></label><div className="order-lines"><table><thead><tr><th>Mã hàng</th><th>Tên hàng</th><th>Tồn kho</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>{props.products.map((product) => { const quantity = Number(props.quantities[product.id] || 0); const price = Number(props.prices[product.id] || 0); return <tr key={product.id}><td>{product.sku}</td><td>{product.name}</td><td>{product.stock_quantity}</td><td><input type="number" min="0" max={props.mode === "invoices" ? product.stock_quantity : undefined} value={quantity} onChange={(event) => props.onQuantity(product.id, Number(event.target.value))} /></td><td><input type="number" min="0" value={price} onChange={(event) => props.onPrice(product.id, Number(event.target.value))} /></td><td>{money(quantity * price)}</td></tr>})}</tbody></table></div><div className="order-totals" style={{ display: "flex", gap: 12, justifyContent: "flex-end", padding: "8px 0", fontSize: 13 }}>{(() => { const subtotal = props.products.reduce((sum, product) => sum + Number(props.quantities[product.id] || 0) * Number(props.prices[product.id] || 0), 0); const discount = Math.min(subtotal, Math.max(0, Number(props.discount) || 0)); const payable = Math.max(0, subtotal - discount); return <><span>Tổng tiền hàng: <b>{money(subtotal)}</b></span><span>Giảm giá: <b>{money(discount)}</b></span><span>Khách cần trả: <b>{money(payable)}</b></span></>; })()}</div>{props.error && <p className="order-form-error" role="alert">{props.error}</p>}<footer className="order-create-footer"><span>{props.selectedCount} hàng hóa được chọn</span><div><button type="button" onClick={props.onClose}>Bỏ qua</button>{props.mode === "orders" && <button type="button" disabled={props.saving || !props.selectedCount} onClick={props.onSaveDraft}>Lưu tạm</button>}<button type="button" className="primary" disabled={props.saving || !props.selectedCount} onClick={props.onSavePaid}>{props.saving ? "Đang lưu..." : "Hoàn thành"}</button></div></footer></DialogShell>;
 }
 
 type CreateDialogProps = Parameters<typeof CreateDialog>[0];

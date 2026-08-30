@@ -5,6 +5,18 @@ export async function GET() {
   const { supabase } = await requireProfile();
   const { data, error } = await supabase.from("suppliers").select("id,name,code,phone,email,address,area,ward,group_name,company,tax_code,identity,note,active,created_at,created_by,profiles(full_name)").order("created_at", { ascending: false }).limit(500);
   if (error) return NextResponse.json({ error: "Không thể tải nhà cung cấp." }, { status: 400 });
+  const { data: vouchers } = await supabase.from("purchase_vouchers").select("supplier_id,payable,paid,status");
+  const debtMap = new Map<string, number>();
+  const totalMap = new Map<string, number>();
+  for (const voucher of (vouchers as Array<{ supplier_id: string | null; payable: number | string | null; paid: number | string | null; status: string }> || [])) {
+    const sid = voucher.supplier_id;
+    if (!sid) continue;
+    if (voucher.status === "cancelled") continue;
+    const payable = Number(voucher.payable || 0);
+    const paid = Number(voucher.paid || 0);
+    debtMap.set(sid, (debtMap.get(sid) || 0) + Math.max(0, payable - paid));
+    totalMap.set(sid, (totalMap.get(sid) || 0) + payable);
+  }
   const list = (data || []).map((row) => ({
     id: row.id,
     code: row.code || "",
@@ -22,8 +34,8 @@ export async function GET() {
     active: row.active !== false,
     creator: (row.profiles as { full_name?: string } | null)?.full_name || "",
     createdAt: row.created_at,
-    debt: 0,
-    totalPurchase: 0,
+    debt: debtMap.get(row.id) || 0,
+    totalPurchase: totalMap.get(row.id) || 0,
   }));
   return NextResponse.json({ suppliers: list });
 }

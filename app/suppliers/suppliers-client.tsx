@@ -60,6 +60,7 @@ async function apiError(response: Response) {
 }
 
 function mapSupplier(row: Record<string, unknown>): Supplier {
+  const profiles = row.profiles as { full_name?: string } | null | undefined;
   return {
     id: String(row.id ?? ""),
     code: String(row.code ?? ""),
@@ -69,15 +70,15 @@ function mapSupplier(row: Record<string, unknown>): Supplier {
     address: String(row.address ?? ""),
     area: String(row.area ?? ""),
     ward: String(row.ward ?? ""),
-    group: String(row.group ?? ""),
+    group: String((row.group as string) ?? (row.group_name as string) ?? ""),
     company: String(row.company ?? ""),
-    taxCode: String(row.taxCode ?? ""),
+    taxCode: String((row.taxCode as string) ?? (row.tax_code as string) ?? ""),
     identity: String(row.identity ?? ""),
     note: String(row.note ?? ""),
-    creator: String(row.creator ?? ""),
-    createdAt: String(row.createdAt ?? new Date().toISOString()),
-    debt: Number(row.debt ?? 0),
-    totalPurchase: Number(row.totalPurchase ?? 0),
+    creator: String((row.creator as string) ?? profiles?.full_name ?? ""),
+    createdAt: String((row.createdAt as string) ?? (row.created_at as string) ?? new Date().toISOString()),
+    debt: Number((row.debt as number) ?? 0),
+    totalPurchase: Number((row.totalPurchase as number) ?? (row.total_purchase as number) ?? 0),
     active: row.active !== false,
     favorite: false,
   };
@@ -85,28 +86,8 @@ function mapSupplier(row: Record<string, unknown>): Supplier {
 
 const emptyForm = { name: "", code: "", phone: "", email: "", address: "", area: "", ward: "", group: "", company: "", taxCode: "", identity: "", note: "" };
 
-export default function SuppliersClient({ profile, initialSuppliers, initialProducts }: { profile: Profile; initialSuppliers: Array<{ id: string; name: string; created_at?: string }>; initialProducts: Array<{ id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null }> }) {
-  const seed = useMemo<Supplier[]>(() => initialSuppliers.map((item, index) => ({
-    id: item.id,
-    code: `NCC${String(index + 1).padStart(6, "0")}`,
-    name: item.name,
-    phone: "",
-    email: "",
-    address: "",
-    area: "",
-    ward: "",
-    group: "",
-    company: "",
-    taxCode: "",
-    identity: "",
-    note: "",
-    creator: profile.full_name,
-    createdAt: item.created_at || new Date().toISOString(),
-    debt: 0,
-    totalPurchase: 0,
-    active: true,
-    favorite: false,
-  })), [initialSuppliers, profile.full_name]);
+export default function SuppliersClient({ profile, initialSuppliers, initialProducts }: { profile: Profile; initialSuppliers: Array<Record<string, unknown>>; initialProducts: Array<{ id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null }> }) {
+  const seed = useMemo<Supplier[]>(() => initialSuppliers.map((item) => mapSupplier(item as Record<string, unknown>)), [initialSuppliers]);
   const [items, setItems] = useState<Supplier[]>(seed);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<Notice>(null);

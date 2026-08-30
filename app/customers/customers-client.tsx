@@ -67,7 +67,11 @@ function toRow(customer: SourceCustomer): CustomerRow {
   const completed = orders.filter((order) => order.status === "paid" || order.status === "refunded");
   const grossSales = completed.reduce((sum, order) => sum + Number(order.total), 0);
   const returns = completed.flatMap((order) => order.sales_returns || []).filter((item) => item.status === "completed").reduce((sum, item) => sum + Number(item.refund_amount), 0);
-  const debt = orders.filter((order) => order.status === "paid").flatMap((order) => order.shipments || []).reduce((sum, shipment) => sum + Math.max(0, Number(shipment.cod_amount) - Number(shipment.collected_cod)), 0);
+  const debt = orders
+    .filter((order) => order.status !== "draft" && order.status !== "cancelled")
+    .flatMap((order) => order.shipments || [])
+    .filter((shipment) => shipment.status !== "cancelled")
+    .reduce((sum, shipment) => sum + Math.max(0, Number(shipment.cod_amount) - Number(shipment.collected_cod)), 0);
   const lastTransaction = orders.reduce((latest, order) => order.created_at > latest ? order.created_at : latest, customer.created_at);
   return { ...customer, code: customerCode(customer.customer_number), grossSales, netSales: Number(customer.total_spent ?? grossSales - returns), debt, creatorName: customer.creator?.full_name || "---", groupName: customer.customer_groups?.name || "Chưa có", lastTransaction };
 }
