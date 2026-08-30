@@ -1,0 +1,96 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
+
+function authEmail(username: string) {
+  return `${username.trim().toLowerCase()}@auth.khopiopio.app`;
+}
+
+const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+
+export default function LoginForm({ stats }: { stats: { products: number; customers: number; orders: number; revenue: number } }) {
+  const router = useRouter();
+  const [mode, setMode] = useState<"manager" | "sales">("manager");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    const form = new FormData(event.currentTarget);
+    const username = String(form.get("username") || "");
+    const password = String(form.get("password") || "");
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    );
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email: authEmail(username), password });
+    if (signInError) {
+      setError("Tên đăng nhập hoặc mật khẩu không đúng.");
+      setLoading(false);
+      return;
+    }
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role,active")
+      .eq("id", signInData.user.id)
+      .single();
+    if (profileError || !profile?.active) {
+      await supabase.auth.signOut();
+      setError("Tài khoản chưa được kích hoạt hoặc không có hồ sơ hợp lệ.");
+      setLoading(false);
+      return;
+    }
+    if (mode === "manager" && profile.role !== "manager") {
+      await supabase.auth.signOut();
+      setError("Tài khoản này chỉ có quyền Bán hàng. Hãy chọn Bán hàng để đăng nhập.");
+      setLoading(false);
+      return;
+    }
+    router.push(mode === "manager" ? "/dashboard" : "/sales");
+    router.refresh();
+  }
+
+  return (
+    <main className="auth-page">
+      <section className="auth-panel">
+        <div className="auth-brand"><span className="brand-mark">P</span>PioPio</div>
+        <div className="auth-form-wrap">
+          <p className="auth-kicker">{mode === "manager" ? "QUẢN LÝ CỬA HÀNG" : "MÀN HÌNH BÁN HÀNG"}</p>
+          <h1>Đăng nhập PioPio</h1>
+          <p className="auth-intro">Chọn khu vực làm việc, sau đó nhập tài khoản của bạn.</p>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <label>Tên đăng nhập<input name="username" autoComplete="username" required placeholder="Nhập tên đăng nhập" /></label>
+            <label><span className="password-row"><span>Mật khẩu</span><button type="button" onClick={() => setShowPassword(value => !value)}>{showPassword ? "Ẩn" : "Hiện"}</button></span><input name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required placeholder="Nhập mật khẩu" /></label>
+            <div className="login-mode" role="group" aria-label="Chọn khu vực làm việc">
+              <button type="button" className={mode === "manager" ? "active" : ""} aria-pressed={mode === "manager"} onClick={() => { setMode("manager"); setError(""); }}><span>▦</span><strong>Quản lý</strong><small>Kho, báo cáo, nhân viên</small></button>
+              <button type="button" className={mode === "sales" ? "active" : ""} aria-pressed={mode === "sales"} onClick={() => { setMode("sales"); setError(""); }}><span>▣</span><strong>Bán hàng</strong><small>POS và thanh toán</small></button>
+            </div>
+            {error && <p className="auth-error" role="alert">{error}</p>}
+            <button className="auth-submit" disabled={loading}>{loading ? "Đang đăng nhập..." : `Vào ${mode === "manager" ? "Quản lý" : "Bán hàng"}`}</button>
+          </form>
+          <p className="auth-note">Tài khoản nhân viên do Quản lý cửa hàng cấp. Nếu quên mật khẩu, hãy liên hệ người quản lý để được đặt lại.</p>
+        </div>
+      </section>
+      <section className="auth-visual">
+        <div className="visual-content">
+          <h2>Vận hành cửa hàng đơn giản, kiểm soát dữ liệu chặt chẽ.</h2>
+          <p>Một nơi duy nhất để bán hàng, theo dõi tồn kho và quản lý hiệu suất nhân viên theo đúng quyền được cấp.</p>
+          <div className="preview-card">
+            <div className="preview-head"><strong>Tổng quan hệ thống</strong><span className="live-badge">● Đang hoạt động</span></div>
+            <div className="preview-metrics">
+              <div className="preview-metric"><span>SẢN PHẨM</span><strong>{money(stats.products)}</strong></div>
+              <div className="preview-metric"><span>KHÁCH HÀNG</span><strong>{money(stats.customers)}</strong></div>
+              <div className="preview-metric"><span>DOANH THU THÁNG</span><strong>{money(stats.revenue)}đ</strong></div>
+            </div>
+            <div className="role-chips"><span className="role-chip"><b>Quản lý</b> · toàn quyền</span><span className="role-chip"><b>Bán hàng</b> · POS & đơn hàng</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
