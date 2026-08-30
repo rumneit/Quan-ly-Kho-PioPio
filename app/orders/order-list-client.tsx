@@ -376,6 +376,8 @@ export default function OrderListClient({
   const [deliveryPresence, setDeliveryPresence] = useState<"all" | "yes" | "no">("all");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [codFilter, setCodFilter] = useState<"all" | "yes" | "no">("all");
+  const [areaAnchor, setAreaAnchor] = useState<HTMLElement | null>(null);
+  const [areaSearch, setAreaSearch] = useState("");
   const [visible, setVisible] = useState<Record<string, boolean>>(() => Object.fromEntries(config.columns.map((column) => [column.key, config.visible.includes(column.key)])));
   const [selected, setSelected] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -446,7 +448,15 @@ export default function OrderListClient({
       const hasCod = Number(row.values.cod || 0) > 0;
       if (hasCod !== (codFilter === "yes")) return false;
     }
-    return Object.entries(filters).every(([key, value]) => !value || String(row.values[key] || "") === value);
+    return Object.entries(filters).every(([key, value]) => {
+      if (!value) return true;
+      const cell = String(row.values[key] || "");
+      if (key === "area") {
+        const selected = value.split(",").map((v) => v.trim()).filter(Boolean);
+        return selected.length ? selected.includes(cell) : true;
+      }
+      return cell === value;
+    });
   }).sort((a, b) => {
     const left = a.values[sort.key] ?? "";
     const right = b.values[sort.key] ?? "";
@@ -586,7 +596,15 @@ export default function OrderListClient({
     if (label === "Trạng thái giao hàng") return <section key={label}><h2>{label}</h2>{[["---", "Chưa giao hàng"], ...Object.entries(configs.waybills.statusLabels)].map(([status, text]) => <label className="stock-check" key={status}><input type="checkbox" checked={deliveryStatuses.includes(status)} onChange={() => { setDeliveryStatuses((current) => current.includes(status) ? current.filter((item) => item !== status) : [...current, status]); resetResults(); }} />{text}</label>)}</section>;
     if (label.includes("Trạng thái")) return <section key={label}><h2>{label}</h2>{Object.entries(config.statusLabels).map(([status, text]) => <label className="stock-check" key={status}><input type="checkbox" checked={statuses.includes(status)} onChange={() => toggleStatus(status)} />{text}</label>)}</section>;
     if (label.includes("Khu vực")) {
-      return <section key={label}><h2>{label}</h2><select aria-label={label} value={filters["area"] || ""} onChange={(event) => { setFilters((current) => ({ ...current, area: event.target.value })); resetResults(); }}><option value="">Tất cả khu vực</option>{VN_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}</select></section>;
+      const selectedAreas = (filters["area"] || "").split(",").filter(Boolean);
+      const filteredProvinces = VN_PROVINCES.filter((p) => p.toLowerCase().includes(areaSearch.toLowerCase()));
+      const toggleArea = (province: string) => {
+        const next = selectedAreas.includes(province) ? selectedAreas.filter((v) => v !== province) : [...selectedAreas, province];
+        setFilters((current) => ({ ...current, area: next.join(",") }));
+        resetResults();
+      };
+      const clearArea = () => { setFilters((current) => { const n = { ...current }; delete n["area"]; return n; }); setAreaSearch(""); resetResults(); };
+      return <section key={label}><h2>{label}</h2><button type="button" className="filter-select-button" aria-expanded={!!areaAnchor} onClick={(event) => setAreaAnchor(event.currentTarget)}><span className={selectedAreas.length ? "has-value" : ""}>{selectedAreas.length ? `${selectedAreas.length} tỉnh đã chọn` : `Chọn khu vực`}</span></button><FilterPopover open={!!areaAnchor} anchor={areaAnchor} onClose={() => { setAreaAnchor(null); setAreaSearch(""); }} ariaLabel={label} className="area"><div className="picker-panel"><header><h3>Khu vực giao hàng</h3><span style={{fontSize:"12px", color:"#6b7a8d"}}>{selectedAreas.length} đã chọn</span></header><label className="picker-search"><Search size={14} /><input autoFocus value={areaSearch} onChange={(event) => setAreaSearch(event.target.value)} placeholder="Tìm tỉnh/thành" /></label><div className="picker-list" style={{maxHeight:"280px", overflow:"auto"}}>{filteredProvinces.map((p) => <label key={p} style={{display:"flex", alignItems:"center", gap:"8px", padding:"8px 12px"}}><input type="checkbox" checked={selectedAreas.includes(p)} onChange={() => toggleArea(p)} /><span>{p}</span></label>)}{!filteredProvinces.length && <p style={{padding:"12px", color:"#8a96a7", textAlign:"center"}}>Không tìm thấy</p>}</div><footer style={{display:"flex", justifyContent:"space-between", padding:"10px 12px", borderTop:"1px solid #e6ebf0"}}><button type="button" onClick={clearArea}>Xóa lọc</button><button type="button" className="primary" onClick={() => { setAreaAnchor(null); setAreaSearch(""); }}>Áp dụng</button></footer></div></FilterPopover></section>;
     }
     const key = filterKey(label);
     const options = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
