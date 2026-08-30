@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
-import { Bell, Settings, ShoppingCart } from "lucide-react";
+import { Bell, Settings, ShoppingCart, LogOut, User, Building2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { Profile } from "@/lib/auth";
 
 export type ManagementSection =
@@ -11,13 +13,58 @@ export type ManagementSection =
   | "settings" | "settings-store" | "settings-branches" | "settings-users" | "settings-product-info" | "settings-data";
 
 export default function ManagementHeader({ profile, active }: { profile: Profile; active: ManagementSection }) {
-  const initials = profile.full_name.split(" ").map((item) => item[0]).slice(-2).join("");
+  const initials = profile.full_name.split(" ").map((item) => item[0]).slice(-2).join("").toUpperCase() || "QL";
   const orderActive = ["orders", "invoices", "returns", "delivery-partners", "waybills"].includes(active);
   const reportActive = ["end-of-day-report", "sale-report", "order-report", "product-report", "customer-report", "supplier-report", "sale-channel-report", "financial-report"].includes(active);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false);
+    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") { setNotifOpen(false); setUserOpen(false); } }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDocClick); document.removeEventListener("keydown", onKey); };
+  }, []);
+
   return <>
     <header className="kv-header">
       <Link className="kv-brand" href="/dashboard"><span className="kv-brand-symbol"><i /><i /></span><strong>PioPio</strong></Link>
-      <div className="kv-header-actions"><button className="kv-round" aria-label="Thông báo"><Bell size={20} /></button><Link className="kv-round" aria-label="Cài đặt" href="/settings"><Settings size={20} /></Link><button className="kv-avatar">{initials}</button></div>
+      <div className="kv-header-actions">
+        <div ref={notifRef} style={{position:"relative"}}>
+          <button className="kv-round" aria-label="Thông báo" aria-haspopup="true" aria-expanded={notifOpen} onClick={()=> setNotifOpen(v=>!v)}><Bell size={20} /></button>
+          {notifOpen && <div role="dialog" aria-label="Thông báo" style={{position:"absolute", right:0, top:"42px", width:"320px", background:"#fff", border:"1px solid #e1e3e6", borderRadius:"8px", boxShadow:"0 8px 24px rgba(0,0,0,0.12)", zIndex:80, overflow:"hidden"}}>
+            <div style={{padding:"14px 16px", borderBottom:"1px solid #eef2f4", display:"flex", justifyContent:"space-between", alignItems:"center"}}><strong style={{fontSize:"13px"}}>Thông báo</strong><Link href="/dashboard" onClick={()=>setNotifOpen(false)} style={{fontSize:"11px", color:"#0070f4", textDecoration:"none"}}>Xem tổng quan</Link></div>
+            <div style={{padding:"16px", fontSize:"12px", color:"#525d6a", lineHeight:"1.6"}}>
+              <p style={{margin:"0 0 8px"}}>• Hệ thống đang hoạt động bình thường.</p>
+              <p style={{margin:"0 0 8px"}}>• Kiểm tra <Link href="/products" style={{color:"#0070f4"}}>tồn kho</Link> và <Link href="/invoices" style={{color:"#0070f4"}}>hóa đơn</Link> mới từ dashboard.</p>
+              <p style={{margin:0, color:"#8895a3", fontSize:"11px"}}>Múi giờ: Asia/Ho_Chi_Minh (VN)</p>
+            </div>
+          </div>}
+        </div>
+        <Link className="kv-round" aria-label="Cài đặt" href="/settings"><Settings size={20} /></Link>
+        <div ref={userRef} style={{position:"relative"}}>
+          <button className="kv-avatar" aria-label="Tài khoản" aria-haspopup="true" aria-expanded={userOpen} onClick={()=> setUserOpen(v=>!v)}>{initials}</button>
+          {userOpen && <div role="menu" style={{position:"absolute", right:0, top:"42px", width:"260px", background:"#fff", border:"1px solid #e1e3e6", borderRadius:"8px", boxShadow:"0 8px 24px rgba(0,0,0,0.12)", zIndex:80, overflow:"hidden"}}>
+            <div style={{padding:"16px", borderBottom:"1px solid #eef2f4"}}>
+              <div style={{fontWeight:600, fontSize:"13px"}}>{profile.full_name}</div>
+              <div style={{fontSize:"11px", color:"#667085"}}>@{profile.username} • {profile.role==="manager" ? "Quản lý":"Bán hàng"}</div>
+            </div>
+            <div style={{padding:"8px"}}>
+              <Link href="/settings" role="menuitem" onClick={()=>setUserOpen(false)} style={{display:"flex", alignItems:"center", gap:"8px", padding:"10px", borderRadius:"6px", textDecoration:"none", color:"#344054", fontSize:"12px"}}><User size={16}/> Hồ sơ & Cài đặt</Link>
+              <Link href="/settings-branches" role="menuitem" onClick={()=>setUserOpen(false)} style={{display:"flex", alignItems:"center", gap:"8px", padding:"10px", borderRadius:"6px", textDecoration:"none", color:"#344054", fontSize:"12px"}}><Building2 size={16}/> Chi nhánh</Link>
+              <form action="/auth/signout" method="post" style={{margin:0}}>
+                <button role="menuitem" style={{display:"flex", alignItems:"center", gap:"8px", width:"100%", padding:"10px", border:0, background:"transparent", color:"#c53434", fontSize:"12px", textAlign:"left", cursor:"pointer"}}><LogOut size={16}/> Đăng xuất</button>
+              </form>
+            </div>
+          </div>}
+        </div>
+      </div>
     </header>
     <nav className="kv-horizontal-nav" aria-label="Menu quản lý"><div className="kv-horizontal-items">
       <Link className={`kv-top-item ${active === "dashboard" ? "active" : ""}`} href="/dashboard">Tổng quan</Link>
