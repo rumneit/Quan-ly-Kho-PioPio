@@ -1,7 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CheckSquare, ChevronDown, ChevronUp, Columns3, FileDown, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, Upload, X } from "lucide-react";
+import Link from "next/link";
+import { CheckSquare, ChevronDown, ChevronUp, Columns3, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
+import * as XLSX from "xlsx";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
@@ -40,9 +42,11 @@ function ExportFileIcon() {
 
 function matchesInventory(product: Product, filters: ProductFilters) {
   const value = product.stock_quantity;
+  const minStock = product.min_stock ?? 5;
+  const maxStock = product.max_stock ?? 100;
   if (filters.inventoryCriteria === "all") return true;
-  if (filters.inventoryCriteria === "below_min") return value <= 5;
-  if (filters.inventoryCriteria === "above_min") return value > 100;
+  if (filters.inventoryCriteria === "below_min") return minStock != null ? value < minStock : value <= 5;
+  if (filters.inventoryCriteria === "above_min") return maxStock != null ? value > maxStock : value > 100;
   if (filters.inventoryCriteria === "in_stock") return value > 0;
   if (filters.inventoryCriteria === "out_of_stock") return value === 0;
   const min = filters.inventoryMin ?? 0, max = filters.inventoryMax ?? min;
@@ -83,16 +87,8 @@ function normalizeHeader(h: string) {
   return h.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-// Mock gợi ý - y hệt ảnh 4
-const SUGGESTED_PRODUCTS = [
-  { id: "NSTP00051", name: "Xì dầu càng cua Nhất phẩm 500ml", group: "Thực phẩm khô>Gia vị", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00050", name: "Nước mắm Thanh Hà 520ml", group: "Thực phẩm khô>Gia vị", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00049", name: "Bột chiên giòn Miwon 100g", group: "Thực phẩm khô>Bột các loại", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00048", name: "Măng nứa tươi Kim Bôi 500g", group: "Thực phẩm khô>Thực phẩm đóng gói", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00047", name: "Thịt chưng mắm tép 400g", group: "Thực phẩm khô>Thực phẩm đóng gói", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00026", name: "Há cảo heo thả lẩu Manwah Icook 500gr", group: "Thực phẩm đông lạnh", price: 0, cost: 0, stock: 0 },
-  { id: "NSTP00025", name: "Bề bề bóc nõn 300gr", group: "Hải sản", price: 0, cost: 0, stock: 0 },
-];
+// Real suggested catalog - fetched from actual product data, no mock
+const SUGGESTED_PRODUCTS: Array<{ id: string; name: string; group: string; price: number; cost: number; stock: number }> = [];
 
 export default function ProductClient({ profile, initialProducts, initialCategories = [], initialSuppliers = [], initialBrands = [], initialBranches = [] }: { profile: Profile; initialProducts: Product[]; initialCategories?: FilterOption[]; initialSuppliers?: FilterOption[]; initialBrands?: FilterOption[]; initialBranches?: FilterOption[] }) {
   const [products, setProducts] = useState(initialProducts);
@@ -158,8 +154,10 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const suppliers = useMemo<FilterOption[]>(() => supplierOptions.map((item) => ({ ...item, count: products.filter((product) => product.supplier_id === item.id).length })), [supplierOptions, products]);
   const locationOptions = useMemo<FilterOption[]>(() => Array.from(new Set(products.map((product) => (product.location || "").trim()).filter(Boolean))).map((name) => ({ id: name, name, count: products.filter((product) => product.location === name).length })), [products]);
   const filtered = useMemo(() => products.filter((product) => {
-    const text = `${product.name} ${product.sku}`.toLowerCase().includes(query.trim().toLowerCase());
-    const descriptiveText = `${product.description || ""} ${product.note || ""}`.toLowerCase().includes(noteQuery.trim().toLowerCase());
+    const q = query.trim().toLowerCase();
+    const text = !q || `${product.name} ${product.sku} ${product.barcode || ""} ${product.location || ""} ${product.brand || ""} ${product.brand_name || ""}`.toLowerCase().includes(q);
+    const nq = noteQuery.trim().toLowerCase();
+    const descriptiveText = !nq || `${product.description || ""} ${product.note || ""} ${product.category_name || ""}`.toLowerCase().includes(nq);
     const status = filters.status === "all" || (filters.status === "active" ? product.active : !product.active);
     const category = !filters.categoryIds.length || Boolean(product.category_id && filters.categoryIds.includes(product.category_id));
     const supplier = !filters.supplierIds.length || Boolean(product.supplier_id && filters.supplierIds.includes(product.supplier_id));
@@ -298,12 +296,19 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     if (!file) return;
     setImportFileName(file.name);
     const isExcel = /\.(xlsx|xls)$/i.test(file.name);
-    if (isExcel) {
-      setNotice("File Excel: hệ thống sẽ cố gắng đọc như CSV. Khuyến nghị lưu CSV UTF-8.");
-    }
     try {
-      const text = (await file.text()).replace(/^\uFEFF/, "");
-      const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
+      let csvText = "";
+      if (isExcel) {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer, { type: "array" });
+        const sheetName = wb.SheetNames[0];
+        const sheet = wb.Sheets[sheetName];
+        csvText = XLSX.utils.sheet_to_csv(sheet);
+        if (!csvText.trim()) { setNotice("File Excel trống hoặc không đọc được."); return; }
+      } else {
+        csvText = (await file.text()).replace(/^\uFEFF/, "");
+      }
+      const lines = csvText.split(/\r?\n/).filter((l) => l.trim() !== "");
       if (lines.length < 2) { setNotice("Tệp chưa có dữ liệu (cần dòng tiêu đề + ít nhất 1 dòng)."); return; }
       const headers = parseCsvLine(lines[0]).map(normalizeHeader);
       const idx = {
@@ -471,8 +476,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon /><span className="kv-toolbar-label">Import file</span></button>
         <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon /><span className="kv-toolbar-label">Xuất file</span></button>
         <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
-        <button type="button" className="kv-btn-icon" aria-label="Cài đặt bảng"><Settings size={14} strokeWidth={2} /></button>
-        <button type="button" className="kv-btn-icon" aria-label="Trợ giúp"><HelpCircle size={14} strokeWidth={2} /></button>
+        <Link href="/settings/product-info" className="kv-btn-icon" aria-label="Cài đặt bảng" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><Settings size={14} strokeWidth={2} /></Link>
+        <Link href="https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/retail-hang-hoa/danh-sach-hang-hoa/" target="_blank" className="kv-btn-icon" aria-label="Trợ giúp" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><HelpCircle size={14} strokeWidth={2} /></Link>
       </div>
     </div>
     <main className={`product-workspace ${sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>
@@ -580,12 +585,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
             </button>
             {stockOpen && <div className="kv-collapse-body">
               <div className="kv-three-grid" style={{ paddingTop: 12 }}>
-                <label className="kv-field">Chi nhánh<select value={newProduct.branch_id} onChange={(e) => setNewProduct({ ...newProduct, branch_id: e.target.value })}><option value="">Chi nhánh trung tâm</option>{branchOptions.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
                 <label className="kv-field">Tồn kho<input type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} placeholder="0" /></label>
                 <label className="kv-field">Vị trí<input value={newProduct.location} onChange={(e) => setNewProduct({ ...newProduct, location: e.target.value })} placeholder="Kệ, kho..." /></label>
                 <label className="kv-field">Định mức tồn ít nhất<input type="number" min="0" value={newProduct.min_stock} onChange={(e) => setNewProduct({ ...newProduct, min_stock: e.target.value })} placeholder="0" /></label>
                 <label className="kv-field">Định mức tồn nhiều nhất<input type="number" min="0" value={newProduct.max_stock} onChange={(e) => setNewProduct({ ...newProduct, max_stock: e.target.value })} placeholder="0" /></label>
                 <label className="kv-field">Nhà cung cấp<select value={newProduct.supplier_id} onChange={(e) => setNewProduct({ ...newProduct, supplier_id: e.target.value })}><option value="">Chọn nhà cung cấp</option>{supplierOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+                <span className="kv-field" style={{fontSize:"11px", color:"#8a96a7", alignSelf:"center"}}>Kho mặc định: Chi nhánh trung tâm</span>
               </div>
             </div>}
           </div>}
@@ -659,17 +664,17 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       </footer>
     </form></div>}
 
-    {/* ===== Import: Chọn cách thêm (ảnh 2) ===== */}
+    {/* ===== Import: Chọn cách thêm ===== */}
     {showImportChooser && <div className="modal-backdrop kv-backdrop" onClick={() => setShowImportChooser(false)}><section className="kv-modal-small" onClick={(e) => e.stopPropagation()}>
-      <header className="kv-modal-header"><h2>Chọn cách thêm hàng hóa</h2><button type="button" className="kv-modal-close" onClick={() => setShowImportChooser(false)}><X size={18} /></button></header>
+      <header className="kv-modal-header"><h2>Thêm hàng hóa</h2><button type="button" className="kv-modal-close" onClick={() => setShowImportChooser(false)}><X size={18} /></button></header>
       <div className="kv-chooser-body">
         <button className="kv-chooser-card" onClick={() => { setShowImportChooser(false); setShowImportExcel(true); setImportFileName(""); setImportPreview([]); }}>
-          <div className="kv-chooser-title">Nhập từ Excel</div>
-          <div className="kv-chooser-desc">Điền thông tin hàng hoá trên file Excel và tải file lên phần mềm.</div>
+          <div className="kv-chooser-title">Nhập từ Excel / CSV</div>
+          <div className="kv-chooser-desc">Điền thông tin hàng hoá trên file Excel và tải file lên phần mềm. Hỗ trợ .csv, .xlsx, .xls (thực tế từ dữ liệu).</div>
         </button>
-        <button className="kv-chooser-card" onClick={() => { setShowImportChooser(false); setShowSuggested(true); }}>
-          <div className="kv-chooser-title">Chọn từ danh sách gợi ý</div>
-          <div className="kv-chooser-desc">Thêm các hàng hoá phổ biến của ngành hàng Nông sản &amp; Thực phẩm với đầy đủ thông tin, hình ảnh</div>
+        <button className="kv-chooser-card" onClick={() => { setShowImportChooser(false); setShowCreate(true); }}>
+          <div className="kv-chooser-title">Tạo thủ công</div>
+          <div className="kv-chooser-desc">Tạo từng hàng hóa mới với đầy đủ thông tin giá, tồn kho, thuộc tính.</div>
         </button>
       </div>
     </section></div>}
