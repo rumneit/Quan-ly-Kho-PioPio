@@ -339,3 +339,38 @@
 .pos-global-search { background: #fff !important; width: 352px !important; height: 29px !important; border-radius: 4.48px !important; }
 .pos-customer-search { background: #f0f1f3 !important; width: 100% !important; height: 29px !important; border-radius: 4.48px !important; }
 .pos-customer-search input { background: transparent !important; font-size: 12.544px !important; }
+/* ---------- DELIVERY FORM EXTENDED (KiotViet fields) ---------- */
+.pos-textarea {
+  width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid #d0d7de;
+  border-radius: 6px; background: #fff; font-size: 12.544px; resize: vertical;
+  font-family: Roboto, Arial, sans-serif; color: #26323e;
+}
+.pos-textarea:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
+.pos-textarea::placeholder { color: #8a96a7; }
+.pos-select {
+  width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d0d7de;
+  border-radius: 6px; background: #fff; font-size: 12.544px; color: #26323e;
+  appearance: auto; cursor: pointer;
+}
+.pos-select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
+.pos-select:disabled { opacity: .5; cursor: not-allowed; }
+.pos-form-row input, .pos-form-row select, .pos-delivery-form > input, .pos-delivery-form > select {
+  height: 34px; padding: 0 10px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
+  font-size: 12.544px; width: 100%; font-family: Roboto, Arial, sans-serif; color: #26323e;
+}
+.pos-form-row input:focus, .pos-form-row select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
+.pos-form-row input::placeholder { color: #8a96a7; }
+.pos-pack-input {
+  height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px;
+  background: #fff; font-size: 12.544px; color: #26323e; text-align: center; width: 56px;
+}
+.pos-pack-input:focus { border-color: #0070f4; outline: 0; }
+.pos-dim-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.pos-dim-row span { font-size: 12.544px; color: #6b7a8d; }
+.pos-pack-row span { font-size: 12.544px; color: #6b7a8d; }
+.pos-pack-row b { min-width: 28px; text-align: center; font-size: 12.544px; }
+.pos-pack-row button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border: 1px solid #d0d7de; border-radius: 6px;
+  background: #fff; color: #3e464f; cursor: pointer;
+}
