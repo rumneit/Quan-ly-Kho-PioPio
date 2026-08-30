@@ -262,3 +262,31 @@
   .pos-delivery-fields { grid-template-columns: 1fr; }
   .icon-list.header-nav { display: none; }
 }
+/* ---------- LEFT CART FOOTER (totals) ---------- */
+.cart-footer { padding: 8px 14px; border-top: 1px solid #eef1f4; background: #fff; }
+.cart-footer p { display: flex; align-items: center; justify-content: space-between; margin: 0; padding: 4px 0; font-size: 12.544px; color: #3e464f; }
+.cart-footer p.strong { border-top: 1px dashed #dfe4ea; margin-top: 4px; padding-top: 8px; font-weight: 700; color: #15171a; }
+.cart-footer p span { color: #6b7a8d; }
+.cart-footer p b { color: #15171a; }
+.cart-footer p.strong b { font-size: 14.336px; }
+
+/* ---------- DELIVERY FORM (Bán giao hàng) ---------- */
+.pos-delivery-form { display: grid; gap: 8px; margin-bottom: 8px; }
+.pos-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pos-form-row.full { grid-template-columns: 1fr; }
+.pos-form-row input, .pos-delivery-form > input { height: 34px; padding: 0 10px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff; font-size: 12.544px; }
+.pos-form-row input:focus, .pos-delivery-form > input:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
+
+/* ---------- PRODUCT LIST (Bán thường) ---------- */
+.pos-product-list { border: 1px solid #e3e7ec; border-radius: 8px; background: #fff; overflow: hidden; }
+.pos-product-list-head { padding: 8px 12px; border-bottom: 1px solid #eef1f4; color: #6b7a8d; font-size: 12.544px; }
+.pos-product-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 9px 12px; border: 0; border-bottom: 1px solid #f0f2f5; background: #fff; text-align: left; cursor: pointer; }
+.pos-product-row:hover { background: #f2f8ff; }
+.pos-product-name { display: flex; flex-direction: column; min-width: 0; font-size: 12.544px; color: #2e3541; }
+.pos-product-name small { font-size: 11px; color: #8a96a7; }
+.pos-product-row b { flex: 0 0 auto; font-size: 12.544px; color: #0070f4; font-weight: 600; }
+.pos-product-list p.pos-customer-empty { padding: 14px; text-align: center; color: #8a96a7; font-size: 12.544px; }
+
+/* col-left flex column so cart-footer sits below list */
+.col-left { display: flex; flex-direction: column; }
+.cart-container { flex: 1; min-height: 0; overflow: hidden; }

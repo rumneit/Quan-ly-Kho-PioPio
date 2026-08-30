@@ -124,8 +124,13 @@ export default function SalesClient({ profile, products, customers }: Props) {
         <div className="cart-container">
           <div className="pos-cart-list">
             <div className="pos-cart-head"><span>{lines.length} hàng hóa</span><button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
-            {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}</small></div><div className="pos-cart-right"><b>{money(Number(line.price) * line.quantity)}</b><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>Nhập tên hàng vào ô tìm kiếm phía trên để thêm vào đơn.</p></div>}
+            {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}</small></div><div className="pos-cart-right"><b>{money(Number(line.price) * line.quantity)}</b><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>{isDelivery ? "Điền thông tin giao hàng bên phải." : "Bấm vào sản phẩm bên phải để thêm vào đơn."}</p></div>}
           </div>
+        </div>
+        <div className="cart-footer">
+          <p><span>Tổng tiền hàng</span><b>{money(total)}</b></p>
+          <p><span>Giảm giá</span><b>0</b></p>
+          <p className="strong"><span>Khách cần trả</span><b>{money(total)}</b></p>
         </div>
       </div>
       <div className="col-right">
@@ -139,9 +144,27 @@ export default function SalesClient({ profile, products, customers }: Props) {
                 <label className="pos-customer-search"><Search size={14} /><input ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
                 {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
                 {customerListOpen && <div className="pos-customer-list">{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">Không tìm thấy khách hàng</p>}</div>}
-                {isDelivery && <div className="pos-delivery-fields"><input placeholder="Người nhận *" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại *" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /><input placeholder="Địa chỉ" value={address} onChange={e => setAddress(e.target.value)} /><input placeholder="Khu vực" value={area} onChange={e => setArea(e.target.value)} /><div className="pos-pack-row"><span>Số kiện</span><button onClick={() => setPackCount(Math.max(1, packCount - 1))}><Minus size={12} /></button><b>{packCount}</b><button onClick={() => setPackCount(packCount + 1)}><Plus size={12} /></button></div></div>}
-                <div className="pos-totals"><p><span>Tổng tiền hàng</span><b>{money(total)}</b></p><p><span>Giảm giá</span><b>0</b></p><p className="strong"><span>Khách cần trả</span><b>{money(total)}</b></p></div>
-                <div className="pos-cod"><strong>Thu hộ tiền (COD)</strong><b>{money(total)}</b></div>
+
+                {isDelivery ? (
+                  <div className="pos-delivery-form">
+                    <div className="pos-form-row"><input placeholder="Tên người nhận" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /></div>
+                    <div className="pos-form-row full"><input placeholder="Khu vực" value={area} onChange={e => setArea(e.target.value)} /></div>
+                    <div className="pos-form-row full"><input placeholder="Phường/Xã" value={address} onChange={e => setAddress(e.target.value)} /></div>
+                    <div className="pos-pack-row"><span>Số kiện</span><button onClick={() => setPackCount(Math.max(1, packCount - 1))}><Minus size={12} /></button><b>{packCount}</b><button onClick={() => setPackCount(packCount + 1)}><Plus size={12} /></button><span>gram · cm</span></div>
+                  </div>
+                ) : (
+                  <div className="pos-product-list">
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span></div>
+                    {products.slice(0, 40).map(product => (
+                      <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
+                        <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
+                        <b>{money(Number(product.price))}</b>
+                      </button>
+                    ))}
+                    {!products.length && <p className="pos-customer-empty">Chưa có hàng hóa</p>}
+                  </div>
+                )}
+
                 {error && <p className="pos-error">{error}</p>}{notice && <p className="pos-success">{notice}</p>}
               </div>
             </div>
