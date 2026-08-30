@@ -6,7 +6,6 @@ import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
-import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 import "../suppliers.css";
 
 type Supplier = {
@@ -387,8 +386,8 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
             <label className="supplier-field"><span>Điện thoại</span><input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Số điện thoại" /></label>
             <label className="supplier-field"><span>Email</span><input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="email@gmail.com" /></label>
             <label className="supplier-field wide"><span>Địa chỉ</span><input value={form.address} onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))} placeholder="Nhập địa chỉ" /></label>
-            <label className="supplier-field"><span>Khu vực</span><select value={form.area} onChange={(event) => { const area = event.target.value; setForm((current) => ({ ...current, area, ward: "" })); }}><option value="">Chọn Tỉnh/Thành phố</option>{VN_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
-            <label className="supplier-field"><span>Phường/Xã</span><select value={form.ward} onChange={(event) => setForm((current) => ({ ...current, ward: event.target.value }))}><option value="">Chọn Phường/Xã</option>{getWardsForProvince(form.area).map((w) => <option key={w} value={w}>{w}</option>)}{!getWardsForProvince(form.area).length && form.area && <option value={form.ward || ""}>{form.ward || "Nhập tay"}</option>}</select></label>
+            <label className="supplier-field"><span>Khu vực</span><select value={form.area} onChange={(event) => setForm((current) => ({ ...current, area: event.target.value }))}><option value="">Chọn Tỉnh/Thành phố</option></select></label>
+            <label className="supplier-field"><span>Phường/Xã</span><select value={form.ward} onChange={(event) => setForm((current) => ({ ...current, ward: event.target.value }))}><option value="">Chọn Phường/Xã</option></select></label>
           </div>
         </section>
         <section className="supplier-section"><h3>Nhóm nhà cung cấp, ghi chú</h3>

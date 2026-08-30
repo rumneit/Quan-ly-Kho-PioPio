@@ -10,7 +10,7 @@ import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 type Status = "draft" | "completed" | "cancelled";
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Voucher = { id: string; code: string; status: Status; purpose: string; receiver: string; note: string; totalValue: number; branch: string; time: string; creator: string; favorite: boolean };
-type ColumnKey = "code" | "purpose" | "totalValue" | "time" | "note" | "status";
+type ColumnKey = "code" | "purpose" | "totalValue" | "time" | "branch" | "note" | "status";
 type Modal = "settings" | "help" | null;
 type Notice = { kind: "success" | "error"; text: string } | null;
 
@@ -20,6 +20,7 @@ const columns: Array<{ key: ColumnKey; label: string }> = [
   { key: "purpose", label: "Loại xuất" },
   { key: "totalValue", label: "Tổng giá trị" },
   { key: "time", label: "Thời gian" },
+  { key: "branch", label: "Chi nhánh" },
   { key: "note", label: "Ghi chú" },
   { key: "status", label: "Trạng thái" },
 ];
@@ -152,8 +153,8 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   }
 
   function exportExcel() {
-    const headers = ["Mã xuất dùng nội bộ", "Loại xuất", "Tổng giá trị", "Thời gian", "Ghi chú", "Trạng thái"];
-    const data = filtered.map((item) => [item.code, item.purpose, item.totalValue, dateTime(item.time), item.note, statusLabel[item.status]]);
+    const headers = ["Mã xuất dùng nội bộ", "Loại xuất", "Tổng giá trị", "Thời gian", "Chi nhánh", "Ghi chú", "Trạng thái"];
+    const data = filtered.map((item) => [item.code, item.purpose, item.totalValue, dateTime(item.time), item.branch, item.note, statusLabel[item.status]]);
     const sheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "XuatDungNoiBo");
@@ -292,7 +293,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
                   <tr className="internal-filter-row">
                     <th /><th />
                     <th><label><Search /><input aria-label="Lọc mã xuất dùng nội bộ" value={codeQuery} onChange={(event) => { setCodeQuery(event.target.value); setPage(1); }} placeholder="Mã phiếu" /></label></th>
-                    <th /><th /><th />
+                    <th /><th /><th /><th />
                     <th><label><Search /><input aria-label="Lọc ghi chú" value={noteQuery} onChange={(event) => { setNoteQuery(event.target.value); setPage(1); }} placeholder="Ghi chú" /></label></th>
                     <th />
                   </tr>
@@ -306,6 +307,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
                       <td>{item.purpose || "—"}</td>
                       <td className="number-cell">{money(item.totalValue)}</td>
                       <td>{dateTime(item.time)}</td>
+                      <td>{item.branch}</td>
                       <td>{item.note || "—"}</td>
                       <td><span className={`stock-status ${item.status === "draft" ? "draft" : item.status === "completed" ? "balanced" : "cancelled"}`}>{statusLabel[item.status]}</span></td>
                     </tr>
