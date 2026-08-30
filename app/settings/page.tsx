@@ -17,8 +17,8 @@ export default async function SettingsOverview() {
         </article>
         <article>
           <h4>Chi nhánh</h4>
-          <strong>{branches.length}</strong>
-          <p>{branches.filter((b) => b.isDefault)[0]?.name || "—"} (mặc định)</p>
+          <strong>1</strong>
+          <p>{branches.filter((b) => b.isDefault)[0]?.name || "Chi nhánh trung tâm"} (mặc định)</p>
         </article>
         <article>
           <h4>Người dùng</h4>
@@ -30,7 +30,6 @@ export default async function SettingsOverview() {
         <h3>Quản lý nhanh</h3>
         <ul>
           <li><Link href="/settings/store-info">Thông tin cửa hàng</Link></li>
-          <li><Link href="/settings/branches">Quản lý chi nhánh ({branches.length})</Link></li>
           <li><Link href="/settings/users">Quản lý người dùng ({users.length})</Link></li>
           <li><Link href="/settings/product-info">Thông tin hàng hóa</Link></li>
           <li><Link href="/settings/data" className="danger">Xóa dữ liệu</Link></li>

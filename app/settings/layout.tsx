@@ -15,7 +15,7 @@ export default async function SettingsLayout({ children }: { children: ReactNode
   const sidebarHeader = (
     <div className="settings-sidebar-header">
       <h2>Cài đặt</h2>
-      <p>{store.name} · {branchCount} chi nhánh · {userCount} người dùng</p>
+      <p>{store.name} · 1 chi nhánh · {userCount} người dùng</p>
     </div>
   );
 
