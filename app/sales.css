@@ -274,7 +274,7 @@
 .pos-delivery-form { display: grid !important; gap: 8px !important; margin-bottom: 8px !important; }
 .pos-form-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 .pos-form-row.full { grid-template-columns: 1fr !important; }
-.pos-form-row input, .pos-delivery-form > input { height: 34px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; }
+.pos-form-row input, .pos-delivery-form > input { height: 29px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; }
 .pos-form-row input:focus, .pos-delivery-form > input:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
 
 /* ---------- PRODUCT LIST (Bán thường) ---------- */
@@ -320,7 +320,7 @@
 .pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: Roboto, 'Helvetica Neue', Arial, sans-serif !important; }
 .pos-global-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
-.pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 34px !important; font-size: 12.544px !important; }
+.pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 29px !important; font-size: 12.544px !important; }
 .pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
 /* Bán thường: left 704 + right 559 (product list, transparent) */
