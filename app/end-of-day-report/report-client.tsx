@@ -24,13 +24,12 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
   const [display, setDisplay] = useState("Hiển thị dọc");
   const [interest, setInterest] = useState("Bán hàng");
   const [status, setStatus] = useState("paid");
-  const [branchId, setBranchId] = useState("all");
   const [seller, setSeller] = useState("all");
   const [creator, setCreator] = useState("all");
   const [payment, setPayment] = useState("all");
   const [saleMethod, setSaleMethod] = useState("all");
 
-  const rows = useMemo(() => orders.filter((order) => toVnDateKey(order.created_at) === selectedDate && (status === "all" || order.status === status) && (branchId === "all" || order.branch_id === branchId) && (seller === "all" || order.created_by === seller) && (creator === "all" || order.created_by === creator) && (payment === "all" || (order.payment_method || "cash") === payment) && (saleMethod === "all" || (order.channel || "direct") === saleMethod)), [orders, selectedDate, status, branchId, seller, creator, payment, saleMethod]);
+  const rows = useMemo(() => orders.filter((order) => toVnDateKey(order.created_at) === selectedDate && (status === "all" || order.status === status) && (seller === "all" || order.created_by === seller) && (creator === "all" || order.created_by === creator) && (payment === "all" || (order.payment_method || "cash") === payment) && (saleMethod === "all" || (order.channel || "direct") === saleMethod)), [orders, selectedDate, status, seller, creator, payment, saleMethod]);
   const cashRows = useMemo(() => vouchers.filter((voucher) => toVnDateKey(voucher.occurred_at) === selectedDate), [vouchers, selectedDate]);
   const paid = rows.filter((row) => row.status === "paid");
   const revenue = paid.reduce((sum, row) => sum + Number(row.total), 0);
@@ -50,7 +49,6 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
   }
 
   const selected = new Date(`${selectedDate}T12:00:00`);
-  const branchName = branchId === "all" ? (branches.find(b=>b.is_default)?.name || branches[0]?.name || "Tất cả chi nhánh") : (branches.find(b=>b.id===branchId)?.name || "---");
 
   return (
     <div className={`kv-shell product-page business-page report-page ${display === "Hiển thị ngang" ? "landscape" : ""}`}>
@@ -66,7 +64,6 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
           <section><h2>Mối quan tâm</h2>{["Bán hàng", "Thu chi", "Hàng hóa"].map((value) => <label className="stock-radio" key={value}><input type="radio" name="report-interest" checked={interest === value} onChange={() => setInterest(value)} /><span>{value}</span></label>)}</section>
           <section><h2>Thời gian</h2><label className="report-date"><input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /><CalendarDays size={17} /></label></section>
           <section><h2>Trạng thái</h2><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="paid">Đã thanh toán</option><option value="draft">Phiếu tạm</option><option value="cancelled">Đã hủy</option><option value="all">Tất cả</option></select></section>
-          <section><h2>Chi nhánh</h2><select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map(b=> <option key={b.id} value={b.id}>{b.name}</option>)}</select></section>
           <section><h2>Nhân viên</h2><select value={seller} onChange={(event) => setSeller(event.target.value)}><option value="all">Tất cả nhân viên</option>{sellers.map(s=> <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></section>
           <section><h2>Người tạo</h2><select value={creator} onChange={(event) => setCreator(event.target.value)}><option value="all">Tất cả người tạo</option>{sellers.map(s=> <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></section>
           <section><h2>Phương thức thanh toán</h2><select value={payment} onChange={(event) => setPayment(event.target.value)}><option value="all">Tất cả phương thức</option><option value="cash">Tiền mặt</option><option value="bank">Chuyển khoản</option><option value="card">Thẻ</option></select></section>
@@ -76,7 +73,7 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
           {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 bản ghi. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
           <div className="report-sheet">
             <header><div><h2>Báo cáo cuối ngày về {interest.toLowerCase()}</h2><p>Ngày lập: {date(new Date())}</p></div><strong>PioPio</strong></header>
-            <div className="report-meta"><p>Ngày bán: <b>{date(selected)}</b></p><p>Chi nhánh: <b>{branchName}</b></p><p>Ngày thanh toán: <b>{date(selected)}</b></p></div>
+            <div className="report-meta"><p>Ngày bán: <b>{date(selected)}</b></p><p>Ngày thanh toán: <b>{date(selected)}</b></p></div>
             {interest === "Thu chi" ? (
               <>
                 <div className="report-kpis"><article><span>Tổng thu</span><b className="cash-income">{money(totalIn)}</b></article><article><span>Tổng chi</span><b className="cash-expense">{money(totalOut)}</b></article><article><span>Tồn quỹ</span><b>{money(totalIn - totalOut)}</b></article><article><span>Số phiếu</span><b>{cashRows.length}</b></article></div>
@@ -92,7 +89,7 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
                 <table>
                   <thead><tr><th>Mã giao dịch</th><th>Thời gian</th><th>SL</th><th>Doanh thu</th><th>Thực thu</th><th>Giảm giá</th><th>Trạng thái</th></tr></thead>
                   <tbody>{rows.map((row) => <tr key={row.id}><td>HD{String(row.order_number).padStart(6, "0")}</td><td>{dateTime(row.created_at)}</td><td>{qty(row)}</td><td>{money(Number(row.subtotal))}</td><td>{row.status === "paid" ? money(Number(row.total)) : "0"}</td><td>{money(Number(row.discount))}</td><td>{row.status === "paid" ? "Đã thanh toán" : row.status === "draft" ? "Phiếu tạm" : "Đã hủy"}</td></tr>)}{!rows.length && <tr><td colSpan={7}><div className="report-empty">Báo cáo không có dữ liệu</div></td></tr>}</tbody>
-                  <tfoot><tr><th colSpan={2}>{branchName}:</th><th>{totalQty}</th><th>{money(gross)}</th><th>{money(revenue)}</th><th>{money(discount)}</th><th /></tr></tfoot>
+                  <tfoot><tr><th colSpan={2}>Tổng:</th><th>{totalQty}</th><th>{money(gross)}</th><th>{money(revenue)}</th><th>{money(discount)}</th><th /></tr></tfoot>
                 </table>
               </>
             )}

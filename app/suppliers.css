@@ -29,8 +29,11 @@
 .suppliers-sidebar .stock-radio svg{width:15px;height:15px;color:var(--sp-muted)}
 .suppliers-sidebar select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;color:#44515f;font-size:13px!important;outline:0}
 .suppliers-sidebar select:focus{border-color:var(--sp-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.supplier-range{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.supplier-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;color:#2e3541;outline:0}
+.supplier-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;min-width:0}
+.supplier-range input{height:32px;min-width:0;width:100%;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;color:#2e3541;outline:0;box-sizing:border-box}
+.supplier-range input::placeholder{color:#8a96a7;opacity:1}
+.suppliers-sidebar>section{overflow:hidden;min-width:0}
+.suppliers-sidebar h2, .suppliers-sidebar .filter-caption{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .supplier-range input:focus{border-color:var(--sp-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
 .supplier-date-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
 .supplier-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;color:#2e3541;outline:0}

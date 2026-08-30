@@ -71,7 +71,6 @@ export default function SalesReportClient({ profile, orders, branches, sellers, 
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [priceBook, setPriceBook] = useState("all");
-  const [branchId, setBranchId] = useState("all");
   const [saleMethod, setSaleMethod] = useState("all");
   const [channel, setChannel] = useState("all");
   const [seller, setSeller] = useState("all");
@@ -112,15 +111,14 @@ export default function SalesReportClient({ profile, orders, branches, sellers, 
       const customOk =
         range !== "Tùy chỉnh" ||
         ((!from || key >= from) && (!to || key <= to));
-      const branchOk = branchId === "all" || order.branch_id === branchId;
       const sellerOk = seller === "all" || order.created_by === seller;
       const channelOk = channel === "all" || (order.channel || "direct") === channel;
       const saleMethodOk = saleMethod === "all" || (order.channel || "direct") === saleMethod;
       // priceBook and vat are display-only; keep filter pass but noted as not filtering data (P0: avoid fake filtering)
       void priceBook; void vat;
-      return inRange && customOk && branchOk && sellerOk && channelOk && saleMethodOk;
+      return inRange && customOk && sellerOk && channelOk && saleMethodOk;
     });
-  }, [orders, range, from, to, branchId, seller, channel, saleMethod, priceBook, vat]);
+  }, [orders, range, from, to, seller, channel, saleMethod, priceBook, vat]);
 
   const rows = useMemo<SaleRow[]>(() => {
     const groups = new Map<string, SaleRow>();
@@ -217,10 +215,6 @@ export default function SalesReportClient({ profile, orders, branches, sellers, 
               <option value="general">Bảng giá chung</option>
             </select>
             <p style={{fontSize:"11px", color:"#8895a3", marginTop:"4px"}}>Áp dụng 1 bảng giá chung (chưa tách theo chi nhánh).</p>
-          </section>
-          <section>
-            <h2>Chi nhánh</h2>
-            <select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map(b=> <option key={b.id} value={b.id}>{b.name}</option>)}</select>
           </section>
           <section>
             <h2>Thời gian</h2>

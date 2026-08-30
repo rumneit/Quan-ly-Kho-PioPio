@@ -10,7 +10,7 @@ import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Status = "draft" | "completed" | "cancelled";
 type Voucher = { id: string; code: string; status: Status; note: string; totalValue: number; creator: string; exporter: string; createdAt: string; branch: string; favorite: boolean };
-type ColumnKey = "code" | "totalValue" | "time" | "branch" | "note" | "status";
+type ColumnKey = "code" | "totalValue" | "time" | "note" | "status";
 type Notice = { kind: "success" | "error"; text: string } | null;
 type Modal = "settings" | "help" | null;
 type Mode = "list" | "create";
@@ -38,7 +38,6 @@ const columns: Array<{ key: ColumnKey; label: string }> = [
   { key: "code", label: "Mã xuất hủy" },
   { key: "totalValue", label: "Tổng giá trị hủy" },
   { key: "time", label: "Thời gian" },
-  { key: "branch", label: "Chi nhánh" },
   { key: "note", label: "Ghi chú" },
   { key: "status", label: "Trạng thái" },
 ];
@@ -193,8 +192,8 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   }
 
   function exportExcel() {
-    const header = ["Mã xuất hủy", "Tổng giá trị hủy", "Thời gian", "Chi nhánh", "Ghi chú", "Trạng thái"];
-    const rows = filtered.map((item) => [item.code, item.totalValue, dateTime(item.createdAt), item.branch, item.note, statusLabel[item.status]]);
+    const header = ["Mã xuất hủy", "Tổng giá trị hủy", "Thời gian", "Ghi chú", "Trạng thái"];
+    const rows = filtered.map((item) => [item.code, item.totalValue, dateTime(item.createdAt), item.note, statusLabel[item.status]]);
     const sheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "XuatHuy");
