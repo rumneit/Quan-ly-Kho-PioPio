@@ -1,5 +1,5 @@
-﻿/* =====================================================================
-   POS / BÃ¡n hÃ ng â€” KiotViet-exact structure (page-header / col-left / col-right)
+/* =====================================================================
+   POS / Bán hàng — KiotViet-exact structure (page-header / col-left / col-right)
    ===================================================================== */
 .pos-shell {
   min-height: 100vh !important; background: #f0f1f3 !important; color: #26323e !important;
@@ -270,14 +270,14 @@
 .cart-footer p b { color: #15171a !important; }
 .cart-footer p.strong b { font-size: 14.336px !important; }
 
-/* ---------- DELIVERY FORM (BÃ¡n giao hÃ ng) ---------- */
+/* ---------- DELIVERY FORM (Bán giao hàng) ---------- */
 .pos-delivery-form { display: grid !important; gap: 8px !important; margin-bottom: 8px !important; }
 .pos-form-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 .pos-form-row.full { grid-template-columns: 1fr !important; }
 .pos-form-row input, .pos-delivery-form > input { height: 29px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; }
 .pos-form-row input:focus, .pos-delivery-form > input:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
 
-/* ---------- PRODUCT LIST (BÃ¡n thÆ°á»ng) ---------- */
+/* ---------- PRODUCT LIST (Bán thường) ---------- */
 .pos-product-list { border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; overflow: hidden !important; }
 .pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #eef1f4 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
 .pos-product-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
@@ -323,14 +323,14 @@
 .pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 29px !important; font-size: 12.544px !important; }
 .pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
-/* BÃ¡n thÆ°á»ng: left 704 + right 559 (product list, transparent) */
+/* Bán thường: left 704 + right 559 (product list, transparent) */
 .pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
 .pos-shell.mode-normal .col-right, .pos-shell.mode-quick .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
 .pos-shell.mode-normal .form-delivery, .pos-shell.mode-quick .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
 .pos-shell.mode-normal .pos-product-list, .pos-shell.mode-quick .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
 .pos-shell.mode-normal .cart-footer, .pos-shell.mode-quick .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
 
-/* BÃ¡n giao hÃ ng: left 841 + right 421 (delivery form, white card) */
+/* Bán giao hàng: left 841 + right 421 (delivery form, white card) */
 .pos-shell.mode-delivery .col-left { flex: 1 1 auto !important; width: auto !important; }
 .pos-shell.mode-delivery .col-right { flex: 0 0 421px !important; width: 421px !important; min-width: 421px !important; background: #fff !important; border-radius: 9px !important; }
 .pos-shell.mode-delivery .form-delivery { background: #fff !important; border-radius: 9px !important; }
@@ -341,9 +341,9 @@
 .pos-customer-search input { background: transparent !important; font-size: 12.544px !important; }
 /* ---------- DELIVERY FORM EXTENDED (KiotViet fields) ---------- */
 .pos-textarea {
-  width: 100%; height: 28px; padding: 2px 10px; border: 1px solid #d0d7de;
-  border-radius: 6px; background: #fff; font-size: 12.544px; resize: vertical;
-  font-family: Roboto, Arial, sans-serif; color: #26323e; line-height: 1.4;
+  box-sizing: border-box !important; width: 100% !important; height: 40px !important; padding: 2px 10px !important; border: 1px solid #d0d7de !important;
+  border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; resize: vertical !important;
+  font-family: Roboto, Arial, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
 }
 .pos-textarea:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-textarea::placeholder { color: #8a96a7; }
