@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody } from "@/lib/api-utils";
 
 type Line = { product_id: string; quantity: number };
 
@@ -22,12 +23,13 @@ export async function GET() {
     creator: (row.profiles as { full_name?: string } | null)?.full_name || "",
     created_at: row.created_at,
   }));
-  return NextResponse.json({ vouchers: list });
+  return NextResponse.json({ vouchers: list, truncated: (data || []).length === 500 });
 }
 
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
-  const body = await request.json() as Record<string, unknown>;
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu phiếu không hợp lệ." }, { status: 400 });
   const status = body.status === "completed" ? "completed" : "draft";
   const purpose = String(body.purpose || "Sử dụng nội bộ").trim();
   const receiver = String(body.receiver || "").trim();

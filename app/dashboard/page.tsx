@@ -11,5 +11,5 @@ export default async function DashboardPage() {
     supabase.from("customers").select("id,name,total_spent").order("total_spent", { ascending: false }).limit(100),
     supabase.from("store_branches").select("id,name,is_default,active").order("created_at", { ascending: true }),
   ]);
-  return <DashboardClient profile={profile} products={productsResult.data || []} customers={customersResult.data || []} orders={(ordersResult.data || []) as never} branches={branchesResult.data || []} />;
+  return <DashboardClient profile={profile} products={productsResult.data || []} customers={customersResult.data || []} orders={(ordersResult.data || []) as never} branches={branchesResult.data || []} truncated={ordersResult.data?.length === 1000} />;
 }

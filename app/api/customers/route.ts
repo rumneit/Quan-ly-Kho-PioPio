@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { isUniqueViolation } from "@/lib/api-utils";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -201,7 +202,7 @@ export async function GET(request: Request) {
   const sortMap: Record<string, string> = { code: "customer_number", name: "name", phone: "phone", totalSpent: "total_spent", createdAt: "created_at", status: "active" };
   const sort = sortMap[params.get("sort") || ""] || "customer_number";
   const result = await query.order(sort, { ascending: params.get("direction") === "asc", nullsFirst: false }).range(from, from + pageSize - 1);
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) { console.error("[api:customers:GET]", result.error); return NextResponse.json({ error: "Không thể tải khách hàng." }, { status: 400 }); }
   return NextResponse.json({ customers: result.data || [], count: result.count || 0, page, pageSize });
 }
 
@@ -217,7 +218,7 @@ export async function POST(request: Request) {
   }
   const payloads = (rows as CustomerInput[]).map((row) => customerPayload(row, profile.store_id, profile.id));
   const result = await supabase.from("customers").insert(payloads).select(customerSelect);
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) { console.error("[api:customers:POST]", result.error); return NextResponse.json({ error: isUniqueViolation(result.error) ? "Khách hàng đã tồn tại (trùng số điện thoại hoặc mã)." : "Không thể lưu khách hàng." }, { status: 400 }); }
   return NextResponse.json({ customer: result.data?.[0], customers: result.data || [] }, { status: 201 });
 }
 
@@ -232,6 +233,6 @@ export async function PATCH(request: Request) {
     if (!group.data) return NextResponse.json({ error: "Nhóm khách hàng không thuộc cửa hàng." }, { status: 400 });
   }
   const result = await supabase.from("customers").update(customerPayload(body, profile.store_id)).eq("id", body.id).select(customerSelect).single();
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) { console.error("[api:customers:PATCH]", result.error); return NextResponse.json({ error: "Không thể cập nhật khách hàng." }, { status: 400 }); }
   return NextResponse.json({ customer: result.data });
 }

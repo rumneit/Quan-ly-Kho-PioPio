@@ -6,7 +6,12 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 export async function POST(request: Request) {
   const { profile } = await requireProfile("manager");
-  const form = await request.formData();
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return NextResponse.json({ error: "Dữ liệu ảnh không hợp lệ." }, { status: 400 });
+  }
   const file = form.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "Chưa chọn ảnh." }, { status: 400 });
   if (!ALLOWED.has(file.type) || file.size > 2 * 1024 * 1024) return NextResponse.json({ error: "Ảnh phải là JPG, PNG, WEBP hoặc GIF và không quá 2 MB." }, { status: 400 });

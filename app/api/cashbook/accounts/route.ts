@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { isRaisedException } from "@/lib/api-utils";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
     p_bank_name: body.bank_name ? String(body.bank_name) : null,
     p_bank_account: body.bank_account ? String(body.bank_account) : null,
   });
-  if (error || !accountId) return NextResponse.json({ error: error?.message || "Không thể tạo tài khoản quỹ." }, { status: 400 });
+  if (error || !accountId) { console.error("[api:cashbook:accounts:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể tạo tài khoản quỹ." }, { status: 400 }); }
   const result = await supabase.from("cash_accounts").select("id,name,account_type,opening_balance,bank_name,bank_account,active").eq("id", accountId).single();
   if (result.error) return NextResponse.json({ error: "Tài khoản đã tạo nhưng không thể tải lại dữ liệu." }, { status: 500 });
   return NextResponse.json({ account: result.data }, { status: 201 });
@@ -45,7 +46,7 @@ export async function PATCH(request: Request) {
     p_bank_account: body.bank_account != null ? String(body.bank_account) : null,
     p_active: body.active != null ? body.active === true : null,
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) { console.error("[api:cashbook:accounts:PATCH]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật tài khoản quỹ." }, { status: 400 }); }
   const result = await supabase.from("cash_accounts").select("id,name,account_type,opening_balance,bank_name,bank_account,active").eq("id", id).single();
   if (result.error) return NextResponse.json({ error: "Không thể tải lại tài khoản quỹ." }, { status: 500 });
   return NextResponse.json({ account: result.data });

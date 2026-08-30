@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { isRaisedException } from "@/lib/api-utils";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const receiptKinds = ["sale_payment", "debt_collection", "other_income", "transfer_in"];
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
 
   const from = (page - 1) * pageSize;
   const result = await query.order("occurred_at", { ascending: false, nullsFirst: false }).order("voucher_number", { ascending: false }).range(from, from + pageSize - 1);
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) { console.error("[api:cashbook:GET]", result.error); return NextResponse.json({ error: "Không thể tải sổ quỹ." }, { status: 400 }); }
 
   let summary = { opening: 0, total_receipt: 0, total_expense: 0 };
   if (accountIds.length) {
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
     p_occurred_at: occurredAt,
     p_affects_profit: affectsProfit,
   });
-  if (error || !voucherId) return NextResponse.json({ error: error?.message || "Không thể lưu phiếu." }, { status: 400 });
+  if (error || !voucherId) { console.error("[api:cashbook:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể lưu phiếu." }, { status: 400 }); }
   const result = await supabase.from("cash_vouchers").select(voucherSelect).eq("id", voucherId).single();
   if (result.error) return NextResponse.json({ error: "Phiếu đã lưu nhưng không thể tải lại dữ liệu." }, { status: 500 });
   return NextResponse.json({ voucher: result.data }, { status: 201 });
@@ -142,7 +143,7 @@ export async function PATCH(request: Request) {
   const id = String(body.id || "");
   if (!uuidPattern.test(id)) return NextResponse.json({ error: "Phiếu không hợp lệ." }, { status: 400 });
   const { error } = await supabase.rpc("cashbook_cancel_voucher", { p_voucher_id: id });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) { console.error("[api:cashbook:PATCH]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể hủy phiếu." }, { status: 400 }); }
   const result = await supabase.from("cash_vouchers").select(voucherSelect).eq("id", id).single();
   if (result.error) return NextResponse.json({ error: "Không thể tải lại phiếu." }, { status: 500 });
   return NextResponse.json({ voucher: result.data });

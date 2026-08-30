@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { toVnDateKey } from "@/lib/vn-time";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Supplier = { id: string; name: string; code?: string; phone?: string; email?: string; group_name?: string };
@@ -150,6 +151,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [truncated, setTruncated] = useState(false);
   const [modal, setModal] = useState<Modal>(null);
 
   const [query, setQuery] = useState("");
@@ -182,8 +184,9 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
     try {
       const response = await fetch(mode === "purchase" ? "/api/purchase-orders" : "/api/purchase-returns");
       if (!response.ok) throw new Error(await apiError(response));
-      const data = await response.json() as { vouchers?: Array<Record<string, unknown>> };
+      const data = await response.json() as { vouchers?: Array<Record<string, unknown>>; truncated?: boolean };
       setVouchers((data.vouchers || []).map(mapVoucher));
+      setTruncated(data.truncated === true);
     } catch (error) {
       setNotice({ kind: "error", text: error instanceof Error ? error.message : "Không thể tải danh sách phiếu." });
     } finally {
@@ -205,7 +208,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
     const invoiceKeyword = invoiceQuery.trim().toLowerCase();
     const now = new Date();
     return vouchers.filter((item) => {
-      const created = item.createdAt.slice(0, 10);
+      const created = toVnDateKey(item.createdAt);
       const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       return `${item.code} ${item.note} ${item.supplier}`.toLowerCase().includes(keyword)
         && item.code.toLowerCase().includes(codeKeyword)
@@ -264,6 +267,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
   }
 
   async function saveDocument(nextStatus: SaveStatus) {
+    if (busy) return;
     const selected = products.filter((product) => Number(quantities[product.id] || 0) > 0);
     if (!selected.length) {
       setNotice({ kind: "error", text: "Vui lòng nhập số lượng cho ít nhất một hàng hóa." });
@@ -407,6 +411,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
   return <div className="kv-shell product-page purchasing-page purchase-document-page">
     <ManagementHeader profile={profile} active={config.active} />
     {notice && <div className={`product-notice purchase-notice ${notice.kind}`} role={notice.kind === "error" ? "alert" : "status"}><span>{notice.text}</span><button type="button" aria-label="Đóng thông báo" onClick={() => setNotice(null)}><X size={15} /></button></div>}
+    {view === "list" && truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 phiếu gần nhất. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
 
     {view === "list" ? (
       <>

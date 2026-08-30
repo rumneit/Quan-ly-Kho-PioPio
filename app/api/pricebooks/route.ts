@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody } from "@/lib/api-utils";
 
 type PriceListEntry = {
   id: string;
@@ -57,7 +58,8 @@ async function applyUpdates(
 export async function POST(request: Request) {
   try {
     const { supabase, products } = await productsForStore();
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readJsonBody(request);
+    if (!body) return NextResponse.json({ error: "Dữ liệu bảng giá không hợp lệ." }, { status: 400 });
     if (body.action !== "create") return NextResponse.json({ error: "Thao tác không hợp lệ." }, { status: 400 });
     const name = String(body.name || "").trim();
     if (!name) return NextResponse.json({ error: "Tên bảng giá là bắt buộc." }, { status: 400 });
@@ -98,6 +100,8 @@ export async function POST(request: Request) {
     await applyUpdates(supabase, updates);
     return NextResponse.json({ book: { id, name, prices, start_date: meta.start_date, end_date: meta.end_date, active: meta.active } }, { status: 201 });
   } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    console.error("[api:pricebooks:POST]", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Không thể tạo bảng giá." }, { status: 400 });
   }
 }
@@ -105,7 +109,8 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const { supabase, products } = await productsForStore();
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readJsonBody(request);
+    if (!body) return NextResponse.json({ error: "Dữ liệu bảng giá không hợp lệ." }, { status: 400 });
     const action = String(body.action || "");
     const bookId = String(body.book_id || "");
     if (!bookId) return NextResponse.json({ error: "Thiếu bảng giá cần cập nhật." }, { status: 400 });
@@ -152,6 +157,8 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ error: "Thao tác không hợp lệ." }, { status: 400 });
   } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    console.error("[api:pricebooks:PATCH]", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Không thể cập nhật bảng giá." }, { status: 400 });
   }
 }
@@ -169,6 +176,8 @@ export async function DELETE(request: Request) {
     await applyUpdates(supabase, updates);
     return NextResponse.json({ deleted: true });
   } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    console.error("[api:pricebooks:DELETE]", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Không thể xóa bảng giá." }, { status: 400 });
   }
 }

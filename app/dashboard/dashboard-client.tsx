@@ -25,7 +25,7 @@ type Order = {
   creator?: { full_name?: string } | null;
   order_items?: OrderItem[];
 };
-type Props = { profile: Profile; products: Product[]; customers: Customer[]; orders: Order[]; branches: Branch[] };
+type Props = { profile: Profile; products: Product[]; customers: Customer[]; orders: Order[]; branches: Branch[]; truncated?: boolean };
 type DateRange = "Hôm nay" | "Hôm qua" | "7 ngày qua" | "Tháng này" | "Tháng trước" | "Tùy chỉnh";
 
 const VN_TZ = "Asia/Ho_Chi_Minh";
@@ -105,7 +105,7 @@ function timeAgo(value: string) {
   return `${Math.floor(hours / 24)} ngày trước`;
 }
 
-export default function DashboardClient({ profile, products: initialProducts, customers, orders, branches: _branches }: Props) {
+export default function DashboardClient({ profile, products: initialProducts, customers, orders, branches: _branches, truncated }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [modal, setModal] = useState<"product" | "staff" | null>(null);
   const [message, setMessage] = useState("");
@@ -265,6 +265,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
 
     <main className="kv-main">
       {message && <div className="kv-toast-message" role="status">✓ {message}</div>}
+      {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 1000 đơn hàng gần nhất. Số liệu có thể bị cắt cụt – vui lòng dùng báo cáo bán hàng để xem đầy đủ.</div>}
       <div className="kv-dashboard-grid">
         <div className="kv-main-column">
           <section className="kv-card kv-today-card kv-enter">

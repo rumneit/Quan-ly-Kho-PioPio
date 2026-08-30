@@ -5,6 +5,7 @@ import { Columns3, Download, HelpCircle, Minus, Plus, Search, Settings, SlidersH
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { getTodayVnKey } from "@/lib/vn-time";
 
 export type CashAccount = { id: string; name: string; account_type: "cash" | "bank" | "ewallet"; opening_balance: number; bank_name: string | null; bank_account: string | null; active: boolean };
 export type CashVoucher = {
@@ -17,6 +18,7 @@ export type CashMeta = { creators: Array<{ id: string; full_name: string }>; cus
 export type CashSummary = { opening: number; total_receipt: number; total_expense: number };
 
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+const nowLocalInput = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
 const dateTime = (value?: string | null) => value ? new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(value)) : "---";
 const voucherCode = (type: "receipt" | "expense", number: number) => `${type === "receipt" ? "PT" : "PC"}${String(number).padStart(6, "0")}`;
 const fundLabel: Record<string, string> = { cash: "Tiền mặt", bank: "Ngân hàng", ewallet: "Ví điện tử", all: "Tổng quỹ" };
@@ -42,7 +44,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
   const [fund, setFund] = useState<FundTab>("all");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Date(); const from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`; const to = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`; return { preset: "this_month", from, to }; });
+  const [dateValue, setDateValue] = useState<DateValue>(() => { const today = getTodayVnKey(); return { preset: "this_month", from: `${today.slice(0, 7)}-01`, to: today }; });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
   const [visible, setVisible] = useState<Record<string, boolean>>(() => Object.fromEntries(columns.map(([key]) => [key, defaultVisible.has(key)])));
@@ -108,7 +110,7 @@ export default function CashFlowClient({ profile, initialAccounts, initialVouche
 
   function openCreate(type: "receipt" | "expense") {
     const target = fundAccounts[0];
-    setForm({ ...emptyForm, account_id: target?.id || "", kind: type === "receipt" ? "sale_payment" : "purchase_payment", occurred_at: new Date().toISOString().slice(0, 16) });
+    setForm({ ...emptyForm, account_id: target?.id || "", kind: type === "receipt" ? "sale_payment" : "purchase_payment", occurred_at: nowLocalInput() });
     setShowCreate(type); setError("");
   }
 
@@ -268,30 +270,40 @@ function VoucherDialog({ type, form, fundAccounts, meta, saving, error, onForm, 
 function SettingsDialog({ accounts, saving, error, notice, onError, onClose, onReload }: { accounts: CashAccount[]; saving: boolean; error: string; notice: (text: string) => void; onError: (text: string) => void; onClose: () => void; onReload: () => void }) {
   const [edits, setEdits] = useState<Record<string, string>>(() => Object.fromEntries(accounts.map((account) => [account.id, String(account.opening_balance)])));
   const [newForm, setNewForm] = useState({ name: "", account_type: "bank", opening_balance: "", bank_name: "", bank_account: "" });
+  const [working, setWorking] = useState(false);
   async function saveAccount(id: string) {
+    if (saving || working) return;
     const openingBalance = Number(edits[id]);
     if (!Number.isFinite(openingBalance) || openingBalance < 0) { onError("Số dư đầu kỳ không hợp lệ."); return; }
     onError("");
-    const response = await fetch("/api/cashbook/accounts", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, opening_balance: openingBalance }) });
-    const result = await response.json();
-    if (!response.ok) { onError(result.error || "Không thể cập nhật."); return; }
-    notice("Đã cập nhật số dư đầu kỳ."); onReload();
+    setWorking(true);
+    try {
+      const response = await fetch("/api/cashbook/accounts", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, opening_balance: openingBalance }) });
+      const result = await response.json();
+      if (!response.ok) { onError(result.error || "Không thể cập nhật."); return; }
+      notice("Đã cập nhật số dư đầu kỳ."); onReload();
+    } catch { onError("Không thể kết nối máy chủ."); } finally { setWorking(false); }
   }
   async function createAccount(event: FormEvent) {
     event.preventDefault();
+    if (saving || working) return;
+    if (!newForm.name.trim()) { onError("Tên tài khoản quỹ là bắt buộc."); return; }
     onError("");
-    const response = await fetch("/api/cashbook/accounts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newForm) });
-    const result = await response.json();
-    if (!response.ok) { onError(result.error || "Không thể tạo tài khoản quỹ."); return; }
-    notice("Đã tạo tài khoản quỹ."); setNewForm({ name: "", account_type: "bank", opening_balance: "", bank_name: "", bank_account: "" }); onReload();
+    setWorking(true);
+    try {
+      const response = await fetch("/api/cashbook/accounts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newForm) });
+      const result = await response.json();
+      if (!response.ok) { onError(result.error || "Không thể tạo tài khoản quỹ."); return; }
+      notice("Đã tạo tài khoản quỹ."); setNewForm({ name: "", account_type: "bank", opening_balance: "", bank_name: "", bank_account: "" }); onReload();
+    } catch { onError("Không thể kết nối máy chủ."); } finally { setWorking(false); }
   }
   return <div className="modal-backdrop cash-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="product-modal cash-settings" role="dialog" aria-modal="true" aria-label="Thiết lập sổ quỹ">
       <header><div><h2>Thiết lập sổ quỹ</h2><p>Quản lý tài khoản quỹ và số dư đầu kỳ</p></div><button type="button" aria-label="Đóng" onClick={onClose}><X /></button></header>
       <div className="cash-settings-body">
-        {accounts.map((account) => <div className="cash-account-row" key={account.id}><span className="cash-account-meta"><strong>{account.name}</strong><small>{fundLabel[account.account_type]}{account.bank_account ? ` · ${account.bank_account}` : ""}</small></span><input type="number" min="0" value={edits[account.id] ?? String(account.opening_balance)} onChange={(event) => setEdits((current) => ({ ...current, [account.id]: event.target.value }))} /><button type="button" onClick={() => saveAccount(account.id)} disabled={saving}>Lưu</button></div>)}
+        {accounts.map((account) => <div className="cash-account-row" key={account.id}><span className="cash-account-meta"><strong>{account.name}</strong><small>{fundLabel[account.account_type]}{account.bank_account ? ` · ${account.bank_account}` : ""}</small></span><input type="number" min="0" value={edits[account.id] ?? String(account.opening_balance)} onChange={(event) => setEdits((current) => ({ ...current, [account.id]: event.target.value }))} /><button type="button" onClick={() => saveAccount(account.id)} disabled={saving || working}>Lưu</button></div>)}
         {error && <p className="cash-form-error" role="alert">{error}</p>}
-        <form className="cash-account-new" onSubmit={createAccount}><label>Tên tài khoản<input value={newForm.name} onChange={(event) => setNewForm((current) => ({ ...current, name: event.target.value }))} /></label><label>Loại quỹ<select value={newForm.account_type} onChange={(event) => setNewForm((current) => ({ ...current, account_type: event.target.value }))}><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="ewallet">Ví điện tử</option></select></label><label>Ngân hàng<input value={newForm.bank_name} onChange={(event) => setNewForm((current) => ({ ...current, bank_name: event.target.value }))} /></label><label>Số tài khoản<input value={newForm.bank_account} onChange={(event) => setNewForm((current) => ({ ...current, bank_account: event.target.value }))} /></label><label>Số dư đầu kỳ<input type="number" min="0" value={newForm.opening_balance} onChange={(event) => setNewForm((current) => ({ ...current, opening_balance: event.target.value }))} /></label><button type="submit" className="primary" disabled={saving || !newForm.name.trim()}>Thêm tài khoản</button></form>
+        <form className="cash-account-new" onSubmit={createAccount}><label>Tên tài khoản<input value={newForm.name} onChange={(event) => setNewForm((current) => ({ ...current, name: event.target.value }))} /></label><label>Loại quỹ<select value={newForm.account_type} onChange={(event) => setNewForm((current) => ({ ...current, account_type: event.target.value }))}><option value="cash">Tiền mặt</option><option value="bank">Ngân hàng</option><option value="ewallet">Ví điện tử</option></select></label><label>Ngân hàng<input value={newForm.bank_name} onChange={(event) => setNewForm((current) => ({ ...current, bank_name: event.target.value }))} /></label><label>Số tài khoản<input value={newForm.bank_account} onChange={(event) => setNewForm((current) => ({ ...current, bank_account: event.target.value }))} /></label><label>Số dư đầu kỳ<input type="number" min="0" value={newForm.opening_balance} onChange={(event) => setNewForm((current) => ({ ...current, opening_balance: event.target.value }))} /></label><button type="submit" className="primary" disabled={saving || working || !newForm.name.trim()}>Thêm tài khoản</button></form>
       </div>
       <footer><button type="button" className="primary" onClick={onClose}>Đóng</button></footer>
     </section>

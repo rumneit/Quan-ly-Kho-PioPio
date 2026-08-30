@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { toVnDateKey } from "@/lib/vn-time";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Status = "draft" | "completed" | "cancelled";
@@ -65,6 +66,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   const [createStatus, setCreateStatus] = useState<"draft" | "completed">("draft");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
+  const [truncated, setTruncated] = useState(false);
   const importInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!modal) return;
@@ -80,7 +82,8 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
     try {
       const response = await fetch("/api/damage-items");
       if (!response.ok) throw new Error(await apiError(response));
-      const data = await response.json() as { vouchers?: Array<{ id: unknown; code: unknown; status: unknown; note?: unknown; total_value?: unknown; creator?: unknown; created_at?: unknown }> };
+      const data = await response.json() as { vouchers?: Array<{ id: unknown; code: unknown; status: unknown; note?: unknown; total_value?: unknown; creator?: unknown; created_at?: unknown }>; truncated?: boolean };
+      setTruncated(data.truncated === true);
       const list: Voucher[] = (data.vouchers || []).map((row) => {
         const creator = typeof row.creator === "string" ? row.creator : "";
         return {
@@ -128,7 +131,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
     const byNote = noteQuery.trim().toLowerCase();
     const now = new Date();
     return vouchers.filter((item) => {
-      const created = item.createdAt.slice(0, 10);
+      const created = toVnDateKey(item.createdAt);
       const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       return `${item.code} ${item.note}`.toLowerCase().includes(keyword)
         && item.code.toLowerCase().includes(byCode)
@@ -168,6 +171,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   }
 
   async function saveVoucher(status: Exclude<Status, "cancelled">) {
+    if (saving) return;
     const lines = initialProducts.filter((product) => Number(quantities[product.id] || 0) > 0).map((product) => ({ product_id: product.id, quantity: Number(quantities[product.id]) }));
     if (!lines.length) { setNotice({ kind: "error", text: "Vui lòng nhập số lượng hủy cho ít nhất một hàng hóa." }); return; }
     setSaving(true);
@@ -268,6 +272,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
     </div>
 
     <main className={`product-workspace damage-workspace ${mode === "create" ? "damage-workspace-create" : sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>
+      {mode === "list" && truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 phiếu gần nhất. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
       {mode === "list" ? <>
         {sidebarCollapsed
           ? <button className="sidebar-collapse collapsed" aria-label="Mở bộ lọc" onClick={() => setSidebarCollapsed(false)}><ChevronRight /></button>

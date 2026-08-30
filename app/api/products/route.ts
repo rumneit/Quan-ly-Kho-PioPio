@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody, rowImportError, isUniqueViolation } from "@/lib/api-utils";
 
 function catalogFields(row: Record<string, unknown>) {
   const jsonArray = (value: unknown) => Array.isArray(value) ? value : [];
@@ -66,7 +67,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu sản phẩm không hợp lệ." }, { status: 400 });
 
   // Support both single and bulk (import) payloads
   if (Array.isArray(body.items)) {
@@ -117,7 +119,7 @@ export async function POST(request: Request) {
           const retry = await supabase.from("products").update(fallback).eq("id", existing.id).select().single();
           data = retry.data; error = retry.error;
         }
-        if (error) errors.push({ row: i + 2, error: error.message });
+        if (error) errors.push({ row: i + 2, error: rowImportError(error) });
         else { updated++; if (data) { products.push(data); await saveRelatedCatalogData(supabase, profile, data.id, row, stock); } }
       } else {
         let { data, error } = await supabase.from("products").insert(payload).select().single();
@@ -128,8 +130,8 @@ export async function POST(request: Request) {
           data = retry.data; error = retry.error;
         }
         if (error) {
-          if ((error as { code?: string }).code === "23505") { errors.push({ row: i + 2, error: "Mã hàng đã tồn tại" }); skipped++; }
-          else errors.push({ row: i + 2, error: error.message });
+          if (isUniqueViolation(error)) { errors.push({ row: i + 2, error: "Mã hàng đã tồn tại" }); skipped++; }
+          else { console.error("[api:products:POST:import]", error); errors.push({ row: i + 2, error: rowImportError(error) }); }
         } else { inserted++; if (data) { products.push(data); await saveRelatedCatalogData(supabase, profile, data.id, row, stock); } }
       }
     }
@@ -161,17 +163,21 @@ export async function POST(request: Request) {
     const retry = await supabase.from("products").insert(fallbackPayload).select().single();
     data = retry.data as typeof data; error = retry.error as typeof error;
   }
-  if (error) return NextResponse.json({ error: (error as { code?: string }).code === "23505" ? "Mã hàng đã tồn tại." : `Không thể thêm sản phẩm: ${(error as { message?: string }).message || ""}` }, { status: 400 });
+  if (error) {
+    console.error("[api:products:POST]", error);
+    return NextResponse.json({ error: isUniqueViolation(error) ? "Mã hàng đã tồn tại." : "Không thể thêm sản phẩm. Vui lòng kiểm tra lại dữ liệu." }, { status: 400 });
+  }
   await saveRelatedCatalogData(supabase, profile, data.id, body, stock);
   return NextResponse.json({ product: data }, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
   const { supabase } = await requireProfile("manager");
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const ids = Array.isArray(body.ids) ? body.ids.map(String).filter(Boolean) : [];
   if (!ids.length || typeof body.active !== "boolean") return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const { error } = await supabase.from("products").update({ active: body.active }).in("id", ids);
-  if (error) return NextResponse.json({ error: "Không thể cập nhật hàng hóa." }, { status: 400 });
+  if (error) { console.error("[api:products:PATCH]", error); return NextResponse.json({ error: "Không thể cập nhật hàng hóa." }, { status: 400 }); }
   return NextResponse.json({ updated: ids.length });
 }

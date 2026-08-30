@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody } from "@/lib/api-utils";
 
 export async function GET() {
   const { supabase } = await requireProfile();
@@ -37,12 +38,13 @@ export async function GET() {
     debt: debtMap.get(row.id) || 0,
     totalPurchase: totalMap.get(row.id) || 0,
   }));
-  return NextResponse.json({ suppliers: list });
+  return NextResponse.json({ suppliers: list, truncated: (data || []).length === 500 });
 }
 
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
-  const body = await request.json() as Record<string, unknown>;
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu nhà cung cấp không hợp lệ." }, { status: 400 });
   const name = String(body.name || "").trim();
   if (!name) return NextResponse.json({ error: "Tên nhà cung cấp là bắt buộc." }, { status: 400 });
   const payload: Record<string, unknown> = {
@@ -72,7 +74,8 @@ export async function PATCH(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id") || "";
   if (!id) return NextResponse.json({ error: "Thiếu mã nhà cung cấp." }, { status: 400 });
-  const body = await request.json() as Record<string, unknown>;
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const payload: Record<string, unknown> = {};
   for (const [key, target] of [["name", "name"], ["code", "code"], ["phone", "phone"], ["email", "email"], ["address", "address"], ["area", "area"], ["ward", "ward"], ["group", "group_name"], ["company", "company"], ["taxCode", "tax_code"], ["identity", "identity"], ["note", "note"]] as const) {
     if (key in body) payload[target] = String(body[key] || "").trim() || null;

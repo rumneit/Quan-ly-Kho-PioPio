@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { toVnDateKey } from "@/lib/vn-time";
 
 type Status = "draft" | "completed" | "cancelled";
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
@@ -69,6 +70,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   const [modal, setModal] = useState<Modal>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [truncated, setTruncated] = useState(false);
   useEffect(() => {
     if (!modal) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(null); };
@@ -95,6 +97,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
         if (cancelled) return;
         const list = data && Array.isArray(data.vouchers) ? data.vouchers as Array<Record<string, unknown>> : [];
         setVouchers(list.map(mapVoucher));
+        setTruncated(Boolean(data && data.truncated));
       })
       .catch(() => {
         if (!cancelled) setNotice({ kind: "error", text: "Không thể tải danh sách phiếu xuất dùng nội bộ." });
@@ -107,7 +110,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
 
   const filtered = useMemo(() => {
     return vouchers.filter((item) => {
-      const createdDate = item.time.slice(0, 10);
+      const createdDate = toVnDateKey(item.time);
       const dateOk = dateValue.preset === "all" || ((!dateValue.from || createdDate >= dateValue.from) && (!dateValue.to || createdDate <= dateValue.to));
       const haystack = `${item.code} ${item.note} ${item.purpose} ${item.receiver} ${item.creator}`.toLowerCase();
       return haystack.includes(query.trim().toLowerCase())
@@ -208,8 +211,9 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
     try {
       const response = await fetch("/api/internal-use");
       if (!response.ok) return false;
-      const data = await response.json() as { vouchers?: Array<Record<string, unknown>> };
+      const data = await response.json() as { vouchers?: Array<Record<string, unknown>>; truncated?: boolean };
       if (Array.isArray(data.vouchers)) setVouchers(data.vouchers.map(mapVoucher));
+      setTruncated(data.truncated === true);
       return true;
     } catch {
       return false;
@@ -217,6 +221,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   }
 
   async function saveVoucher(saveStatus: "draft" | "completed") {
+    if (busy) return;
     const lines = initialProducts.filter((product) => Number(quantities[product.id] || 0) > 0).map((product) => ({ product_id: product.id, quantity: Math.floor(Number(quantities[product.id])) }));
     if (!lines.length) { setNotice({ kind: "error", text: "Vui lòng nhập số lượng xuất cho ít nhất một hàng hóa." }); return; }
     setBusy(true);
@@ -247,6 +252,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
 
   return <div className="kv-shell product-page internal-use-page">
     <ManagementHeader profile={profile} active="internal-use" />
+    {mode === "list" && truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 phiếu gần nhất. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
     {mode === "list" ? (
       <>
         <div className="product-actions internal-actions">

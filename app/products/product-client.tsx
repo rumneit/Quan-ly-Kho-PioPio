@@ -8,6 +8,7 @@ import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
 import { DEFAULT_FILTERS, FilterOption, Product, ProductFilters } from "./product-types";
+import { toVnDateKey } from "@/lib/vn-time";
 
 type NewProduct = { name: string; sku: string; barcode: string; price: string; cost: string; stock: string; category_id: string; supplier_id: string; brand_id: string; branch_id: string; product_type: "product" | "service" | "combo"; description: string; note: string; base_unit: string; sold_by: "quantity" | "weight"; weight: string; warranty_months: string; tax_percent: string; min_stock: string; max_stock: string; location: string };
 type UnitRow = { name: string; conversion: string; price: string };
@@ -56,7 +57,7 @@ function matchesInventory(product: Product, filters: ProductFilters) {
 function dateInRange(value: string | null | undefined, from?: string, to?: string) {
   if (!from && !to) return true;
   if (!value) return false;
-  const date = value.slice(0, 10);
+  const date = toVnDateKey(value);
   return (!from || date >= from) && (!to || date <= to);
 }
 

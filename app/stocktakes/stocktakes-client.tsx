@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
+import { toVnDateKey } from "@/lib/vn-time";
 
 type Product = { id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null };
 type Status = "draft" | "balanced" | "cancelled";
@@ -99,13 +100,15 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   const [status, setStatus] = useState<SaveStatus>("draft");
   const [note, setNote] = useState("");
   const [counts, setCounts] = useState<Record<string, number>>(() => Object.fromEntries(initialProducts.map((product) => [product.id, Number(product.stock_quantity)])));
+  const [truncated, setTruncated] = useState(false);
   const importInput = useRef<HTMLInputElement>(null);
 
   async function loadVouchers() {
     try {
       const response = await fetch("/api/stocktakes");
       if (!response.ok) throw new Error(await apiError(response));
-      const data = await response.json() as { vouchers?: Array<Record<string, unknown>> };
+      const data = await response.json() as { vouchers?: Array<Record<string, unknown>>; truncated?: boolean };
+      setTruncated(data.truncated === true);
       const list: Voucher[] = (data.vouchers || []).map((value) => {
         const rawStatus = String(value.status);
         const parsed: Status = rawStatus === "balanced" || rawStatus === "cancelled" ? rawStatus : "draft";
@@ -152,7 +155,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
       const noteColumnMatch = !noteKeyword || (item.note || "").toLowerCase().includes(noteKeyword);
       const statusMatch = statuses.includes(item.status);
       const creatorMatch = creator === "all" || item.creator === creator;
-      const createdDate = item.createdAt.slice(0, 10);
+      const createdDate = toVnDateKey(item.createdAt);
       const dateMatch = dateValue.preset === "all" || ((!dateValue.from || createdDate >= dateValue.from) && (!dateValue.to || createdDate <= dateValue.to));
       return codeMatch && codeColumnMatch && noteColumnMatch && statusMatch && creatorMatch && dateMatch;
     });
@@ -222,6 +225,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   }
 
   async function saveVoucher(nextStatus: SaveStatus) {
+    if (busy) return;
     if (!initialProducts.length) {
       setNotice({ kind: "error", text: "Chưa có hàng hóa nào được kiểm." });
       return;
@@ -302,6 +306,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
     <div className="kv-shell product-page stocktakes-page">
       <ManagementHeader profile={profile} active="stocktakes" />
       {notice && <div className={`product-notice stocktake-notice ${notice.kind}`} role={notice.kind === "error" ? "alert" : "status"}><span>{notice.text}</span><button type="button" aria-label="Đóng thông báo" onClick={() => setNotice(null)}><X size={15} /></button></div>}
+      {mode === "list" && truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 phiếu gần nhất. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
       {mode === "list" ? (
         <>
           <div className="product-actions stocktake-actions">

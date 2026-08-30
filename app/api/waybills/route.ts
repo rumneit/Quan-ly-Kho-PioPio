@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { isRaisedException } from "@/lib/api-utils";
 
 const shipmentSelect = "id,shipment_number,order_id,partner_id,status,receiver_name,receiver_phone,address,area,service,cod_amount,collected_cod,shipping_fee,partner_fee,note,created_at,delivery_at,completed_at,updated_at,delivery_partners(id,name),orders(id,order_number,customer_id,total,customers(id,customer_number,name,phone)),creator:profiles!shipments_created_by_fkey(full_name),shipment_status_history(id,status,note,created_at)";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     p_partner_fee: amounts[2],
     p_note: String(body.note || ""),
   });
-  if (error || !shipmentId) return NextResponse.json({ error: error?.message || "Không thể tạo vận đơn." }, { status: 400 });
+  if (error || !shipmentId) { console.error("[api:waybills:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể tạo vận đơn." }, { status: 400 }); }
   const result = await supabase.from("shipments").select(shipmentSelect).eq("id", shipmentId).single();
   if (result.error) return NextResponse.json({ error: "Vận đơn đã lưu nhưng không thể tải lại dữ liệu." }, { status: 500 });
   return NextResponse.json({ shipment: result.data }, { status: 201 });
@@ -53,7 +54,7 @@ export async function PATCH(request: Request) {
   const collectedCod = body.collected_cod == null ? null : Number(body.collected_cod);
   if (!uuidPattern.test(id) || !shipmentStatuses.has(status) || (status === "delivered" && (collectedCod == null || !Number.isFinite(collectedCod) || collectedCod < 0)) || (status !== "delivered" && collectedCod != null)) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const { error } = await supabase.rpc("transition_shipment", { p_shipment_id: id, p_status: status, p_note: String(body.note || ""), p_collected_cod: collectedCod });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) { console.error("[api:waybills:PATCH]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật vận đơn." }, { status: 400 }); }
   const result = await supabase.from("shipments").select(shipmentSelect).eq("id", id).single();
   if (result.error) return NextResponse.json({ error: "Không thể tải lại vận đơn." }, { status: 500 });
   return NextResponse.json({ shipment: result.data });

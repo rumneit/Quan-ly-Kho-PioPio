@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody } from "@/lib/api-utils";
 
 type Line = { product_id: string; quantity: number; return_price?: number };
 
@@ -28,12 +29,13 @@ export async function GET() {
     creator: (row.profiles as { full_name?: string } | null)?.full_name || "",
     createdAt: row.created_at,
   }));
-  return NextResponse.json({ vouchers: list });
+  return NextResponse.json({ vouchers: list, truncated: (data || []).length === 500 });
 }
 
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
-  const body = await request.json() as Record<string, unknown>;
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu phiếu trả hàng không hợp lệ." }, { status: 400 });
   const status = body.status === "completed" ? "completed" : "draft";
   const supplierId = String(body.supplier_id || "").trim() || null;
   let purchaseId: string | null = String(body.purchase_id || "").trim() || null;
@@ -241,7 +243,10 @@ export async function POST(request: Request) {
     }
     if (movements.length) {
       const { error: moveError } = await supabase.from("inventory_movements").insert(movements);
-      if (moveError) return NextResponse.json({ error: "Không thể ghi lịch sử tồn kho." }, { status: 400 });
+      if (moveError) {
+        console.error("[api:purchase-returns:POST:movements]", moveError);
+        return NextResponse.json({ error: "Không thể ghi lịch sử tồn kho." }, { status: 400 });
+      }
     }
   }
   return NextResponse.json({ voucher: { id: voucher.id, code: voucherCode, status, payable, paid, refund_type: refundType } }, { status: 201 });

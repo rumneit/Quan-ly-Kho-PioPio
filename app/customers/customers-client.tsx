@@ -5,6 +5,7 @@ import { CalendarDays, Columns3, Download, FileUp, HelpCircle, Inbox, MoreHorizo
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import { VN_PROVINCES } from "@/app/lib/vietnam-data";
+import { getTodayVnKey } from "@/lib/vn-time";
 
 type SourceShipment = { status: string; cod_amount: number; collected_cod: number };
 type SourceReturn = { id: string; return_number: number; status: string; refund_amount: number; created_at: string };
@@ -126,9 +127,9 @@ export default function CustomersClient({ profile, initialCustomers, initialCoun
     if (filters.area) params.set("area", filters.area);
     for (const key of ["dateFrom", "dateTo", "birthdayFrom", "birthdayTo", "transactionFrom", "transactionTo", "totalMin", "totalMax", "debtMin", "debtMax"] as const) if (filters[key]) params.set(key, filters[key]);
     if (filters.datePreset === "month") {
-      const now = new Date();
-      params.set("dateFrom", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`);
-      params.set("dateTo", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`);
+      const today = getTodayVnKey();
+      params.set("dateFrom", `${today.slice(0, 7)}-01`);
+      params.set("dateTo", today);
     }
     return params;
   }
@@ -314,7 +315,7 @@ function DateFilter({ title, preset, from, to, onChange }: { title: string; pres
   return <section><h2>{title}</h2><label className="customer-radio-card"><input type="radio" name="customer-created-date" checked={preset === "all"} onChange={() => onChange("all", "", "")} /><span>Toàn thời gian</span><b>›</b></label><label className="customer-radio-card"><input type="radio" name="customer-created-date" checked={preset === "custom"} onChange={() => onChange("custom", from, to)} /><span>Tùy chỉnh</span><CalendarDays /></label>{preset === "custom" && <div className="customer-date-range"><input type="date" aria-label="Từ ngày" value={from} onChange={(event) => onChange("custom", event.target.value, to)} /><input type="date" aria-label="Đến ngày" value={to} onChange={(event) => onChange("custom", from, event.target.value)} /></div>}<button type="button" className={`customer-month-shortcut ${preset === "month" ? "active" : ""}`} onClick={() => onChange("month", "", "")}>Tháng này</button></section>;
 }
 
-function RangeDateFilter({ title, from, to, onChange }: { title: string; from: string; to: string; onChange: (from: string, to: string) => void }) { const custom = Boolean(from || to); return <section><h2>{title}</h2><button type="button" className={`customer-range-toggle ${custom ? "active" : ""}`} onClick={() => custom ? onChange("", "") : onChange(new Date().toISOString().slice(0, 10), "")}>{custom ? "Tùy chỉnh" : "Toàn thời gian"}<CalendarDays /></button>{custom && <div className="customer-date-range"><input type="date" aria-label={`${title} từ ngày`} value={from} onChange={(event) => onChange(event.target.value, to)} /><input type="date" aria-label={`${title} đến ngày`} value={to} onChange={(event) => onChange(from, event.target.value)} /></div>}</section>; }
+function RangeDateFilter({ title, from, to, onChange }: { title: string; from: string; to: string; onChange: (from: string, to: string) => void }) { const custom = Boolean(from || to); return <section><h2>{title}</h2><button type="button" className={`customer-range-toggle ${custom ? "active" : ""}`} onClick={() => custom ? onChange("", "") : onChange(getTodayVnKey(), "")}>{custom ? "Tùy chỉnh" : "Toàn thời gian"}<CalendarDays /></button>{custom && <div className="customer-date-range"><input type="date" aria-label={`${title} từ ngày`} value={from} onChange={(event) => onChange(event.target.value, to)} /><input type="date" aria-label={`${title} đến ngày`} value={to} onChange={(event) => onChange(from, event.target.value)} /></div>}</section>; }
 function ChipFilter({ title, value, options, onChange }: { title: string; value: string; options: Array<[string, string]>; onChange: (value: string) => void }) { return <section><h2>{title}</h2><div className="customer-chips">{options.map(([key, label]) => <button type="button" className={value === key ? "active" : ""} key={key} onClick={() => onChange(key)}>{label}</button>)}</div></section>; }
 function MoneyRange({ title, from, to, onChange }: { title: string; from: string; to: string; onChange: (from: string, to: string) => void }) { return <section><h2>{title}</h2><select aria-label={`${title} kiểu lọc`} value="range" disabled><option value="range">Giá trị</option></select><div className="customer-money-range"><input type="number" min="0" placeholder="Từ" value={from} onChange={(event) => onChange(event.target.value, to)} /><input type="number" min="0" placeholder="Tới" value={to} onChange={(event) => onChange(from, event.target.value)} /></div></section>; }
 

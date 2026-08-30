@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { isRaisedException } from "@/lib/api-utils";
 
 const orderSelect = "id,order_number,customer_id,branch_id,status,subtotal,discount,total,note,channel,payment_method,created_at,updated_at,customers(id,customer_number,name,phone),creator:profiles!orders_created_by_fkey(full_name),store_branches(name),order_items(id,product_id,quantity,unit_price,line_total,products(sku,name)),shipments(id,shipment_number,status,partner_id,area,cod_amount,collected_cod,shipping_fee,partner_fee,delivery_at,delivery_partners(name)),sales_returns(id,return_number)";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   if (dateFrom) query = query.gte("created_at", `${dateFrom}T00:00:00+07:00`);
   if (dateTo) query = query.lte("created_at", `${dateTo}T23:59:59.999+07:00`);
   const result = await query.order("created_at", { ascending: false }).range(from, from + pageSize - 1);
-  if (result.error) return NextResponse.json({ error: result.error.message }, { status: 400 });
+  if (result.error) { console.error("[api:orders:GET]", result.error); return NextResponse.json({ error: "Không thể tải đơn hàng." }, { status: 400 }); }
   return NextResponse.json({ orders: result.data || [], count: result.count || 0, page, pageSize });
 }
 
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     p_items: items,
     p_discount: discount,
   });
-  if (error || !orderId) return NextResponse.json({ error: error?.message || "Không thể lưu đơn hàng." }, { status: 400 });
+  if (error || !orderId) { console.error("[api:orders:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể lưu đơn hàng." }, { status: 400 }); }
   const result = await supabase.from("orders").select(orderSelect).eq("id", orderId).single();
   if (result.error) return NextResponse.json({ error: "Đơn hàng đã lưu nhưng không thể tải lại dữ liệu." }, { status: 500 });
   return NextResponse.json({ order: result.data }, { status: 201 });
@@ -85,7 +86,7 @@ export async function PATCH(request: Request) {
   const status = body.status;
   if (!uuidPattern.test(id) || (status !== "paid" && status !== "cancelled")) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const { error } = await supabase.rpc("transition_sales_order", { p_order_id: id, p_status: status });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) { console.error("[api:orders:PATCH]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật đơn hàng." }, { status: 400 }); }
   const result = await supabase.from("orders").select(orderSelect).eq("id", id).single();
   if (result.error) return NextResponse.json({ error: "Không thể tải lại đơn hàng." }, { status: 500 });
   return NextResponse.json({ order: result.data });

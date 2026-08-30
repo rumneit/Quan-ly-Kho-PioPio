@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
+import { readJsonBody } from "@/lib/api-utils";
 
 export async function GET() {
   const { supabase } = await requireProfile();
@@ -10,7 +11,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const { supabase, profile } = await requireProfile("manager");
-  const body = await request.json();
+  const body = await readJsonBody(request);
+  if (!body) return NextResponse.json({ error: "Dữ liệu thương hiệu không hợp lệ." }, { status: 400 });
   const name = String(body.name || "").trim();
   if (!name) return NextResponse.json({ error: "Tên thương hiệu là bắt buộc." }, { status: 400 });
   const { data, error } = await supabase.from("product_brands").insert({ store_id: profile.store_id, name, description: body.description || null }).select("id,name,description").single();

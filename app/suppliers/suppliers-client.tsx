@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
+import { toVnDateKey } from "@/lib/vn-time";
 import "../suppliers.css";
 
 type Supplier = {
@@ -90,9 +91,10 @@ const emptyForm = { name: "", code: "", phone: "", email: "", address: "", area:
 export default function SuppliersClient({ profile, initialSuppliers, initialProducts }: { profile: Profile; initialSuppliers: Array<Record<string, unknown>>; initialProducts: Array<{ id: string; name: string; sku: string; price: number; cost?: number; stock_quantity: number; base_unit?: string | null }> }) {
   const seed = useMemo<Supplier[]>(() => initialSuppliers.map((item) => mapSupplier(item as Record<string, unknown>)), [initialSuppliers]);
   const [items, setItems] = useState<Supplier[]>(seed);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [truncated, setTruncated] = useState(false);
 
   const [query, setQuery] = useState("");
   const [codeQuery, setCodeQuery] = useState("");
@@ -123,8 +125,9 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
     try {
       const response = await fetch("/api/suppliers");
       if (!response.ok) throw new Error(await apiError(response));
-      const data = await response.json() as { suppliers?: Array<Record<string, unknown>> };
+      const data = await response.json() as { suppliers?: Array<Record<string, unknown>>; truncated?: boolean };
       setItems((data.suppliers || []).map(mapSupplier));
+      setTruncated(data.truncated === true);
     } catch (error) {
       setNotice({ kind: "error", text: error instanceof Error ? error.message : "Không thể tải nhà cung cấp; đang hiển thị dữ liệu khởi tạo." });
     } finally {
@@ -132,10 +135,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
     }
   }
 
-  useEffect(() => {
-    loadSuppliers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Dữ liệu SSR (initialSuppliers) đã đủ mới, chỉ tải lại sau khi có thay đổi (save/import/delete)
 
   const groups = useMemo(() => Array.from(new Set([...customGroups, ...items.map((item) => item.group).filter(Boolean)])), [customGroups, items]);
 
@@ -150,7 +150,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
       const emailMatch = item.email.toLowerCase().includes(emailQuery.trim().toLowerCase());
       const groupMatch = groupFilter === "all" || item.group === groupFilter;
       const totalOk = (!totalMin || item.totalPurchase >= Number(totalMin)) && (!totalMax || item.totalPurchase <= Number(totalMax));
-      const created = item.createdAt.slice(0, 10);
+      const created = toVnDateKey(item.createdAt);
       const dateOk = dateValue.preset === "all" || ((!dateValue.from || created >= dateValue.from) && (!dateValue.to || created <= dateValue.to));
       const debtOk = (!debtMin || item.debt >= Number(debtMin)) && (!debtMax || item.debt <= Number(debtMax));
       const statusOk = status === "all" || (status === "active" ? item.active : !item.active);
@@ -315,6 +315,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
   return <div className="kv-shell product-page suppliers-page">
     <ManagementHeader profile={profile} active="suppliers" />
     {notice && <div className={`product-notice suppliers-notice ${notice.kind === "error" ? "error" : ""}`} role={notice.kind === "error" ? "alert" : "status"}><span>{notice.text}</span><button type="button" aria-label="Đóng thông báo" onClick={() => setNotice(null)}>×</button></div>}
+    {truncated && <div style={{background:"#fff4e8", border:"1px solid #ffe2b8", color:"#7a4a00", padding:"8px 12px", borderRadius:"6px", fontSize:"12px", marginBottom:"12px"}}>⚠️ Dữ liệu đã đạt giới hạn 500 nhà cung cấp gần nhất. Kết quả có thể bị cắt cụt – vui lòng thu hẹp khoảng thời gian.</div>}
     <div className="product-actions suppliers-actions">
       <h1>Nhà cung cấp</h1>
       <div className="suppliers-search"><label className="product-query"><Search size={18} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên, số điện thoại, email" /></label></div>
