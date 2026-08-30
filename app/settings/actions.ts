@@ -299,3 +299,64 @@ export async function getProductStats(): Promise<{ categories: number; brands: n
   ]);
   return { categories: c.count || 0, brands: b.count || 0, products: p.count || 0, groups: g.count || 0 };
 }
+
+export type StoreSettingsExtended = StoreSettings & {
+  allowChangeTransactionDate: boolean;
+  autoSuggestProductInfo: boolean;
+  barcodeManagement: boolean;
+  productGroupPermissionsEnabled: boolean;
+  rewardPointsEnabled: boolean;
+  rewardPointRate: number;
+  defaultTaxRate: number;
+  invoiceTemplate: string;
+  enableSms: boolean;
+  enableZalo: boolean;
+  enableDelivery: boolean;
+  enablePaymentGateway: boolean;
+  loyaltyProgramEnabled: boolean;
+};
+
+export async function getStoreSettingsExtended(): Promise<StoreSettingsExtended> {
+  const base = await getStoreSettings();
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  const { data } = await admin.from("store_settings").select("*").eq("store_id", profile.store_id).maybeSingle();
+  return {
+    ...base,
+    allowChangeTransactionDate: Boolean(data?.allow_change_transaction_date),
+    autoSuggestProductInfo: data?.auto_suggest_product_info !== false,
+    barcodeManagement: data?.barcode_management !== false,
+    productGroupPermissionsEnabled: Boolean(data?.product_group_permissions_enabled),
+    rewardPointsEnabled: Boolean(data?.reward_points_enabled),
+    rewardPointRate: Number(data?.reward_point_rate ?? 10000),
+    defaultTaxRate: Number(data?.default_tax_rate ?? 0),
+    invoiceTemplate: data?.invoice_template || "standard",
+    enableSms: Boolean(data?.enable_sms),
+    enableZalo: Boolean(data?.enable_zalo),
+    enableDelivery: data?.enable_delivery !== false,
+    enablePaymentGateway: Boolean(data?.enable_payment_gateway),
+    loyaltyProgramEnabled: Boolean(data?.loyalty_program_enabled),
+  };
+}
+
+export async function updateStoreSettingsExtended(patch: Partial<StoreSettingsExtended>): Promise<StoreSettingsExtended> {
+  const { profile } = await import("@/lib/auth").then((m) => m.requireProfile("manager"));
+  const admin = createAdminClient();
+  const payload: Record<string, unknown> = { updated_at: new Date().toISOString(), updated_by: profile.id };
+  if (patch.allowChangeTransactionDate !== undefined) payload.allow_change_transaction_date = patch.allowChangeTransactionDate;
+  if (patch.autoSuggestProductInfo !== undefined) payload.auto_suggest_product_info = patch.autoSuggestProductInfo;
+  if (patch.barcodeManagement !== undefined) payload.barcode_management = patch.barcodeManagement;
+  if (patch.productGroupPermissionsEnabled !== undefined) payload.product_group_permissions_enabled = patch.productGroupPermissionsEnabled;
+  if (patch.rewardPointsEnabled !== undefined) payload.reward_points_enabled = patch.rewardPointsEnabled;
+  if (patch.rewardPointRate !== undefined) payload.reward_point_rate = patch.rewardPointRate;
+  if (patch.defaultTaxRate !== undefined) payload.default_tax_rate = patch.defaultTaxRate;
+  if (patch.invoiceTemplate !== undefined) payload.invoice_template = patch.invoiceTemplate;
+  if (patch.enableSms !== undefined) payload.enable_sms = patch.enableSms;
+  if (patch.enableZalo !== undefined) payload.enable_zalo = patch.enableZalo;
+  if (patch.enableDelivery !== undefined) payload.enable_delivery = patch.enableDelivery;
+  if (patch.enablePaymentGateway !== undefined) payload.enable_payment_gateway = patch.enablePaymentGateway;
+  if (patch.loyaltyProgramEnabled !== undefined) payload.loyalty_program_enabled = patch.loyaltyProgramEnabled;
+  await admin.from("store_settings").upsert({ store_id: profile.store_id, ...payload }).eq("store_id", profile.store_id);
+  await recordAudit("settings.extended.update", "store_settings", profile.store_id, { fields: Object.keys(payload) });
+  return getStoreSettingsExtended();
+}
