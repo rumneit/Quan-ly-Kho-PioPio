@@ -341,21 +341,21 @@
 .pos-customer-search input { background: transparent !important; font-size: 12.544px !important; }
 /* ---------- DELIVERY FORM EXTENDED (KiotViet fields) ---------- */
 .pos-textarea {
-  width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid #d0d7de;
+  width: 100%; min-height: 36px; padding: 4px 10px; border: 1px solid #d0d7de;
   border-radius: 6px; background: #fff; font-size: 12.544px; resize: vertical;
-  font-family: Roboto, Arial, sans-serif; color: #26323e;
+  font-family: Roboto, Arial, sans-serif; color: #26323e; line-height: 1.4;
 }
 .pos-textarea:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-textarea::placeholder { color: #8a96a7; }
 .pos-select {
-  width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d0d7de;
+  width: 100%; height: 29px; padding: 0 8px; border: 1px solid #d0d7de;
   border-radius: 6px; background: #fff; font-size: 12.544px; color: #26323e;
   appearance: auto; cursor: pointer;
 }
 .pos-select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-select:disabled { opacity: .5; cursor: not-allowed; }
 .pos-form-row input, .pos-form-row select, .pos-delivery-form > input, .pos-delivery-form > select {
-  height: 34px; padding: 0 10px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
+  height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
   font-size: 12.544px; width: 100%; font-family: Roboto, Arial, sans-serif; color: #26323e;
 }
 .pos-form-row input:focus, .pos-form-row select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
