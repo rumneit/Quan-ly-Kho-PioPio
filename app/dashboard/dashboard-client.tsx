@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, Clock3, DollarSign, PackageOpen, RotateCcw, ShieldAlert, ShoppingBag, TrendingUp, Users, Download, Store } from "lucide-react";
+import { Clock3, DollarSign, PackageOpen, RotateCcw, ShieldAlert, ShoppingBag, Users, Download } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 
@@ -105,7 +105,7 @@ function timeAgo(value: string) {
   return `${Math.floor(hours / 24)} ngày trước`;
 }
 
-export default function DashboardClient({ profile, products: initialProducts, customers, orders, branches }: Props) {
+export default function DashboardClient({ profile, products: initialProducts, customers, orders, branches: _branches }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [modal, setModal] = useState<"product" | "staff" | null>(null);
   const [message, setMessage] = useState("");
@@ -113,7 +113,6 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const [dateRange, setDateRange] = useState<DateRange>("Tháng này");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
-  const [branchId, setBranchId] = useState<string>("all");
   const [chartMode, setChartMode] = useState<"day" | "hour" | "weekday">("day");
   const [rankingMetric, setRankingMetric] = useState<"Doanh thu thuần" | "Số lượng">("Doanh thu thuần");
   const [rankingRange, setRankingRange] = useState<DateRange>("Tháng này");
@@ -121,11 +120,8 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const [activityOpen, setActivityOpen] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Branch-filtered orders
-  const filteredOrders = useMemo(() => {
-    if (branchId === "all") return orders;
-    return orders.filter(o => o.branch_id === branchId);
-  }, [orders, branchId]);
+  // Single branch mode - no branch filtering needed
+  const filteredOrders = orders;
 
   // Alerts derived from REAL data - not fake
   const lowStockProducts = useMemo(() => products.filter(p => p.active && p.stock_quantity <= 5).slice(0, 8), [products]);
@@ -256,18 +252,11 @@ export default function DashboardClient({ profile, products: initialProducts, cu
     a.href=url; a.download=`top-products-${getTodayVNKey()}.csv`; a.click(); URL.revokeObjectURL(url);
   }
 
-  const selectedBranchName = branchId === "all" ? "Tất cả chi nhánh" : branches.find(b=>b.id===branchId)?.name || "Chi nhánh";
-
   return <div className="kv-shell dashboard-page">
     <ManagementHeader profile={profile} active="dashboard" />
-    {/* Enhanced filter bar - KiotViet style: branch + date */}
+    {/* Filter bar - single branch, only date + notifications */}
     <div className="kv-dashboard-filters" style={{maxWidth:"none", margin:"0 auto", padding:"10px 16px", display:"flex", gap:"10px", alignItems:"center", flexWrap:"wrap", background:"#fff", borderBottom:"1px solid #e6ebef"}}>
       <div style={{display:"flex", alignItems:"center", gap:"8px"}}>
-        <Store size={16} color="#607488" />
-        <select aria-label="Chi nhánh" value={branchId} onChange={e=> setBranchId(e.target.value)} style={{height:"32px", padding:"0 10px", border:"1px solid #dfe5e9", borderRadius:"6px", fontSize:"13px"}}>
-          <option value="all">Tất cả chi nhánh</option>
-          {branches.map(b=> <option key={b.id} value={b.id}>{b.name} {b.is_default ? "(Mặc định)" : ""}</option>)}
-        </select>
         <span style={{fontSize:"11px", color:"#8895a3"}}>{filteredOrders.length} đơn • {totalActiveProducts} SP đang bán</span>
       </div>
       <div style={{marginLeft:"auto", display:"flex", gap:"8px", alignItems:"center"}}>
@@ -298,7 +287,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
           <section className="kv-card kv-today-card kv-enter">
             <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
               <h2>Kết quả bán hàng hôm nay</h2>
-              <span style={{fontSize:"11px", color:"#6b7a8a", border:"1px solid #e6ebef", padding:"4px 8px", borderRadius:"20px"}}>{selectedBranchName} • {getTodayVNKey()}</span>
+              <span style={{fontSize:"11px", color:"#6b7a8a", border:"1px solid #e6ebef", padding:"4px 8px", borderRadius:"20px"}}>{getTodayVNKey()}</span>
             </div>
             <div className="kv-today-stats">
               <article title="Click để xem báo cáo bán hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/sale-report"}>
@@ -322,7 +311,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
 
           <section className="kv-card kv-chart-card kv-enter delay-1">
             <div className="kv-card-title">
-              <h2>Doanh thu thuần <b>{moneyDetailed(chartTotal)}</b> <small style={{marginLeft:"6px", color:"#6b7a8a", fontWeight:400}}>{dateRange}{branchId!=="all" ? ` • ${selectedBranchName}`:""}</small></h2>
+              <h2>Doanh thu thuần <b>{moneyDetailed(chartTotal)}</b> <small style={{marginLeft:"6px", color:"#6b7a8a", fontWeight:400}}>{dateRange}</small></h2>
               <div style={{display:"flex", gap:"8px"}}>
                 <select aria-label="Khoảng thời gian" value={dateRange} onChange={(event) => setDateRange(event.target.value as DateRange)}>
                   <option>Hôm nay</option><option>Hôm qua</option><option>7 ngày qua</option><option>Tháng này</option><option>Tháng trước</option><option>Tùy chỉnh</option>
@@ -349,7 +338,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
                   return <i key={`${label}-${index}`} title={`${label}: ${money(value)}`} style={{ height: value ? `${Math.max(3, Math.abs(value) / chartMax * 92)}%` : "2px", background: isNegative ? "linear-gradient(#ff7b7b,#d32f2f)" : "linear-gradient(#36afea,#078fd9)", opacity: value===0?0.2:1 }}><span>{label}</span></i>;
                 })}
               </div>
-              {!hasChartData && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()} {branchId!=="all" ? `tại ${selectedBranchName}`:""}</div>}
+              {!hasChartData && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()}</div>}
             </div>
           </section>
 
@@ -367,7 +356,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
                 <button onClick={handleExportTopProducts} style={{display:"inline-flex", alignItems:"center", gap:"6px", padding:"6px 10px", border:"1px solid #dfe5e9", borderRadius:"4px", background:"#fff", fontSize:"11px"}}><Download size={14}/> Xuất CSV</button>
                 <Link href="/product-report" style={{marginLeft:"auto", fontSize:"11px", color:"#0070f4", textDecoration:"none"}}>Xem báo cáo hàng hóa →</Link>
               </div></>
-               : <div className="kv-empty"><PackageOpen size={42} /><p>Chưa có dữ liệu {rankingRange.toLowerCase()}</p><small>Hàng bán chạy sẽ hiện khi có hóa đơn {rankingRange.toLowerCase()} {branchId!=="all" ? `tại ${selectedBranchName}`:""}</small><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}
+               : <div className="kv-empty"><PackageOpen size={42} /><p>Chưa có dữ liệu {rankingRange.toLowerCase()}</p><small>Hàng bán chạy sẽ hiện khi có hóa đơn {rankingRange.toLowerCase()}</small><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}
             </section>
             <section className="kv-card kv-rank-card kv-enter delay-3">
               <div className="kv-card-title">
@@ -403,7 +392,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
               {filteredOrders.slice(0, 18).map((order) => {
                 const creatorName = order.creator?.full_name || profile.full_name;
                 const isReturn = order.status === "refunded";
-                return <article key={order.id}><span>{isReturn ? <RotateCcw size={16} /> : <ShoppingBag size={16} />}</span><p><b>{creatorName}</b> vừa <strong>{isReturn ? "trả hàng" : "bán đơn hàng"}</strong> <Link href={`/invoices?code=HD${String(order.order_number).padStart(6, "0")}`}>HD{String(order.order_number).padStart(6, "0")}</Link> với giá trị <strong>{money(Number(order.total))}</strong> {order.branch_id ? <small style={{display:"inline", marginLeft:"4px", color:"#5a6b7a"}}>• {branches.find(b=>b.id===order.branch_id)?.name||""}</small>:null}<small>{timeAgo(order.created_at)} • {new Intl.DateTimeFormat("vi-VN", {timeZone: VN_TZ, hour:"2-digit", minute:"2-digit", day:"2-digit", month:"2-digit"}).format(new Date(order.created_at))}</small></p></article>;
+                return <article key={order.id}><span>{isReturn ? <RotateCcw size={16} /> : <ShoppingBag size={16} />}</span><p><b>{creatorName}</b> vừa <strong>{isReturn ? "trả hàng" : "bán đơn hàng"}</strong> <Link href={`/invoices?code=HD${String(order.order_number).padStart(6, "0")}`}>HD{String(order.order_number).padStart(6, "0")}</Link> với giá trị <strong>{money(Number(order.total))}</strong><small>{timeAgo(order.created_at)} • {new Intl.DateTimeFormat("vi-VN", {timeZone: VN_TZ, hour:"2-digit", minute:"2-digit", day:"2-digit", month:"2-digit"}).format(new Date(order.created_at))}</small></p></article>;
               })}
               {!filteredOrders.length && <div className="kv-empty activity-empty"><Clock3 size={42} /><p>Chưa có hoạt động gần đây</p><small>Hoạt động bán hàng sẽ hiện ở đây theo thời gian thực (VN)</small><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}
             </div>
