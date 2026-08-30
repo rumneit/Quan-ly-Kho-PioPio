@@ -26,3 +26,50 @@
 @media(min-width:1920px){.dashboard-page .kv-main{max-width:1680px}.dashboard-page .kv-chart{height:400px}}
 .kv-avatar:focus-visible,.kv-round:focus-visible{outline:2px solid #0070f4;outline-offset:2px}
 .kv-toast-message{animation:kv-rise .32s ease}
+
+/* ===== DASHBOARD POP-UP FIX - modal, header dropdowns, chart tooltip ===== */
+.modal, .modal.open{
+  position:fixed!important; inset:0!important; z-index:200!important;
+  display:grid!important; place-items:center!important; padding:16px!important;
+  background:transparent!important;
+}
+.modal-backdrop, .modal .modal-backdrop{
+  position:fixed!important; inset:0!important; border:0!important;
+  background:rgba(28,40,55,.58)!important; backdrop-filter:blur(2px)!important;
+  z-index:199!important;
+}
+.modal-card, .modal .modal-card{
+  position:relative!important; z-index:201!important; margin:auto!important;
+  width:min(560px, calc(100vw - 32px))!important; max-height:calc(100vh - 32px)!important;
+  overflow:auto!important; background:#fff!important; border-radius:12px!important;
+  box-shadow:0 16px 48px rgba(0,0,0,.28)!important; display:flex!important; flex-direction:column!important;
+}
+.modal-head{ padding:16px 20px!important; border-bottom:1px solid #e6ebf0!important; display:flex!important; align-items:center!important; justify-content:space-between!important; flex-shrink:0!important; background:#fff!important; }
+.modal-head h3{ margin:0!important; font-size:16px!important; font-weight:700!important; color:#1a2332!important; }
+.modal-head p{ margin:4px 0 0!important; font-size:12px!important; color:#6b7a8d!important; }
+.modal-head .close-btn{ width:32px!important; height:32px!important; display:grid!important; place-items:center!important; border:0!important; border-radius:8px!important; background:transparent!important; color:#8a96a7!important; font-size:20px!important; }
+.modal-head .close-btn:hover{ background:#f2f4f7!important; color:#2e3541!important; }
+.form-grid{ padding:18px 20px!important; display:grid!important; grid-template-columns:1fr 1fr!important; gap:14px!important; background:#fff!important; }
+.form-grid .full{ grid-column:1/-1!important; }
+.form-grid label{ display:grid!important; gap:6px!important; font-size:13px!important; color:#2e3541!important; }
+.form-grid input, .form-grid select{ height:38px!important; border:1px solid #d0d7de!important; border-radius:7px!important; padding:0 12px!important; font-size:13px!important; background:#fff!important; }
+.form-grid input:focus, .form-grid select:focus{ border-color:#008ae6!important; box-shadow:0 0 0 2px rgba(0,138,230,.12)!important; outline:0!important; }
+.modal-actions{ padding:12px 20px!important; border-top:1px solid #e6ebf0!important; background:#f7f9fb!important; display:flex!important; justify-content:flex-end!important; gap:10px!important; flex-shrink:0!important; }
+.modal-actions .button{ height:38px!important; padding:0 16px!important; border-radius:7px!important; font-size:13px!important; font-weight:500!important; border:1px solid #d0d7de!important; background:#fff!important; color:#2e3541!important; }
+.modal-actions .button.primary{ border-color:#008ae6!important; background:#008ae6!important; color:#fff!important; }
+.modal-actions .button.secondary:hover{ background:#f7f9fb!important; }
+/* Header dropdowns - ensure not cut, aligned */
+.kv-header-actions{ position:relative!important; }
+.kv-header-actions .kv-round + div, .kv-avatar + div{ z-index:80!important; }
+.kv-header-actions [role="dialog"], .kv-header-actions [role="menu"]{
+  position:absolute!important; right:0!important; top:42px!important; z-index:80!important;
+  background:#fff!important; border:1px solid #e1e3e6!important; border-radius:8px!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.12)!important; overflow:hidden!important;
+}
+/* Chart tooltip i title - ensure visible */
+.kv-bars i[title]{ cursor:help!important; }
+/* Responsive modal */
+@media(max-width:480px){
+  .modal-card{ width:calc(100vw - 16px)!important; }
+  .form-grid{ grid-template-columns:1fr!important; }
+}

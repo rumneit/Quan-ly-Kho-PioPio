@@ -100,10 +100,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [query, setQuery] = useState("");
   const [noteQuery, setNoteQuery] = useState("");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const advancedSearchRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<{ key: SortKey; direction: "asc" | "desc" }>({ key: "name", direction: "asc" });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showColumns, setShowColumns] = useState(false);
+  const columnsRef = useRef<HTMLDivElement>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [createTab, setCreateTab] = useState<"info" | "desc">("info");
   const [priceOpen, setPriceOpen] = useState(true);
@@ -139,6 +141,31 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [suggestedInputs, setSuggestedInputs] = useState<Record<string, { price: string; cost: string; stock: string }>>({});
 
   useEffect(() => { setFilters(filtersFromUrl()); setUrlReady(true); }, []);
+  // Pop-up UX: close on outside click / Escape, prevent scroll lech
+  useEffect(() => {
+    if (!showAdvancedSearch && !showColumns) return;
+    const onPointer = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (showAdvancedSearch && advancedSearchRef.current && !advancedSearchRef.current.contains(target)) setShowAdvancedSearch(false);
+      if (showColumns && columnsRef.current && !columnsRef.current.contains(target)) setShowColumns(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setShowAdvancedSearch(false); setShowColumns(false); } };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onPointer); document.removeEventListener("keydown", onKey); };
+  }, [showAdvancedSearch, showColumns]);
+  // Modal ESC handling
+  useEffect(() => {
+    if (!showCreate && !showImportChooser && !showImportExcel && !showSuggested) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setShowCreate(false); setShowImportChooser(false); setShowImportExcel(false); setShowSuggested(false); }
+    };
+    document.addEventListener("keydown", onKey);
+    // lock body scroll when any modal open to avoid background scroll lech
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [showCreate, showImportChooser, showImportExcel, showSuggested]);
   useEffect(() => {
     if (!urlReady) return;
     const params = new URLSearchParams();
@@ -462,7 +489,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     <div className="product-actions">
       <h1>Hàng hóa</h1>
       <div className="product-actions-center">
-        <div className="product-query-wrap"><label className="product-query"><Search size={16} strokeWidth={2} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /></label><button className={`advanced-search-toggle ${showAdvancedSearch ? "active" : ""}`} type="button" aria-label="Tìm kiếm nâng cao" aria-expanded={showAdvancedSearch} onClick={() => setShowAdvancedSearch((value) => !value)}><SlidersHorizontal size={14} /></button>{showAdvancedSearch && <div className="advanced-search-popover"><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Theo mã, tên hàng" /><input value={noteQuery} onChange={(event) => setNoteQuery(event.target.value)} placeholder="Theo ghi chú, mô tả hàng hóa" /><footer><button type="button" onClick={() => { setPage(1); setShowAdvancedSearch(false); }}>Tìm kiếm</button></footer></div>}</div>
+        <div className="product-query-wrap" ref={advancedSearchRef}><label className="product-query"><Search size={16} strokeWidth={2} /><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Theo mã, tên hàng" /></label><button className={`advanced-search-toggle ${showAdvancedSearch ? "active" : ""}`} type="button" aria-label="Tìm kiếm nâng cao" aria-expanded={showAdvancedSearch} onClick={() => setShowAdvancedSearch((value) => !value)}><SlidersHorizontal size={14} /></button>{showAdvancedSearch && <div className="advanced-search-popover"><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Theo mã, tên hàng" /><input value={noteQuery} onChange={(event) => setNoteQuery(event.target.value)} placeholder="Theo ghi chú, mô tả hàng hóa" /><footer><button type="button" onClick={() => { setPage(1); setShowAdvancedSearch(false); }}>Tìm kiếm</button></footer></div>}</div>
       </div>
       <div className="product-toolbar kv-toolbar-100">
         <div className="kv-create-wrap">
@@ -475,7 +502,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         </div>
         <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon /><span className="kv-toolbar-label">Import file</span></button>
         <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon /><span className="kv-toolbar-label">Xuất file</span></button>
-        <div className="column-control"><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
+        <div className="column-control" ref={columnsRef}><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
         <Link href="/settings/product-info" className="kv-btn-icon" aria-label="Cài đặt bảng" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><Settings size={14} strokeWidth={2} /></Link>
         <Link href="https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/retail-hang-hoa/danh-sach-hang-hoa/" target="_blank" className="kv-btn-icon" aria-label="Trợ giúp" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><HelpCircle size={14} strokeWidth={2} /></Link>
       </div>

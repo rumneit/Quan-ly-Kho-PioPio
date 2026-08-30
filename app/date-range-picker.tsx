@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 
 export type DateValue = { preset: string; from?: string; to?: string };
@@ -48,16 +49,21 @@ export default function DateRangePicker({ value, onChange, compact = false }: { 
   const [tab, setTab] = useState<"preset" | "range">("preset");
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [draft, setDraft] = useState<DateValue>(value);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    const close = (event: MouseEvent) => { if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false); };
-    const esc = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", esc);
-    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); };
-  }, [open]);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onPointer = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (panelRef.current?.contains(target) || anchor?.contains(target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPointer); };
+  }, [open, anchor]);
 
   const label = value.preset === "all" ? "Toàn thời gian" : presets.flatMap((g) => g[1]).find((p) => p.id === value.preset)?.label || "Tùy chỉnh";
   const applyPreset = (id: string) => {
@@ -69,22 +75,34 @@ export default function DateRangePicker({ value, onChange, compact = false }: { 
   };
   const pickDate = (date: string) => setDraft((current) => !current.from || current.to ? { preset: "custom", from: date } : date < current.from ? { preset: "custom", from: date, to: current.from } : { ...current, to: date });
 
-  return <div className="date-filter date-range-picker" ref={wrapRef}>
-    <button type="button" className={`filter-select-button ${value.preset !== "custom" && value.preset !== "all" ? "has-value" : ""}`} aria-expanded={open} onClick={() => { setDraft(value); setTab("preset"); setOpen((v) => !v); }}>
+  const rect = anchor?.getBoundingClientRect();
+  const portalContent = open && anchor && rect && typeof document !== "undefined" ? (() => {
+    const isMobile = window.innerWidth <= 768;
+    const width = tab === "range" ? Math.min(900, window.innerWidth - 32) : Math.min(760, window.innerWidth - 32);
+    const left = isMobile ? (window.innerWidth - width) / 2 : Math.min(Math.max(16, rect.right + 12), window.innerWidth - width - 16);
+    const top = isMobile ? 16 : Math.min(Math.max(16, rect.top - 8), window.innerHeight - (tab === "range" ? 560 : 420) - 16);
+    return createPortal(
+      <div ref={panelRef} tabIndex={-1} role="dialog" aria-label="Chọn thời gian" className={`filter-popover date-range ${compact ? "compact" : ""}`} style={{ left, top, width }}>
+        <div className="date-filter-tabs"><button type="button" className={tab === "preset" ? "active" : ""} onClick={() => setTab("preset")}>Chọn nhanh</button><button type="button" className={tab === "range" ? "active" : ""} onClick={() => setTab("range")}>Tùy chỉnh</button></div>
+        {tab === "preset" ? (
+          <div className="preset-panel">{presets.map(([title, items]) => <section key={title}><h4>{title}</h4><div>{items.map((item) => <button type="button" key={item.id} disabled={item.disabled} className={value.preset === item.id ? "selected" : ""} onClick={() => applyPreset(item.id)}>{item.label}</button>)}</div></section>)}<button type="button" className={`all ${value.preset === "all" ? "selected" : ""}`} onClick={() => applyPreset("all")}>Toàn thời gian</button></div>
+        ) : (
+          <>
+            <div className="date-range-header">Từ ngày: <b>{display(draft.from)}</b> – Đến ngày: <b>{display(draft.to)}</b></div>
+            <div className="dual-calendar"><CalendarMonth month={month} from={draft.from} to={draft.to} onPick={pickDate} onMove={(amount) => setMonth(new Date(month.getFullYear(), month.getMonth() + amount, 1))} /><CalendarMonth month={new Date(month.getFullYear(), month.getMonth() + 1, 1)} from={draft.from} to={draft.to} onPick={pickDate} onMove={(amount) => setMonth(new Date(month.getFullYear(), month.getMonth() + amount + 1, 1))} /></div>
+            <footer><button type="button" className="today" onClick={() => setDraft({ preset: "custom", from: iso(new Date()), to: iso(new Date()) })}>Hôm nay</button><button type="button" onClick={() => setOpen(false)}>Bỏ qua</button><button type="button" className="primary" disabled={!draft.from || !draft.to} onClick={() => { onChange(draft); setOpen(false); }}>Áp dụng</button></footer>
+          </>
+        )}
+      </div>,
+      document.body
+    );
+  })() : null;
+
+  return <div className="date-filter date-range-picker">
+    <button type="button" ref={(el) => { if (el && open && !anchor) setAnchor(el); }} className={`filter-select-button ${value.preset !== "custom" && value.preset !== "all" ? "has-value" : ""}`} aria-expanded={open} onClick={(e) => { setDraft(value); setTab("preset"); setAnchor(e.currentTarget); setOpen((v) => !v); }}>
       <span className={value.preset === "all" ? "" : "has-value"}>{value.preset === "all" ? "Toàn thời gian" : value.preset === "custom" ? `Tùy chỉnh: ${display(value.from)} – ${display(value.to)}` : label}</span>
       <CalendarDays size={18} />
     </button>
-    {open && <div className={`date-filter-popover ${compact ? "compact" : ""}`}>
-      <div className="date-filter-tabs"><button type="button" className={tab === "preset" ? "active" : ""} onClick={() => setTab("preset")}>Chọn nhanh</button><button type="button" className={tab === "range" ? "active" : ""} onClick={() => setTab("range")}>Tùy chỉnh</button></div>
-      {tab === "preset" ? (
-        <div className="preset-panel">{presets.map(([title, items]) => <section key={title}><h4>{title}</h4><div>{items.map((item) => <button type="button" key={item.id} disabled={item.disabled} className={value.preset === item.id ? "selected" : ""} onClick={() => applyPreset(item.id)}>{item.label}</button>)}</div></section>)}<button type="button" className={`all ${value.preset === "all" ? "selected" : ""}`} onClick={() => applyPreset("all")}>Toàn thời gian</button></div>
-      ) : (
-        <>
-          <div className="date-range-header">Từ ngày: <b>{display(draft.from)}</b> – Đến ngày: <b>{display(draft.to)}</b></div>
-          <div className="dual-calendar"><CalendarMonth month={month} from={draft.from} to={draft.to} onPick={pickDate} onMove={(amount) => setMonth(new Date(month.getFullYear(), month.getMonth() + amount, 1))} /><CalendarMonth month={new Date(month.getFullYear(), month.getMonth() + 1, 1)} from={draft.from} to={draft.to} onPick={pickDate} onMove={(amount) => setMonth(new Date(month.getFullYear(), month.getMonth() + amount + 1, 1))} /></div>
-          <footer><button type="button" className="today" onClick={() => setDraft({ preset: "custom", from: iso(new Date()), to: iso(new Date()) })}>Hôm nay</button><button type="button" onClick={() => setOpen(false)}>Bỏ qua</button><button type="button" className="primary" disabled={!draft.from || !draft.to} onClick={() => { onChange(draft); setOpen(false); }}>Áp dụng</button></footer>
-        </>
-      )}
-    </div>}
+    {portalContent}
   </div>;
 }
