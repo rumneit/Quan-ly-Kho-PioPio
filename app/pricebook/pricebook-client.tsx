@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileUp, HelpCircle, Plus, Search, Settings, Trash2, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import ManagementHeader from "@/app/management-header";
@@ -128,6 +128,14 @@ export default function PriceBookClient({ profile, initialProducts, categories }
   const [rename, setRename] = useState("");
   const [visible] = useState<Record<ColumnKey, boolean>>({ sku: true, name: true, stock: false, cost: true, latest: true, price: true });
   const importInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!modal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModal(null); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [modal]);
   const selectedBook = books.find((book) => book.id === selectedBookId) || books[0];
   const isDirty = dirtyBooks.includes(selectedBook.id);
   const getPrice = (product: PriceProduct) => selectedBook.prices[product.id] ?? (Number(product.price) || 0);
@@ -140,7 +148,8 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     const stockMatch = stockFilter === "all" || (stockFilter === "in" ? product.stock_quantity > 0 : product.stock_quantity <= 0);
     const currentPrice = getPrice(product);
     const cost = Number(product.cost) || 0;
-    const compare = compareFilter === "cost" ? cost : currentPrice;
+    const basePrice = Number(product.price) || 0;
+    const compare = compareFilter === "cost" ? cost : basePrice;
     const priceMatch = priceFilter === "all" || (priceFilter === "below_cost" ? currentPrice < compare : priceFilter === "above_cost" ? currentPrice > compare : currentPrice === 0);
     return globalMatch && skuMatch && nameMatch && categoryMatch && stockMatch && priceMatch;
   }), [initialProducts, query, skuQuery, nameQuery, categoryId, stockFilter, priceFilter, compareFilter, selectedBook, getPrice]);
@@ -316,7 +325,7 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     setModal("settings");
   }
 
-  const visibleCount = 6;
+  const visibleCount = 5;
   return <div className="kv-shell product-page pricebook-page">
     <ManagementHeader profile={profile} active="pricebook" />
     <div className="product-actions pricebook-actions">
@@ -360,7 +369,7 @@ export default function PriceBookClient({ profile, initialProducts, categories }
           <div className="pb-card"><div className="pb-card-title">Khi thu ngân lên đơn với bảng giá này</div><div className="pb-card-body"><label className="pb-radio"><input type="radio" name="pb-pos" checked={newBook.pos_rule === "allow"} onChange={() => setNewBook((current) => ({ ...current, pos_rule: "allow" }))} /><span>Được phép thêm hàng hóa không có trong bảng giá</span></label><label className="pb-radio"><input type="radio" name="pb-pos" checked={newBook.pos_rule === "warn"} onChange={() => setNewBook((current) => ({ ...current, pos_rule: "warn" }))} /><span>Gửi cảnh báo khi thêm hàng hóa không có trong bảng giá</span></label><label className="pb-radio"><input type="radio" name="pb-pos" checked={newBook.pos_rule === "strict"} onChange={() => setNewBook((current) => ({ ...current, pos_rule: "strict" }))} /><span>Chỉ được thêm hàng hóa có trong bảng giá này</span></label></div></div>
         </div>}
         {createTab === "scope" && <div className="pricebook-tab-pane">
-          <div className="pb-card"><div className="pb-card-title">Chi nhánh</div><div className="pb-card-body"><label className="pb-radio"><input type="radio" name="pb-branch" checked={newBook.branch_scope === "all"} onChange={() => setNewBook((current) => ({ ...current, branch_scope: "all" }))} /><span>Toàn hệ thống</span></label><label className="pb-radio"><input type="radio" name="pb-branch" checked={newBook.branch_scope === "specific"} onChange={() => setNewBook((current) => ({ ...current, branch_scope: "specific" }))} /><span>Chi nhánh cụ thể</span></label></div></div>
+          <div className="pb-card"><div className="pb-card-title">Chi nhánh</div><div className="pb-card-body"><span style={{fontSize:"13px", color:"#374450"}}>Toàn hệ thống — 1 chi nhánh mặc định (không cần chọn)</span></div></div>
           <div className="pb-card"><div className="pb-card-title">Nhóm khách hàng</div><div className="pb-card-body"><label className="pb-radio"><input type="radio" name="pb-customer" checked={newBook.customer_scope === "all"} onChange={() => setNewBook((current) => ({ ...current, customer_scope: "all" }))} /><span>Tất cả</span></label><label className="pb-radio"><input type="radio" name="pb-customer" checked={newBook.customer_scope === "specific"} onChange={() => setNewBook((current) => ({ ...current, customer_scope: "specific" }))} /><span>Nhóm khách hàng cụ thể</span></label></div></div>
           <div className="pb-card"><div className="pb-card-title">Người tạo giao dịch</div><div className="pb-card-body"><label className="pb-radio"><input type="radio" name="pb-creator" checked={newBook.creator_scope === "all"} onChange={() => setNewBook((current) => ({ ...current, creator_scope: "all" }))} /><span>Tất cả</span></label><label className="pb-radio"><input type="radio" name="pb-creator" checked={newBook.creator_scope === "specific"} onChange={() => setNewBook((current) => ({ ...current, creator_scope: "specific" }))} /><span>Người tạo giao dịch cụ thể</span></label></div></div>
         </div>}
