@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import { VN_PROVINCES } from "@/app/lib/vietnam-data";
+import FilterPopover from "@/app/products/filter-popover";
 
 export type Mode = "orders" | "invoices" | "returns" | "delivery-partners" | "waybills";
 type Product = { id: string; sku: string; name: string; price: number; stock_quantity: number };
@@ -121,17 +123,17 @@ const configs: Record<Mode, Config> = {
   orders: {
     title: "Đặt hàng",
     placeholder: "Theo mã phiếu đặt",
-    columns: columns([["waybill", "Mã vận đơn"], ["code", "Mã đặt hàng"], ["invoice", "Mã hóa đơn"], ["time", "Thời gian"], ["createdAt", "Thời gian tạo"], ["updatedAt", "Ngày cập nhật"], ["deliveryAt", "Thời gian giao hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["branch", "Chi nhánh"], ["phone", "Điện thoại"], ["partner", "Đối tác giao hàng"], ["creator", "Người tạo"], ["channel", "Kênh bán"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["status", "Trạng thái"]]),
-    visible: ["code", "time", "customerCode", "customer", "branch", "payable", "paid", "status"],
-    filters: ["Thời gian", "Trạng thái", "Chi nhánh", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người nhận đặt", "Kênh bán"],
+    columns: columns([["waybill", "Mã vận đơn"], ["code", "Mã đặt hàng"], ["invoice", "Mã hóa đơn"], ["time", "Thời gian"], ["createdAt", "Thời gian tạo"], ["updatedAt", "Ngày cập nhật"], ["deliveryAt", "Thời gian giao hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["phone", "Điện thoại"], ["partner", "Đối tác giao hàng"], ["creator", "Người tạo"], ["channel", "Kênh bán"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["status", "Trạng thái"]]),
+    visible: ["code", "time", "customerCode", "customer", "payable", "paid", "status"],
+    filters: ["Thời gian", "Trạng thái", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người nhận đặt", "Kênh bán"],
     statusLabels: { draft: "Phiếu tạm", paid: "Hoàn thành", cancelled: "Đã hủy", refunded: "Đã trả hàng" },
   },
   invoices: {
     title: "Hóa đơn",
     placeholder: "Theo mã hóa đơn",
-    columns: columns([["code", "Mã hóa đơn"], ["waybill", "Mã vận đơn"], ["deliveryStatus", "Trạng thái giao hàng"], ["time", "Thời gian"], ["returnCode", "Mã trả hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["branch", "Chi nhánh"], ["phone", "Điện thoại"], ["creator", "Người tạo"], ["partner", "Đối tác giao hàng"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["cod", "Còn cần thu (COD)"], ["shippingFee", "Phí trả ĐTGH"], ["status", "Trạng thái"]]),
-    visible: ["code", "time", "returnCode", "customerCode", "customer", "branch", "subtotal", "discount", "paid"],
-    filters: ["Thời gian", "Giao hàng", "Trạng thái hóa đơn", "Trạng thái giao hàng", "Chi nhánh", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người bán", "Kênh bán"],
+    columns: columns([["code", "Mã hóa đơn"], ["waybill", "Mã vận đơn"], ["deliveryStatus", "Trạng thái giao hàng"], ["time", "Thời gian"], ["returnCode", "Mã trả hàng"], ["customerCode", "Mã KH"], ["customer", "Khách hàng"], ["phone", "Điện thoại"], ["creator", "Người tạo"], ["partner", "Đối tác giao hàng"], ["note", "Ghi chú"], ["subtotal", "Tổng tiền hàng"], ["discount", "Giảm giá"], ["payable", "Khách cần trả"], ["paid", "Khách đã trả"], ["cod", "Còn cần thu (COD)"], ["shippingFee", "Phí trả ĐTGH"], ["status", "Trạng thái"]]),
+    visible: ["code", "time", "returnCode", "customerCode", "customer", "subtotal", "discount", "paid"],
+    filters: ["Thời gian", "Giao hàng", "Trạng thái hóa đơn", "Trạng thái giao hàng", "Đối tác giao hàng", "Thời gian giao hàng", "Khu vực giao hàng", "Phương thức thanh toán", "Người tạo", "Người bán", "Kênh bán"],
     statusLabels: { paid: "Hoàn thành", refunded: "Đã trả hàng" },
   },
   returns: {
@@ -572,7 +574,7 @@ export default function OrderListClient({
     return String(row.values[key] ?? "---");
   }
 
-  const filterKey = (label: string) => label.includes("Đối tác") ? "partner" : label.includes("Chi nhánh") ? "branch" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? (label === "Người bán" ? "seller" : "creator") : label.includes("Kênh") ? "channel" : "";
+  const filterKey = (label: string) => label.includes("Đối tác") ? "partner" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? (label === "Người bán" ? "seller" : "creator") : label.includes("Kênh") ? "channel" : "";
   const renderFilter = (label: string, index: number) => {
     if (label.includes("Thời gian")) {
       const criterion = dateFilters[label] || { preset: "all", from: "", to: "" };
@@ -583,6 +585,9 @@ export default function OrderListClient({
     if (label === "Thu hộ tiền (COD)") return <section key={label}><h2>{label}</h2><div className="order-segmented">{(["all", "yes", "no"] as const).map((value) => <button type="button" key={value} className={codFilter === value ? "selected" : ""} onClick={() => { setCodFilter(value); resetResults(); }}>{value === "all" ? "Tất cả" : value === "yes" ? "Có" : "Không"}</button>)}</div></section>;
     if (label === "Trạng thái giao hàng") return <section key={label}><h2>{label}</h2>{[["---", "Chưa giao hàng"], ...Object.entries(configs.waybills.statusLabels)].map(([status, text]) => <label className="stock-check" key={status}><input type="checkbox" checked={deliveryStatuses.includes(status)} onChange={() => { setDeliveryStatuses((current) => current.includes(status) ? current.filter((item) => item !== status) : [...current, status]); resetResults(); }} />{text}</label>)}</section>;
     if (label.includes("Trạng thái")) return <section key={label}><h2>{label}</h2>{Object.entries(config.statusLabels).map(([status, text]) => <label className="stock-check" key={status}><input type="checkbox" checked={statuses.includes(status)} onChange={() => toggleStatus(status)} />{text}</label>)}</section>;
+    if (label.includes("Khu vực")) {
+      return <section key={label}><h2>{label}</h2><select aria-label={label} value={filters["area"] || ""} onChange={(event) => { setFilters((current) => ({ ...current, area: event.target.value })); resetResults(); }}><option value="">Tất cả khu vực</option>{VN_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}</select></section>;
+    }
     const key = filterKey(label);
     const options = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
     return <section key={label}><h2>{label}</h2><select aria-label={label} disabled={!key || !options.length} value={filters[key] || ""} onChange={(event) => { setFilters((current) => ({ ...current, [key]: event.target.value })); resetResults(); }}><option value="">Chọn {label.toLocaleLowerCase("vi")}</option>{options.map((option) => <option key={option}>{option}</option>)}</select></section>;

@@ -4,6 +4,7 @@ import { FormEvent, startTransition, useEffect, useMemo, useRef, useState } from
 import { CalendarDays, Columns3, Download, FileUp, HelpCircle, Inbox, MoreHorizontal, Plus, Search, Settings, SlidersHorizontal, Star, Users, X } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
+import { VN_PROVINCES } from "@/app/lib/vietnam-data";
 
 type SourceShipment = { status: string; cod_amount: number; collected_cod: number };
 type SourceReturn = { id: string; return_number: number; status: string; refund_amount: number; created_at: string };
@@ -109,7 +110,7 @@ export default function CustomersClient({ profile, initialCustomers, initialCoun
   const firstRequest = useRef(true);
   const importRef = useRef<HTMLInputElement>(null);
   const rows = useMemo(() => items.map(toRow), [items]);
-  const areas = useMemo(() => Array.from(new Set(items.map((item) => item.area).filter(Boolean))) as string[], [items]);
+  const areas = VN_PROVINCES as unknown as string[];
   const totalPages = Math.max(1, Math.ceil(count / pageSize));
   const safePage = Math.min(page, totalPages);
   const displayedColumns = columns.filter(([key]) => visible[key]);
