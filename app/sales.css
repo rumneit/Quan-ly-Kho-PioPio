@@ -316,3 +316,9 @@
 .pos-support { transition: color .15s !important; }
 .pos-support:hover { color: #0070f4 !important; }
 .page-footer-usemanual:hover, .page-footer-rating:hover { color: #0070f4 !important; }
+/* ---------- FIX: inputs fill their styled wrappers + force Roboto ---------- */
+.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: Roboto, 'Helvetica Neue', Arial, sans-serif !important; }
+.pos-global-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
+.pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
+.pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 34px !important; font-size: 12.544px !important; }
+.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }

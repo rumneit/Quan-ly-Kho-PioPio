@@ -92,7 +92,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
     } catch { setError("Không thể kết nối máy chủ."); } finally { setSaving(false); }
   }
 
-  return <main className="pos-shell">
+  return <main className="pos-shell" style={{ fontFamily: "Roboto, Arial, sans-serif", fontSize: "12.544px" }}>
     {/* HEADER: 41px blue */}
     <header className="page-header">
       <div className="header-left">
