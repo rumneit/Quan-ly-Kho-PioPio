@@ -322,3 +322,20 @@
 .pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 34px !important; font-size: 12.544px !important; }
 .pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }
+/* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
+/* Bán thường: left 704 + right 559 (product list, transparent) */
+.pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
+.pos-shell.mode-normal .col-right, .pos-shell.mode-quick .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .form-delivery, .pos-shell.mode-quick .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
+.pos-shell.mode-normal .pos-product-list, .pos-shell.mode-quick .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .cart-footer, .pos-shell.mode-quick .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
+
+/* Bán giao hàng: left 841 + right 421 (delivery form, white card) */
+.pos-shell.mode-delivery .col-left { flex: 1 1 auto !important; width: auto !important; }
+.pos-shell.mode-delivery .col-right { flex: 0 0 421px !important; width: 421px !important; min-width: 421px !important; background: #fff !important; border-radius: 9px !important; }
+.pos-shell.mode-delivery .form-delivery { background: #fff !important; border-radius: 9px !important; }
+
+/* Fix search box + customer search: white bg, proper size */
+.pos-global-search { background: #fff !important; width: 352px !important; height: 29px !important; border-radius: 4.48px !important; }
+.pos-customer-search { background: #f0f1f3 !important; width: 100% !important; height: 29px !important; border-radius: 4.48px !important; }
+.pos-customer-search input { background: transparent !important; font-size: 12.544px !important; }
