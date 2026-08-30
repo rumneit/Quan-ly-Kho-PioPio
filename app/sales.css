@@ -290,3 +290,29 @@
 /* col-left flex column so cart-footer sits below list */
 .col-left { display: flex; flex-direction: column; }
 .cart-container { flex: 1; min-height: 0; overflow: hidden; }
+/* ---------- POLISH: shadows, hover, transitions ---------- */
+.page-header { box-shadow: 0 1px 4px rgba(0,60,120,.15); }
+.pos-global-search { transition: border-color .15s, box-shadow .15s; }
+.pos-global-search:focus-within { border-color: #0070f4; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
+.pos-global-search input::placeholder { color: #8a96a7; }
+.pos-invoice-tab { box-shadow: 0 -1px 4px rgba(0,60,120,.08); }
+.pos-cart-list { box-shadow: 0 1px 4px rgba(0,60,120,.06); }
+.pos-cart-list article:hover { background: #f7faff; }
+.pos-quantity button:hover { border-color: #0070f4; color: #0070f4; }
+.pos-line-remove:hover { color: #d64545; }
+.form-delivery { box-shadow: 0 2px 8px rgba(0,60,120,.08); }
+.pos-customer-search { transition: border-color .15s; }
+.pos-customer-search:focus-within { box-shadow: 0 0 0 2px rgba(0,112,244,.1); }
+.pos-customer-search input::placeholder { color: #8a96a7; }
+.pos-customer-search button:hover { background: #e8f4ff; color: #0070f4; }
+.pos-delivery-fields input, .pos-form-row input { transition: border-color .15s, box-shadow .15s; }
+.btn-xl { transition: background .15s, border-color .15s, transform .1s; }
+.btn-xl:active { transform: scale(.98); }
+.btn-select-ship-partner:hover { background: #eaf4ff; }
+.nav-tabs .nav-link { transition: background .15s; }
+.nav-tabs .nav-link:hover { background: #f0f4f8; }
+.nav-tabs .nav-link svg { color: #6b7a8d; }
+.nav-tabs .nav-link.active svg { color: #0070f4; }
+.pos-support { transition: color .15s; }
+.pos-support:hover { color: #0070f4; }
+.page-footer-usemanual:hover, .page-footer-rating:hover { color: #0070f4; }
