@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarDays, Download, Printer } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import { getTodayVnKey, toVnDateKey, VN_TZ } from "@/lib/vn-time";
@@ -64,7 +64,7 @@ export default function EndOfDayReportClient({ profile, orders, vouchers, branch
       <main className="report-workspace">
         <aside className="report-sidebar">
           <section><h2>Mối quan tâm</h2>{["Bán hàng", "Thu chi", "Hàng hóa"].map((value) => <label className="stock-radio" key={value}><input type="radio" name="report-interest" checked={interest === value} onChange={() => setInterest(value)} /><span>{value}</span></label>)}</section>
-          <section><h2>Thời gian</h2><label className="report-date"><input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /><CalendarDays size={17} /></label></section>
+          <section><h2>Thời gian</h2><label className="report-date"><input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></label></section>
           <section><h2>Trạng thái</h2><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="paid">Đã thanh toán</option><option value="draft">Phiếu tạm</option><option value="cancelled">Đã hủy</option><option value="all">Tất cả</option></select></section>
           <section><h2>Chi nhánh</h2><select value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="all">Tất cả chi nhánh</option>{branches.map(b=> <option key={b.id} value={b.id}>{b.name}</option>)}</select></section>
           <section><h2>Nhân viên</h2><select value={seller} onChange={(event) => setSeller(event.target.value)}><option value="all">Tất cả nhân viên</option>{sellers.map(s=> <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></section>
