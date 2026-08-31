@@ -8,6 +8,7 @@ import "./invoice-template.css";
 
 type ProductRef = { sku: string; name: string; dvt: string; price: number; tax: number };
 type OrderRef = { code: string; createdAt: string; total: number; customer: string; phone: string; address: string; items: Array<{ sku: string; name: string; dvt: string; tax: number; qty: number; price: number }> };
+type CustomerRef = { name: string; phone: string; taxCode: string };
 type Row = { ma: string; ten: string; dvt: string; sl: string; dg: string; ghichu: string; tax: number };
 const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu: "", tax: 0 });
 
@@ -48,7 +49,7 @@ function docSo(n: number): string {
   return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
-export default function InvoiceTemplateClient({ profile, products, orders }: { profile: Profile; products: ProductRef[]; orders: OrderRef[] }) {
+export default function InvoiceTemplateClient({ profile, products, orders, customers }: { profile: Profile; products: ProductRef[]; orders: OrderRef[]; customers: CustomerRef[] }) {
   const todayD = new Date();
   const todayMM = String(todayD.getMonth() + 1).padStart(2, "0");
   const todayYY = String(todayD.getFullYear()).slice(2);
@@ -66,6 +67,7 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.sku.toUpperCase(), p])), [products]);
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
+  const customerMap = useMemo(() => new Map(customers.map((c) => [c.name.trim().toUpperCase(), c])), [customers]);
 
   const setRow = (i: number, patch: Partial<Row>) => setRows((cur) => cur.map((r, idx) => idx === i ? { ...r, ...patch } : r));
 
@@ -80,9 +82,22 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
     setRows(next);
     setSoHD(code);
     setKhach(order.customer);
+    setMst(customerMap.get(order.customer.trim().toUpperCase())?.taxCode || "");
     setSdt(order.phone);
     setDiaChi(order.address);
     setNgay(String(d.getDate())); setThang(String(d.getMonth() + 1)); setNam(String(d.getFullYear()));
+  }
+
+  function applyKhach(v: string) {
+    setKhach(v);
+    const c = customerMap.get(v.trim().toUpperCase());
+    if (c?.taxCode) setMst(c.taxCode);
+  }
+
+  function applyNguoiMua(v: string) {
+    setNguoiMua(v);
+    const c = customerMap.get(v.trim().toUpperCase());
+    if (c?.phone) setSdt(c.phone);
   }
 
   function applyProduct(i: number, skuRaw: string) {
@@ -127,6 +142,7 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
     <div className="inv-toolbar no-print">
       <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {moneyUS(o.total)}</option>)}</datalist>
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
+      <datalist id="inv-customers">{customers.map((c) => <option key={c.name} value={c.name}>{c.phone}{c.taxCode ? ` · MST ${c.taxCode}` : ""}</option>)}</datalist>
       <label className="inv-order-pick">Đơn hàng: <input list="inv-orders" value={orderCode} onChange={(e) => applyOrder(e.target.value)} placeholder="HD000001..." /></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
@@ -136,9 +152,9 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
       <div className="inv-sheet">
         <div className="inv-header">
           <div className="inv-header-left">
-            <p><b>Tên đơn vị:</b> <input className="inv-line w-company" defaultValue="CTY TNHH SẢN XUẤT THƯƠNG MẠI DỊCH VỤ PIOPIO" /></p>
-            <p><b>Địa chỉ:</b> <input className="inv-line w-company" defaultValue="14 đường 16 KDC Bình Hưng, Xã Bình Hưng, Tp.HCM" /></p>
-            <p><b>Hotline:</b> <input className="inv-line w-hotline" defaultValue="07 0404 0044" /> - <b>Website:</b> <input className="inv-line w-web" defaultValue="piopio.vn" /></p>
+            <p><b>Tên đơn vị:</b> CTY TNHH SẢN XUẤT THƯƠNG MẠI DỊCH VỤ PIOPIO</p>
+            <p><b>Địa chỉ:</b> 14 đường 16 KDC Bình Hưng, Xã Bình Hưng, Tp.HCM</p>
+            <p><b>Hotline:</b> 07 0404 0044 - <b>Website:</b> piopio.vn</p>
           </div>
           <div className="inv-header-right">
             <p className="inv-mau-so"><b>Mẫu số : 02 - VT</b></p>
@@ -153,8 +169,8 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
         </div>
         <div className="inv-info">
           <p><b>Số:</b> <input className="inv-line w-code" value={soHD} onChange={(e) => setSoHD(e.target.value)} placeholder="PIOX........" /> <b>- Nội dung:</b> <input className="inv-line w-content" value={noiDung} onChange={(e) => setNoiDung(e.target.value)} /></p>
-          <p><b>Khách hàng:</b> <input className="inv-line w-kh" value={khach} onChange={(e) => setKhach(e.target.value)} /> <b>- MST:</b> <input className="inv-line w-mst2" value={mst} onChange={(e) => setMst(e.target.value)} /></p>
-          <p><b>Người mua hàng:</b> <input className="inv-line w-kh" value={nguoiMua} onChange={(e) => setNguoiMua(e.target.value)} /> <b>- SĐT:</b> <input className="inv-line w-sdt" value={sdt} onChange={(e) => setSdt(e.target.value)} /></p>
+          <p><b>Khách hàng:</b> <input className="inv-line w-kh" list="inv-customers" value={khach} onChange={(e) => applyKhach(e.target.value)} /> <b>- MST:</b> <input className="inv-line w-mst2" value={mst} onChange={(e) => setMst(e.target.value)} /></p>
+          <p><b>Người mua hàng:</b> <input className="inv-line w-kh" list="inv-customers" value={nguoiMua} onChange={(e) => applyNguoiMua(e.target.value)} /> <b>- SĐT:</b> <input className="inv-line w-sdt" value={sdt} onChange={(e) => setSdt(e.target.value)} /></p>
           <p><b>Địa chỉ:</b> <input className="inv-line w-kh" value={diaChi} onChange={(e) => setDiaChi(e.target.value)} /></p>
         </div>
         <table className="inv-table">
