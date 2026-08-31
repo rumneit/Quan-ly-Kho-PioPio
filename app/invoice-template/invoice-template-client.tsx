@@ -134,11 +134,16 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
     </div>
     <main className="inv-main no-print-gap">
       <div className="inv-sheet">
-        <div className="inv-company">
-          <p><b>Tên đơn vị:</b> <input className="inv-line w-company" defaultValue="CTY TNHH SẢN XUẤT THƯƠNG MẠI DỊCH VỤ PIOPIO" /></p>
-          <p><b>Địa chỉ:</b> <input className="inv-line w-company" defaultValue="14 đường 16 KDC Bình Hưng, Xã Bình Hưng, Tp.HCM" /></p>
-          <p><b>MST:</b> <input className="inv-line w-mst" defaultValue="0319525530" /></p>
-          <p><b>Hotline:</b> <input className="inv-line w-hotline" defaultValue="07 0404 0044" /> <b>- Website:</b> <input className="inv-line w-web" defaultValue="piopio.vn" /></p>
+        <div className="inv-header">
+          <div className="inv-header-left">
+            <p><b>Tên đơn vị:</b> <input className="inv-line w-company" defaultValue="CTY TNHH SẢN XUẤT THƯƠNG MẠI DỊCH VỤ PIOPIO" /></p>
+            <p><b>Địa chỉ:</b> <input className="inv-line w-company" defaultValue="14 đường 16 KDC Bình Hưng, Xã Bình Hưng, Tp.HCM" /></p>
+            <p><b>Hotline:</b> <input className="inv-line w-hotline" defaultValue="07 0404 0044" /> - <b>Website:</b> <input className="inv-line w-web" defaultValue="piopio.vn" /></p>
+          </div>
+          <div className="inv-header-right">
+            <p className="inv-mau-so"><b>Mẫu số : 02 - VT</b></p>
+            <p className="inv-qd-note">(Ban hành theo QĐ 15/2006/QĐ-BTC ngày 20/03/2006<br />của Bộ Trưởng Bộ Tài Chính)</p>
+          </div>
         </div>
         <h1 className="inv-title">HÓA ĐƠN BÁN HÀNG</h1>
         <div className="inv-date">
