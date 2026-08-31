@@ -13,7 +13,7 @@
 .auth-page,.sales-app{font-family:Inter,Arial,sans-serif}
 
 /* Hide Chi Nhanh - single branch default */
-section:has(> select[aria-label*="Chi nhánh"]), section:has(> select[aria-label*="chi nhánh"]) { display:none!important; }
+section:has(> select[aria-label*="Chi nhÃ¡nh"]), section:has(> select[aria-label*="chi nhÃ¡nh"]) { display:none!important; }
 th.branch, td.branch { display:none!important; }
 
 /* ===== Login: font & khoang cach deu, tham my ===== */
@@ -44,42 +44,3 @@ th.branch, td.branch { display:none!important; }
 .inv-order-pick input{height:32px;width:150px;border:1px solid #cfd6de;border-radius:7px;padding:0 10px;font:inherit;font-size:13px;outline:0}
 .inv-order-pick input:focus{border-color:#008ae6;box-shadow:0 0 0 2px rgba(0,138,230,.12)}
 
-/* ===== PAGE TRANSITIONS - bo hieu ung chuyen trang ===== */
-.pt-anim{animation-duration:.45s;animation-timing-function:cubic-bezier(.22,.61,.36,1);animation-fill-mode:both}
-@keyframes pt-fade{from{opacity:0}to{opacity:1}}
-.pt-fade{animation-name:pt-fade}
-@keyframes pt-fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.pt-fade-up{animation-name:pt-fade-up}
-@keyframes pt-slide-left{from{opacity:0;transform:translateX(44px)}to{opacity:1;transform:none}}
-.pt-slide-left{animation-name:pt-slide-left}
-@keyframes pt-slide-right{from{opacity:0;transform:translateX(-44px)}to{opacity:1;transform:none}}
-.pt-slide-right{animation-name:pt-slide-right}
-@keyframes pt-slide-up{from{opacity:0;transform:translateY(46px)}to{opacity:1;transform:none}}
-.pt-slide-up{animation-name:pt-slide-up}
-@keyframes pt-zoom{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
-.pt-zoom{animation-name:pt-zoom}
-@keyframes pt-rotate{from{opacity:0;transform:scale(.97) rotate(1.4deg)}to{opacity:1;transform:none}}
-.pt-rotate{animation-name:pt-rotate;transform-origin:50% 0}
-@keyframes pt-flip-x{from{opacity:0;transform:perspective(1100px) rotateX(9deg)}to{opacity:1;transform:none}}
-.pt-flip-x{animation-name:pt-flip-x;transform-origin:50% 0}
-@keyframes pt-flip-y{from{opacity:0;transform:perspective(1100px) rotateY(-8deg)}to{opacity:1;transform:none}}
-.pt-flip-y{animation-name:pt-flip-y}
-@keyframes pt-blur{from{opacity:0;filter:blur(9px)}to{opacity:1;filter:blur(0)}}
-.pt-blur{animation-name:pt-blur}
-@keyframes pt-bounce{0%{opacity:0;transform:translateY(26px) scale(.99)}55%{opacity:1;transform:translateY(-5px)}75%{transform:translateY(2px)}100%{opacity:1;transform:none}}
-.pt-bounce{animation-name:pt-bounce;animation-duration:.55s;animation-timing-function:cubic-bezier(.34,1.56,.64,1)}
-@media (prefers-reduced-motion: reduce){.pt-anim{animation:none!important}}
-/* Switcher demo */
-.pt-switcher{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:56;font-family:Inter,Arial,sans-serif}
-.pt-pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:1px solid #cfd6de;border-radius:19px;background:rgba(255,255,255,.94);box-shadow:0 4px 16px rgba(16,32,54,.14);color:#2e3541;font-size:13px;cursor:pointer;backdrop-filter:blur(4px)}
-.pt-pill:hover{border-color:#008ae6;color:#008ae6}
-.pt-pill b{font-weight:600}
-.pt-pop{position:absolute;bottom:46px;left:50%;transform:translateX(-50%);width:min(340px,calc(100vw - 24px));padding:14px;border:1px solid #e1e6ec;border-radius:12px;background:#fff;box-shadow:0 12px 32px rgba(16,32,54,.18)}
-.pt-pop-title{margin:0 0 10px;font-size:13px;font-weight:700;color:#1a2332}
-.pt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.pt-chip{display:flex;align-items:center;justify-content:center;height:36px;padding:0 8px;border:1px solid #dfe4ea;border-radius:8px;background:#fff;color:#2e3541;font-size:12.5px;cursor:pointer;transition:border-color .12s,background .12s}
-.pt-chip:hover{border-color:#008ae6;color:#008ae6;background:#f7fbff}
-.pt-chip.active{border-color:#008ae6;background:#eaf4ff;color:#008ae6;font-weight:600}
-.pt-hint{margin:10px 0 0;color:#6b7a8d;font-size:11px;line-height:1.5}
-@media print{.pt-switcher{display:none!important}}
-@media(max-width:640px){.pt-switcher{bottom:10px}.pt-pill{height:34px;font-size:12px}}
