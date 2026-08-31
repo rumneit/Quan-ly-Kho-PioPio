@@ -1,15 +1,15 @@
 /* ===== Mẫu Hóa Đơn Bán Hàng A4 — y chang file Hoa Don.xlsx ===== */
 .invoice-tpl-page{background:#eceff3}
 .inv-main{padding:14px}
-.inv-sheet{width:200mm;max-width:100%;min-height:280mm;margin:0 auto;padding:8mm 9mm;background:#fff;color:#111;font-family:"Times New Roman",Times,serif;font-size:13px;line-height:1.45;box-shadow:0 2px 18px rgba(16,32,54,.12)}
-.inv-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:10px}
-.inv-header-left{flex:1;line-height:1.5;font-family:"Times New Roman",Times,serif!important;font-size:18px!important}
-.inv-header-left p{margin:0 0 2px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px;font-family:"Times New Roman",Times,serif!important;font-size:18px!important}
-.inv-header-left b,.inv-header-left strong{font-family:"Times New Roman",Times,serif!important;font-size:18px!important}
-.inv-header-left .inv-line{font-family:"Times New Roman",Times,serif!important;font-size:18px!important}
-.inv-header-right{text-align:center;min-width:200px;padding-top:4px;font-family:"Times New Roman",Times,serif!important;font-size:12px!important}
-.inv-mau-so{margin:0 0 4px;font-weight:700;font-family:"Times New Roman",Times,serif!important;font-size:12px!important}
-.inv-qd-note{margin:0;line-height:1.4;color:#333;font-family:"Times New Roman",Times,serif!important;font-size:12px!important}
+.inv-sheet{width:200mm;max-width:100%;min-height:280mm;margin:0 auto;padding:8mm 9mm;background:#fff;color:#111;font-family:"Times New Roman",Times,serif;font-size:13px;line-height:1.45;box-shadow:0 2px 18px rgba(16,32,54,.12);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+.inv-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:10px}
+.inv-header-left{flex:1;min-width:0;line-height:1.4;font-family:"Times New Roman",Times,serif!important;font-size:15.5px!important}
+.inv-header-left p{margin:0 0 2px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px;font-family:"Times New Roman",Times,serif!important;font-size:15.5px!important}
+.inv-header-left b,.inv-header-left strong{font-family:"Times New Roman",Times,serif!important;font-size:15.5px!important;font-weight:700}
+.inv-header-left .inv-line{font-family:"Times New Roman",Times,serif!important;font-size:15.5px!important}
+.inv-header-right{flex:0 0 auto;max-width:250px;text-align:center;padding-top:2px;font-family:"Times New Roman",Times,serif!important;font-size:11.5px!important;line-height:1.35}
+.inv-mau-so{margin:0 0 3px;font-weight:700;font-family:"Times New Roman",Times,serif!important;font-size:12px!important}
+.inv-qd-note{margin:0;line-height:1.35;color:#333;font-family:"Times New Roman",Times,serif!important;font-size:11px!important}
 .inv-title{text-align:center;margin:14px 0 4px;font-size:19px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .inv-date{display:flex;justify-content:flex-end;align-items:center;gap:3px;margin:0 0 8px}
 .inv-num{width:26px;border:0;border-bottom:1px solid #111;background:transparent;font:inherit;text-align:center;outline:0;padding:0}
