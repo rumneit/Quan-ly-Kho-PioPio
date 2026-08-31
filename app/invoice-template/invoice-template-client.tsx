@@ -10,8 +10,11 @@ type ProductRef = { sku: string; name: string; dvt: string; price: number; tax: 
 type OrderRef = { code: string; createdAt: string; total: number; customer: string; phone: string; address: string; items: Array<{ sku: string; name: string; dvt: string; tax: number; qty: number; price: number }> };
 type Row = { ma: string; ten: string; dvt: string; sl: string; dg: string; ghichu: string; tax: number };
 const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu: "", tax: 0 });
-const money = (n: number) => new Intl.NumberFormat("vi-VN").format(Math.round(n));
-const num = (v: string) => Number(String(v).replace(/[^\d]/g, "")) || 0;
+
+// Định dạng số theo file mẫu: 4,000.00 · 2,320,000 · 185,600 · 2,505,600
+const moneyUS = (n: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
+const qtyUS = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+const parseNum = (v: string) => { const n = Number(String(v).replace(/[,\s]/g, "")); return Number.isFinite(n) ? n : 0; };
 
 function docBlock(x: number, full: boolean): string {
   const d = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
@@ -34,7 +37,7 @@ function docBlock(x: number, full: boolean): string {
 function docSo(n: number): string {
   if (!n) return "không";
   let result = "", started = false, rest = n;
-  const scales: Array<[string, number]> = [["tỷ", 1e9], ["triệu", 1e6], ["nghìn", 1e3]];
+  const scales: Array<[string, number]> = [["tỷ", 1e9], ["triệu", 1e6], ["ngàn", 1e3]];
   for (const [name, val] of scales) {
     const b = Math.floor(rest / val);
     rest %= val;
@@ -46,14 +49,20 @@ function docSo(n: number): string {
 }
 
 export default function InvoiceTemplateClient({ profile, products, orders }: { profile: Profile; products: ProductRef[]; orders: OrderRef[] }) {
+  const todayD = new Date();
+  const todayMM = String(todayD.getMonth() + 1).padStart(2, "0");
+  const todayYY = String(todayD.getFullYear()).slice(2);
   const [rows, setRows] = useState<Row[]>(() => Array.from({ length: 24 }, emptyRow));
   const [orderCode, setOrderCode] = useState("");
-  const [soHD, setSoHD] = useState("");
+  const [soHD, setSoHD] = useState(`PIOX${todayMM}${todayYY}001`);
   const [noiDung, setNoiDung] = useState("Bán Hàng");
-  const [ngay, setNgay] = useState(""); const [thang, setThang] = useState(""); const [nam, setNam] = useState("");
+  const [ngay, setNgay] = useState(String(todayD.getDate()));
+  const [thang, setThang] = useState(todayMM);
+  const [nam, setNam] = useState(String(todayD.getFullYear()));
   const [khach, setKhach] = useState(""); const [mst, setMst] = useState("");
   const [nguoiMua, setNguoiMua] = useState(""); const [sdt, setSdt] = useState("");
   const [diaChi, setDiaChi] = useState("");
+  const [focusKey, setFocusKey] = useState("");
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.sku.toUpperCase(), p])), [products]);
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
@@ -82,29 +91,46 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
     else setRow(i, { ma: skuRaw, tax: 0 });
   }
 
-  const lineTotals = rows.map((r) => num(r.sl) * num(r.dg));
+  const lineTotals = rows.map((r) => parseNum(r.sl) * parseNum(r.dg));
   const lineVats = rows.map((r, i) => (lineTotals[i] * Number(r.tax || 0)) / 100);
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
   const vat = Math.round(lineVats.reduce((a, b) => a + b, 0));
   const total = subtotal + vat;
   const totalWords = docSo(total) + " đồng";
+  const vatBreakdown = useMemo(() => {
+    const m = new Map<number, number>();
+    rows.forEach((r, i) => { const t = Number(r.tax || 0); if (t && lineTotals[i]) m.set(t, (m.get(t) || 0) + lineVats[i]); });
+    return Array.from(m.entries()).sort((a, b) => b[0] - a[0]).map(([t, v]) => `VAT ${t}%: ${moneyUS(Math.round(v))}`).join("  ·  ");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, lineTotals.join("|")]);
+
+  // STT chỉ đánh cho dòng có nội dung (y chang file)
+  const sttMap = useMemo(() => {
+    const m = new Map<number, number>();
+    let n = 0;
+    rows.forEach((r, i) => { if (r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim()) { n += 1; m.set(i, n); } });
+    return m;
+  }, [rows]);
 
   function resetAll() {
     if (!window.confirm("Xóa trắng toàn bộ hóa đơn?")) return;
     setRows(Array.from({ length: 24 }, emptyRow));
-    setOrderCode(""); setSoHD(""); setNoiDung("Bán Hàng"); setNgay(""); setThang(""); setNam("");
+    setOrderCode("");
+    setSoHD(`PIOX${todayMM}${todayYY}001`);
+    setNoiDung("Bán Hàng");
+    setNgay(String(todayD.getDate())); setThang(todayMM); setNam(String(todayD.getFullYear()));
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
   }
 
   return <div className="kv-shell invoice-tpl-page">
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
     <div className="inv-toolbar no-print">
-      <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {money(o.total)}đ</option>)}</datalist>
+      <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {moneyUS(o.total)}</option>)}</datalist>
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
       <label className="inv-order-pick">Đơn hàng: <input list="inv-orders" value={orderCode} onChange={(e) => applyOrder(e.target.value)} placeholder="HD000001..." /></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
-      <span className="inv-hint">VAT theo từng mặt hàng = <b>{money(vat)}</b> · Tổng: <b>{money(total)}</b></span>
+      <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyUS(vat)}</b> · Tổng: <b>{moneyUS(total)}</b></span>
     </div>
     <main className="inv-main no-print-gap">
       <div className="inv-sheet">
@@ -128,31 +154,45 @@ export default function InvoiceTemplateClient({ profile, products, orders }: { p
         </div>
         <table className="inv-table">
           <thead>
-            <tr><th style={{ width: "4%" }}>STT</th><th style={{ width: "10%" }}>Mã SP</th><th style={{ width: "25%" }}>Tên sản phẩm/hàng hóa</th><th style={{ width: "7%" }}>ĐVT</th><th style={{ width: "9%" }}>Số lượng</th><th style={{ width: "12%" }}>Đơn giá</th><th style={{ width: "13%" }}>Thành tiền</th><th style={{ width: "8%" }}>VAT%</th><th style={{ width: "12%" }}>Ghi chú</th></tr>
+            <tr><th style={{ width: "5%" }}>STT</th><th style={{ width: "11%" }}>Mã SP</th><th style={{ width: "26%" }}>Tên sản phẩm/hàng hóa</th><th style={{ width: "8%" }}>ĐVT</th><th style={{ width: "12%" }}>Số lượng</th><th style={{ width: "12%" }}>Đơn giá</th><th style={{ width: "14%" }}>Thành tiền</th><th style={{ width: "12%" }}>Ghi chú</th></tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
-              <tr key={i}>
-                <td className="c">{i + 1}</td>
-                <td><input className="inv-cell" list="inv-products" value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /></td>
-                <td><input className="inv-cell" value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /></td>
-                <td><input className="inv-cell" value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /></td>
-                <td><input className="inv-cell right" inputMode="numeric" value={r.sl} onChange={(e) => setRow(i, { sl: e.target.value })} /></td>
-                <td><input className="inv-cell right" inputMode="numeric" value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value })} /></td>
-                <td className="right">{lineTotals[i] ? money(lineTotals[i]) : ""}</td>
-                <td className="c">{r.tax ? `${r.tax}%` : ""}</td>
-                <td><input className="inv-cell" value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /></td>
-              </tr>
-            ))}
+            {rows.map((r, i) => {
+              const filled = Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim());
+              const slRaw = r.sl.trim();
+              return (
+                <tr key={i}>
+                  <td className="c">{sttMap.get(i) ?? ""}</td>
+                  <td><input className="inv-cell" list="inv-products" value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /></td>
+                  <td><input className="inv-cell" value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /></td>
+                  <td><input className="inv-cell" value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /></td>
+                  <td className={slRaw ? "right" : "c"}>
+                    <input className="inv-cell" inputMode="decimal"
+                      style={{ textAlign: slRaw ? "right" : "center", color: slRaw ? undefined : "#9aa4b0" }}
+                      title={Number(r.tax) ? `VAT ${r.tax}%: ${moneyUS(Math.round(lineVats[i]))}` : undefined}
+                      value={focusKey === `sl${i}` ? r.sl : (slRaw ? qtyUS(parseNum(r.sl)) : "-")}
+                      onFocus={() => { setFocusKey(`sl${i}`); if (!slRaw) setRow(i, { sl: "" }); }}
+                      onBlur={() => { setFocusKey(""); if (!parseNum(r.sl)) setRow(i, { sl: "" }); }}
+                      onChange={(e) => setRow(i, { sl: e.target.value.replace(/[^\d.,]/g, "") })} />
+                  </td>
+                  <td><input className="inv-cell right" inputMode="decimal" value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /></td>
+                  <td className="right" title={Number(r.tax) ? `VAT ${r.tax}%` : undefined}>{lineTotals[i] ? moneyUS(lineTotals[i]) : ""}</td>
+                  <td><input className="inv-cell" value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /></td>
+                </tr>
+              );
+            })}
             <tr className="vat-row">
-              <td colSpan={6} className="right vat-label"><b>VAT</b> (tự tính theo từng mặt hàng)</td>
-              <td className="right">{vat ? money(vat) : ""}</td>
+              <td colSpan={3} />
+              <td className="c"><b>VAT</b></td>
               <td colSpan={2} />
+              <td className="right" title={vatBreakdown}>{vat ? moneyUS(vat) : ""}</td>
+              <td />
             </tr>
             <tr className="total-row">
-              <td colSpan={6} className="right"><b>Tổng cộng:</b></td>
-              <td className="right"><b>{total ? money(total) : ""}</b></td>
-              <td colSpan={2} />
+              <td><b>Tổng cộng:</b></td>
+              <td colSpan={5} />
+              <td className="right"><b>{total ? moneyUS(total) : ""}</b></td>
+              <td />
             </tr>
           </tbody>
         </table>
