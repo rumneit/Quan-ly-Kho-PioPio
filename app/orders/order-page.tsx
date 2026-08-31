@@ -20,22 +20,36 @@ export default async function OrderPage({ mode, searchParams }: { mode: Mode; se
   const pageSize = Math.min(100, Math.max(1, Number((resolvedParams as Record<string, string>).pageSize) || 15));
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
-  const [products, customers, orders, returns, partners, shipments] = await Promise.all([
-    supabase.from("products").select("id,sku,name,price,stock_quantity").eq("active", true).order("name"),
-    supabase.from("customers").select("id,name,phone").order("name"),
-    supabase.from("orders").select(orderSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to),
-    supabase.from("sales_returns").select(returnSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to),
-    supabase.from("delivery_partners").select(partnerSelect, { count: "exact" }).order("name").range(from, to),
-    supabase.from("shipments").select(shipmentSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to),
+  // Chỉ fetch đúng bảng mà mode hiện tại cần — giảm 6 query song song còn 2-3
+  const primary = mode === "orders" || mode === "invoices"
+    ? supabase.from("orders").select(orderSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to)
+    : mode === "returns"
+      ? supabase.from("sales_returns").select(returnSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to)
+      : mode === "delivery-partners"
+        ? supabase.from("delivery_partners").select(partnerSelect, { count: "exact" }).order("name").range(from, to)
+        : supabase.from("shipments").select(shipmentSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to);
+  const needsOrders = mode === "orders" || mode === "invoices" || mode === "waybills" || mode === "returns";
+  const needsPickers = mode !== "delivery-partners";
+  const [products, customers, secondaryOrders, primaryResult] = await Promise.all([
+    needsPickers ? supabase.from("products").select("id,sku,name,price,stock_quantity").eq("active", true).order("name") : Promise.resolve({ data: [], error: null }),
+    needsPickers ? supabase.from("customers").select("id,name,phone").order("name") : Promise.resolve({ data: [], error: null }),
+    needsOrders && mode !== "orders" && mode !== "invoices"
+      ? supabase.from("orders").select(orderSelect, { count: "exact" }).order("created_at", { ascending: false }).range(from, to)
+      : null,
+    primary,
   ]);
+  const orders = mode === "orders" || mode === "invoices" ? primaryResult : secondaryOrders;
+  const returns = mode === "returns" ? primaryResult : null;
+  const partners = mode === "delivery-partners" ? primaryResult : null;
+  const shipments = mode === "waybills" ? primaryResult : null;
 
-  let orderData: unknown = orders.data;
-  if (orders.error) {
+  let orderData: unknown = orders?.data ?? [];
+  if (orders?.error) {
     const legacyOrders = await supabase.from("orders").select(legacyOrderSelect).order("created_at", { ascending: false }).range(from, to);
     orderData = legacyOrders.data;
   }
 
-  const migrationUnavailable = Boolean(orders.error || returns.error || partners.error || shipments.error);
+  const migrationUnavailable = Boolean(orders?.error || returns?.error || partners?.error || shipments?.error);
   return (
     <OrderListClient
       mode={mode}
@@ -43,13 +57,13 @@ export default async function OrderPage({ mode, searchParams }: { mode: Mode; se
       products={products.data || []}
       customers={customers.data || []}
       initialOrders={(orderData || []) as unknown as SourceOrder[]}
-      initialReturns={(returns.data || []) as unknown as SourceReturn[]}
-      initialPartners={(partners.data || []) as unknown as DeliveryPartner[]}
-      initialShipments={(shipments.data || []) as unknown as SourceShipment[]}
+      initialReturns={((returns?.data) || []) as unknown as SourceReturn[]}
+      initialPartners={((partners?.data) || []) as unknown as DeliveryPartner[]}
+      initialShipments={((shipments?.data) || []) as unknown as SourceShipment[]}
       dataWarning={migrationUnavailable ? "Một số dữ liệu bán hàng và giao vận chưa sẵn sàng. Vui lòng áp dụng migration 007." : ""}
       serverPage={page}
       serverPageSize={pageSize}
-      serverTotal={mode === "orders" || mode === "invoices" ? orders.count || 0 : mode === "returns" ? returns.count || 0 : mode === "delivery-partners" ? partners.count || 0 : shipments.count || 0}
+      serverTotal={mode === "orders" || mode === "invoices" ? orders?.count || 0 : mode === "returns" ? returns?.count || 0 : mode === "delivery-partners" ? partners?.count || 0 : shipments?.count || 0}
     />
   );
 }

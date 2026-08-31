@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
@@ -196,7 +196,8 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
     }
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const header = ["Mã xuất hủy", "Tổng giá trị hủy", "Thời gian", "Chi nhánh", "Ghi chú", "Trạng thái"];
     const rows = filtered.map((item) => [item.code, item.totalValue, dateTime(item.createdAt), item.branch, item.note, statusLabel[item.status]]);
     const sheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
@@ -206,7 +207,8 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
     setNotice({ kind: "success", text: `Đã xuất ${filtered.length} phiếu xuất hủy ra file Excel.` });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const sheet = XLSX.utils.aoa_to_sheet([["Mã hàng", "SL hủy"], ["NSTP00030", 2]]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "MauXuatHuy");
@@ -214,6 +216,7 @@ const [dateValue, setDateValue] = useState<DateValue>(() => { const now = new Da
   }
 
   async function importExcel() {
+    const XLSX = await getXLSX();
     const file = importInput.current?.files?.[0];
     if (!file) { setNotice({ kind: "error", text: "Vui lòng chọn tệp Excel." }); return; }
     try {

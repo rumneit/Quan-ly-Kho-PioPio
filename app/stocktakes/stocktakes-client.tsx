@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { ChevronLeft, ChevronRight, Columns3, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
@@ -170,7 +170,8 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
     setPage(1);
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const rows = filtered.map((item) => [item.code, formatDate(item.createdAt), item.totalActual, item.totalAdjustment, item.increaseQty, item.decreaseQty, formatDate(item.balancedAt), item.actualCount, item.note, statusLabel[item.status]]);
     const sheet = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...rows]);
     const workbook = XLSX.utils.book_new();
@@ -255,7 +256,8 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
     }
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const example = initialProducts[0];
     const sheet = XLSX.utils.aoa_to_sheet([
       ["Mã hàng", "Tên hàng", "Tồn kho", "Thực tế"],
@@ -267,6 +269,7 @@ export default function StockTakesClient({ profile, initialProducts }: { profile
   }
 
   async function importExcel(file: File) {
+    const XLSX = await getXLSX();
     setBusy(true);
     try {
       const workbook = /\.csv$/i.test(file.name) ? XLSX.read(await file.text(), { type: "string" }) : XLSX.read(await file.arrayBuffer());

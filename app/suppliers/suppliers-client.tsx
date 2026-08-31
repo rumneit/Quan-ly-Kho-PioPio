@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
@@ -211,7 +211,8 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
     }
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const rows = filtered.map((item) => [item.code, item.name, item.phone, item.email, item.address, item.group, item.active ? "Đang hoạt động" : "Ngừng hoạt động"]);
     const sheet = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...rows]);
     const workbook = XLSX.utils.book_new();
@@ -220,7 +221,8 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
     setNotice({ kind: "success", text: `Đã xuất ${filtered.length} nhà cung cấp ra file Excel.` });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const sheet = XLSX.utils.aoa_to_sheet([["Mã", "Tên", "Điện thoại", "Email", "Địa chỉ", "Nhóm"], ["NCC000001", "Tên nhà cung cấp ví dụ", "0900000000", "email@gmail.com", "Nhập địa chỉ", "Nhóm mặc định"]]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "MauNhaCungCap");
@@ -228,6 +230,7 @@ export default function SuppliersClient({ profile, initialSuppliers, initialProd
   }
 
   async function importExcel() {
+    const XLSX = await getXLSX();
     const file = importInput.current?.files?.[0];
     if (!file) { setNotice({ kind: "error", text: "Vui lòng chọn tệp Excel." }); return; }
     setBusy(true);

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { CheckSquare, ChevronDown, ChevronUp, Columns3, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
 import ProductFilterSidebar from "./product-filter-sidebar";
@@ -321,6 +321,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   }
 
   async function handleFileChange(file: File | undefined) {
+    const XLSX = await getXLSX();
     if (!file) return;
     setImportFileName(file.name);
     const isExcel = /\.(xlsx|xls)$/i.test(file.name);

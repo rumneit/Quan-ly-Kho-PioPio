@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, FileUp, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
@@ -155,7 +155,8 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
     setMode("create");
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const headers = ["Mã xuất dùng nội bộ", "Loại xuất", "Tổng giá trị", "Thời gian", "Chi nhánh", "Ghi chú", "Trạng thái"];
     const data = filtered.map((item) => [item.code, item.purpose, item.totalValue, dateTime(item.time), item.branch, item.note, statusLabel[item.status]]);
     const sheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
@@ -165,7 +166,8 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
     setNotice({ kind: "success", text: `Đã xuất ${filtered.length} phiếu ra file Excel.` });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const sheet = XLSX.utils.aoa_to_sheet([["Mã hàng hóa", "Tên hàng hóa", "Đơn vị tính", "SL xuất"], ["NSTP00030", "Tên hàng ví dụ", "Cái", "1"]]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "XuatDungNoiBoMau");
@@ -173,6 +175,7 @@ export default function InternalUseClient({ profile, initialProducts }: { profil
   }
 
   async function importExcel() {
+    const XLSX = await getXLSX();
     const file = importInput.current?.files?.[0];
     if (!file) { setNotice({ kind: "error", text: "Vui lòng chọn tệp Excel." }); return; }
     try {

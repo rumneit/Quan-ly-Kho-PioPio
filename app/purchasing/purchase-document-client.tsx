@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Check, ChevronLeft, ChevronRight, HelpCircle, Plus, Search, Settings, Star, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
@@ -326,7 +326,8 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
     }
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const headers = config.columns.map((column) => column.label);
     const data = filtered.map((item) => config.columns.map((column) => {
       if (column.key === "time") return formatDate(item.createdAt);
@@ -341,7 +342,8 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
     setNotice({ kind: "success", text: `Đã xuất ${filtered.length} phiếu ra file Excel.` });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const example = products[0];
     const headers = mode === "purchase" ? ["Mã hàng", "Tên hàng", "ĐVT", "Số lượng", "Đơn giá"] : ["Mã hàng", "Tên hàng", "ĐVT", "Số lượng"];
     const sample = mode === "purchase"
@@ -354,6 +356,7 @@ export default function PurchaseDocumentClient({ mode, profile, products, suppli
   }
 
   async function importExcel(file: File) {
+    const XLSX = await getXLSX();
     setBusy(true);
     try {
       const workbook = /\.csv$/i.test(file.name) ? XLSX.read(await file.text(), { type: "string" }) : XLSX.read(await file.arrayBuffer());

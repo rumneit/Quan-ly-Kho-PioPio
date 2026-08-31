@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileUp, HelpCircle, Plus, Search, Settings, Trash2, X } from "lucide-react";
-import * as XLSX from "xlsx";
+import { getXLSX } from "@/lib/xlsx";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 
@@ -237,7 +237,8 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     }
   }
 
-  function exportExcel() {
+  async function exportExcel() {
+    const XLSX = await getXLSX();
     const rows = filtered.map((product) => [product.sku, product.name, product.stock_quantity, Number(product.cost) || 0, Number(product.cost) || 0, getPrice(product)]);
     const sheet = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...rows]);
     const workbook = XLSX.utils.book_new();
@@ -246,7 +247,8 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     setNotice({ kind: "success", text: `Đã xuất ${filtered.length} hàng hóa ra file Excel.` });
   }
 
-  function downloadTemplate() {
+  async function downloadTemplate() {
+    const XLSX = await getXLSX();
     const sheet = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ["NSTP00030", "Tên hàng ví dụ", "0", "0", "0", "10000"]]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, sheet, "BangGiaMau");
@@ -254,6 +256,7 @@ export default function PriceBookClient({ profile, initialProducts, categories }
   }
 
   async function importExcel() {
+    const XLSX = await getXLSX();
     const file = importInput.current?.files?.[0];
     if (!file) { setNotice({ kind: "error", text: "Vui lòng chọn tệp Excel." }); return; }
     setBusy("import");
