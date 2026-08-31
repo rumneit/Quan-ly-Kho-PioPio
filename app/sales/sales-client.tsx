@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeftRight, ClipboardList, Clock, Menu, Minus, Phone, Plus, Printer, RefreshCw, Search, ShoppingCart, Star, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
 import type { Profile } from "@/lib/auth";
-import { VN_PROVINCES, VN_WARDS } from "@/app/lib/vietnam-data";
+import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
 type Customer = { id: string; name: string; phone?: string | null };
@@ -188,8 +188,8 @@ export default function SalesClient({ profile, products, customers }: Props) {
                   <div className="pos-delivery-form">
                     <div className="pos-form-row"><input placeholder="Tên người nhận" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Địa chỉ chi tiết (Số nhà, ngõ, đường)" value={address} onChange={e => setAddress(e.target.value)} />
-                    <div className="pos-form-row full"><select className="pos-select" value={area} onChange={e => { setArea(e.target.value); setWard(""); }}><option value="">Khu vực (Tỉnh/TP)</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                    <div className="pos-form-row full"><select className="pos-select" value={ward} onChange={e => setWard(e.target.value)} disabled={!area}><option value="">Phường/Xã</option>{(VN_WARDS[area] || []).map(w => <option key={w} value={w}>{w}</option>)}</select></div>
+                    <div className="pos-form-row full"><select className="pos-select" value={area} onChange={e => { setArea(e.target.value); setWard(""); }}><option value="">Khu vực (Tỉnh/TP)</option>{!(VN_PROVINCES as readonly string[]).includes(area) && area && <option value={area}>{area} (tên cũ)</option>}{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                    <div className="pos-form-row full"><select className="pos-select" value={ward} onChange={e => setWard(e.target.value)} disabled={!area}><option value="">Phường/Xã</option>{getWardsForProvince(area).map(w => <option key={w} value={w}>{w}</option>)}</select></div>
                     <div className="pos-pack-row"><span>Cân nặng</span><input className="pos-pack-input" value={weight} onChange={e => setWeight(e.target.value)} placeholder="500" /><span>gram</span></div>
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />

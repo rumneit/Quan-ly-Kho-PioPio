@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireProfile } from "@/lib/auth";
 import { isUniqueViolation } from "@/lib/api-utils";
+import { provinceAcceptedNames } from "@/app/lib/vietnam-data";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,7 +94,11 @@ export async function GET(request: Request) {
   if (gender === "male" || gender === "female") query = query.eq("gender", gender);
   if (groupId && uuidPattern.test(groupId)) query = query.eq("group_id", groupId);
   if (params.get("creatorId") && uuidPattern.test(String(params.get("creatorId")))) query = query.eq("created_by", params.get("creatorId"));
-  if (params.get("area")) query = query.eq("area", params.get("area"));
+  if (params.get("area")) {
+    // Chọn tỉnh MỚI cũng phải khớp dữ liệu ghi theo tên tỉnh CŨ (sáp nhập 2025).
+    const names = provinceAcceptedNames(String(params.get("area")));
+    query = query.in("area", names);
+  }
   if (params.get("birthdayFrom")) query = query.gte("birthday", params.get("birthdayFrom"));
   if (params.get("birthdayTo")) query = query.lte("birthday", params.get("birthdayTo"));
   if (params.get("dateFrom")) query = query.gte("created_at", `${params.get("dateFrom")}T00:00:00+07:00`);

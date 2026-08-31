@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
-import { VN_PROVINCES } from "@/app/lib/vietnam-data";
+import { VN_PROVINCES, VN_PROVINCE_MERGE, provinceAcceptedNames } from "@/app/lib/vietnam-data";
 import FilterPopover from "@/app/products/filter-popover";
 
 export type Mode = "orders" | "invoices" | "returns" | "delivery-partners" | "waybills";
@@ -453,7 +453,7 @@ export default function OrderListClient({
       const cell = String(row.values[key] || "");
       if (key === "area") {
         const selected = value.split(",").map((v) => v.trim()).filter(Boolean);
-        return selected.length ? selected.includes(cell) : true;
+        return selected.length ? selected.some((v) => provinceAcceptedNames(v).includes(cell)) : true;
       }
       return cell === value;
     });
@@ -604,7 +604,7 @@ export default function OrderListClient({
         resetResults();
       };
       const clearArea = () => { setFilters((current) => { const n = { ...current }; delete n["area"]; return n; }); setAreaSearch(""); resetResults(); };
-      return <section key={label}><h2>{label}</h2><button type="button" className="filter-select-button" aria-expanded={!!areaAnchor} onClick={(event) => setAreaAnchor(event.currentTarget)}><span className={selectedAreas.length ? "has-value" : ""}>{selectedAreas.length ? `${selectedAreas.length} tỉnh đã chọn` : `Chọn khu vực`}</span></button><FilterPopover open={!!areaAnchor} anchor={areaAnchor} onClose={() => { setAreaAnchor(null); setAreaSearch(""); }} ariaLabel={label} className="area"><div className="picker-panel"><header><h3>Khu vực giao hàng</h3><span style={{fontSize:"12px", color:"#6b7a8d"}}>{selectedAreas.length} đã chọn</span></header><label className="picker-search"><Search size={14} /><input autoFocus value={areaSearch} onChange={(event) => setAreaSearch(event.target.value)} placeholder="Tìm tỉnh/thành" /></label><div className="picker-list" style={{maxHeight:"280px", overflow:"auto"}}>{filteredProvinces.map((p) => <label key={p} style={{display:"flex", alignItems:"center", gap:"8px", padding:"8px 12px"}}><input type="checkbox" checked={selectedAreas.includes(p)} onChange={() => toggleArea(p)} /><span>{p}</span></label>)}{!filteredProvinces.length && <p style={{padding:"12px", color:"#8a96a7", textAlign:"center"}}>Không tìm thấy</p>}</div><footer style={{display:"flex", justifyContent:"space-between", padding:"10px 12px", borderTop:"1px solid #e6ebf0"}}><button type="button" onClick={clearArea}>Xóa lọc</button><button type="button" className="primary" onClick={() => { setAreaAnchor(null); setAreaSearch(""); }}>Áp dụng</button></footer></div></FilterPopover></section>;
+      return <section key={label}><h2>{label}</h2><button type="button" className="filter-select-button" aria-expanded={!!areaAnchor} onClick={(event) => setAreaAnchor(event.currentTarget)}><span className={selectedAreas.length ? "has-value" : ""}>{selectedAreas.length ? `${selectedAreas.length} tỉnh đã chọn` : `Chọn khu vực`}</span></button><FilterPopover open={!!areaAnchor} anchor={areaAnchor} onClose={() => { setAreaAnchor(null); setAreaSearch(""); }} ariaLabel={label} className="area"><div className="picker-panel"><header><h3>Khu vực giao hàng</h3><span style={{fontSize:"12px", color:"#6b7a8d"}}>{selectedAreas.length} đã chọn</span></header><label className="picker-search"><Search size={14} /><input autoFocus value={areaSearch} onChange={(event) => setAreaSearch(event.target.value)} placeholder="Tìm tỉnh/thành" /></label><div className="picker-list" style={{maxHeight:"280px", overflow:"auto"}}>{filteredProvinces.map((p) => <label key={p} style={{display:"flex", alignItems:"center", gap:"8px", padding:"8px 12px"}}><input type="checkbox" checked={selectedAreas.includes(p)} onChange={() => toggleArea(p)} /><span style={{flex:1}}>{p}{(VN_PROVINCE_MERGE[p] || []).length > 0 && <small style={{display:"block", color:"#8a96a7", fontSize:"11px"}}>(gồm cũ: {(VN_PROVINCE_MERGE[p] || []).join(", ")})</small>}</span></label>)}{!filteredProvinces.length && <p style={{padding:"12px", color:"#8a96a7", textAlign:"center"}}>Không tìm thấy</p>}</div><footer style={{display:"flex", justifyContent:"space-between", padding:"10px 12px", borderTop:"1px solid #e6ebf0"}}><button type="button" onClick={clearArea}>Xóa lọc</button><button type="button" className="primary" onClick={() => { setAreaAnchor(null); setAreaSearch(""); }}>Áp dụng</button></footer></div></FilterPopover></section>;
     }
     const key = filterKey(label);
     const options = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
