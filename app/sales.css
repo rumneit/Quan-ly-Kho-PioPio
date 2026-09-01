@@ -1,10 +1,10 @@
-/* impeccable-disable overused-font: KiotViet exact clone - POS Roboto intentional */
+/* impeccable-disable overused-font: POS unified to Inter intentional */
 /* =====================================================================
    POS / Bán hàng — KiotViet-exact structure (page-header / col-left / col-right)
    ===================================================================== */
 .pos-shell {
   min-height: 100dvh !important; background: #f0f1f3 !important; color: #26323e !important;
-  font-family: Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 12.544px !important;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif !important; font-size: 12.544px !important;
 }
 
 /* ---------- HEADER: 41px blue ---------- */
@@ -318,11 +318,11 @@
 .pos-support:hover { color: #0070f4 !important; }
 .page-footer-usemanual:hover, .page-footer-rating:hover { color: #0070f4 !important; }
 /* ---------- FIX: inputs fill their styled wrappers + force Roboto ---------- */
-.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: Roboto, 'Helvetica Neue', Arial, sans-serif !important; }
+.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: var(--font-inter), Inter, system-ui, sans-serif !important; }
 .pos-global-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 29px !important; font-size: 12.544px !important; }
-.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }
+.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: var(--font-inter), Inter, system-ui, sans-serif !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
 /* Bán thường: left 704 + right 559 (product list, transparent) */
 .pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
@@ -344,7 +344,7 @@
 .pos-textarea {
   box-sizing: border-box !important; width: 100% !important; height: 40px !important; padding: 2px 10px !important; border: 1px solid #d0d7de !important;
   border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; resize: vertical !important;
-  font-family: Roboto, Arial, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
 }
 .pos-textarea:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-textarea::placeholder { color: #5a6675; }
@@ -357,7 +357,7 @@
 .pos-select:disabled { opacity: .5; cursor: not-allowed; }
 .pos-form-row input, .pos-form-row select, .pos-delivery-form > input, .pos-delivery-form > select {
   height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
-  font-size: 12.544px; width: 100%; font-family: Roboto, Arial, sans-serif; color: #26323e;
+  font-size: 12.544px; width: 100%; font-family: var(--font-inter), Inter, system-ui, sans-serif; color: #26323e;
 }
 .pos-form-row input:focus, .pos-form-row select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-form-row input::placeholder { color: #5a6675; }

@@ -118,9 +118,13 @@ export default function DashboardClient({ profile, products: initialProducts, cu
   const [rankingRange, setRankingRange] = useState<DateRange>("Tháng này");
   const [customerRange, setCustomerRange] = useState<DateRange>("Tháng này");
   const [activityOpen, setActivityOpen] = useState(true);
+  const [activityPage, setActivityPage] = useState(0);
+  const activityPageSize = 10;
 
   // Single branch mode - no branch filtering needed
   const filteredOrders = orders;
+  const totalActivityPages = Math.max(1, Math.ceil(filteredOrders.length / activityPageSize));
+  const paginatedActivities = useMemo(() => filteredOrders.slice(activityPage * activityPageSize, (activityPage + 1) * activityPageSize), [filteredOrders, activityPage]);
 
   // Alerts derived from REAL data - not fake
   const lowStockProducts = useMemo(() => products.filter(p => p.active && p.stock_quantity <= 5).slice(0, 8), [products]);
@@ -372,14 +376,19 @@ export default function DashboardClient({ profile, products: initialProducts, cu
 
           {activityOpen && <section className="kv-card kv-activity kv-enter delay-2">
             <div className="kv-card-title"><h2>Hoạt động gần đây</h2><span style={{fontSize:"11px", color:"#8895a3"}}>{filteredOrders.length} giao dịch</span></div>
-            <div className="kv-activity-list">
-              {filteredOrders.slice(0, 18).map((order) => {
+            <div className="kv-activity-list" style={{maxHeight:470, overflow:"auto"}}>
+              {paginatedActivities.map((order) => {
                 const creatorName = order.creator?.full_name || profile.full_name;
                 const isReturn = order.status === "refunded";
                 return <article key={order.id}><span>{isReturn ? <RotateCcw size={16} /> : <ShoppingBag size={16} />}</span><p><b>{creatorName}</b> vừa <strong>{isReturn ? "trả hàng" : "bán đơn hàng"}</strong> <Link href={`/invoices?code=HD${String(order.order_number).padStart(6, "0")}`}>HD{String(order.order_number).padStart(6, "0")}</Link> với giá trị <strong>{money(Number(order.total))}</strong><small>{timeAgo(order.created_at)} • {new Intl.DateTimeFormat("vi-VN", {timeZone: VN_TZ, hour:"2-digit", minute:"2-digit", day:"2-digit", month:"2-digit"}).format(new Date(order.created_at))}</small></p></article>;
               })}
               {!filteredOrders.length && <div className="kv-empty activity-empty"><Clock3 size={42} /><p>Chưa có hoạt động gần đây</p><small>Hoạt động bán hàng sẽ hiện ở đây theo thời gian thực (VN)</small><button onClick={() => setModal("product")}>Thêm hàng hóa</button></div>}
             </div>
+            {filteredOrders.length>activityPageSize && <div style={{padding:"8px 12px", borderTop:"1px solid #eef2f4", display:"flex", justifyContent:"space-between", alignItems:"center", gap:8}}>
+              <button disabled={activityPage===0} onClick={()=> setActivityPage(p=> Math.max(0,p-1))} style={{padding:"6px 10px", border:"1px solid #d0d7de", borderRadius:6, background: activityPage===0?"#f5f6f7":"#fff", cursor: activityPage===0?"not-allowed":"pointer", fontSize:11}}>← Trước</button>
+              <span style={{fontSize:11, color:"#6b7a8d"}}>Trang {activityPage+1}/{totalActivityPages} • {filteredOrders.length} giao dịch{truncated ? " (giới hạn 1000)" : ""}</span>
+              <button disabled={(activityPage+1)*activityPageSize >= filteredOrders.length} onClick={()=> setActivityPage(p=> p+1)} style={{padding:"6px 10px", border:"1px solid #d0d7de", borderRadius:6, background: (activityPage+1)*activityPageSize >= filteredOrders.length?"#f5f6f7":"#fff", cursor: (activityPage+1)*activityPageSize >= filteredOrders.length?"not-allowed":"pointer", fontSize:11}}>Sau →</button>
+            </div>}
             {filteredOrders.length>0 && <div style={{padding:"10px 18px", borderTop:"1px solid #eef2f4", display:"flex", justifyContent:"space-between"}}>
               <Link href="/invoices" style={{fontSize:"11px", color:"#0070f4", textDecoration:"none"}}>Xem tất cả hóa đơn →</Link>
               <span style={{fontSize:"11px", color:"#9aa5ae"}}><Users size={12} style={{verticalAlign:"middle"}}/> {new Set(filteredOrders.map(o=>o.created_by)).size} nhân viên</span>
