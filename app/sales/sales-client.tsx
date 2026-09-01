@@ -136,8 +136,8 @@ export default function SalesClient({ profile, products, customers }: Props) {
     <header className="page-header">
       <div className="header-left">
         <div className="col-left-control">
-          <label className="pos-global-search"><Search size={14} /><input ref={productSearchRef} value={query} onChange={e => { setQuery(e.target.value); setSearchOpen(true); }} onFocus={() => setSearchOpen(true)} placeholder="Tìm hàng hóa (F3)" autoFocus /></label>
-          {searchOpen && query.trim() && <div className="pos-search-results">
+          <label className="pos-global-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={searchOpen} aria-controls="pos-search-listbox" aria-autocomplete="list" ref={productSearchRef} value={query} onChange={e => { setQuery(e.target.value); setSearchOpen(true); }} onFocus={() => setSearchOpen(true)} placeholder="Tìm hàng hóa (F3)" autoFocus /></label>
+          {searchOpen && query.trim() && <div id="pos-search-listbox" role="listbox" className="pos-search-results">
             {results.map(p => <button key={p.id} onClick={() => addProduct(p)}><span className="pos-search-name">{p.name}<small>{p.sku} · Tồn {p.stock_quantity}</small></span><b>{money(Number(p.price))}</b></button>)}
             {!results.length && <p className="pos-customer-empty">Không tìm thấy hàng hóa</p>}
           </div>}
@@ -180,23 +180,23 @@ export default function SalesClient({ profile, products, customers }: Props) {
                 <div className="pos-staff-row"><span>{profile.full_name}</span><b>⌄</b><time>{new Intl.DateTimeFormat("vi-VN").format(new Date())}</time></div>
               </div>
               <div className="col-wrap">
-                <label className="pos-customer-search"><Search size={14} /><input ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
+                <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={searchOpen} aria-controls="pos-search-listbox" aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
                 {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
                 {customerListOpen && <div className="pos-customer-list">{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">Không tìm thấy khách hàng</p>}</div>}
 
                 {isDelivery ? (
                   <div className="pos-delivery-form">
-                    <div className="pos-form-row"><input placeholder="Tên người nhận" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><input placeholder="Số điện thoại" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /></div>
-                    <textarea className="pos-textarea" rows={1} placeholder="Địa chỉ chi tiết (Số nhà, ngõ, đường)" value={address} onChange={e => setAddress(e.target.value)} />
-                    <div className="pos-form-row full"><select className="pos-select" value={area} onChange={e => { setArea(e.target.value); setWard(""); }}><option value="">Khu vực (Tỉnh/TP)</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                    <div className="pos-form-row full"><select className="pos-select" value={ward} onChange={e => setWard(e.target.value)} disabled={!area}><option value="">{area ? "Phường/Xã" : "Chọn Tỉnh/TP trước"}</option>{getWardsForProvince(area).map(w => <option key={w} value={w}>{w}</option>)}{ward && !getWardsForProvince(area).includes(ward) && <option value={ward}>{ward}</option>}</select></div>
+                    <div className="pos-form-row"><label className="sr-only" htmlFor="pos-receiver-name">Tên người nhận</label><input id="pos-receiver-name" aria-required="true" aria-describedby={error ? "pos-error" : undefined} placeholder="Tên người nhận *" value={receiverName} onChange={e => setReceiverName(e.target.value)} /><label className="sr-only" htmlFor="pos-receiver-phone">Số điện thoại</label><input id="pos-receiver-phone" aria-required="true" aria-describedby={error ? "pos-error" : undefined} placeholder="Số điện thoại *" value={receiverPhone} onChange={e => setReceiverPhone(e.target.value)} /></div>
+                    <label className="sr-only" htmlFor="pos-address">Địa chỉ chi tiết</label><textarea id="pos-address" className="pos-textarea" rows={1} aria-required="true" placeholder="Địa chỉ chi tiết (Số nhà, ngõ, đường) *" value={address} onChange={e => setAddress(e.target.value)} />
+                    <div className="pos-form-row full"><label className="sr-only" htmlFor="pos-area">Khu vực</label><select id="pos-area" className="pos-select" aria-required="true" value={area} onChange={e => { setArea(e.target.value); setWard(""); }}><option value="">Khu vực (Tỉnh/TP) *</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                    <div className="pos-form-row full"><label className="sr-only" htmlFor="pos-ward">Phường/Xã</label><select id="pos-ward" className="pos-select" value={ward} onChange={e => setWard(e.target.value)} disabled={!area}><option value="">{area ? "Phường/Xã" : "Chọn Tỉnh/TP trước"}</option>{getWardsForProvince(area).map(w => <option key={w} value={w}>{w}</option>)}{ward && !getWardsForProvince(area).includes(ward) && <option value={ward}>{ward}</option>}</select></div>
                     <div className="pos-pack-row"><span>Cân nặng</span><input className="pos-pack-input" value={weight} onChange={e => setWeight(e.target.value)} placeholder="500" /><span>gram</span></div>
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
                   </div>
                 ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span></div>
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span>{products.length>40 && <small style={{marginLeft:8,color:"#6b7a8d"}}>— hiển thị 40, dùng F3 để lọc</small>}</div>
                     {products.slice(0, 40).map(product => (
                       <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
                         <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
@@ -207,7 +207,7 @@ export default function SalesClient({ profile, products, customers }: Props) {
                   </div>
                 )}
 
-                {error && <p className="pos-error">{error}</p>}{notice && <p className="pos-success">{notice}</p>}
+                {error && <p id="pos-error" className="pos-error" role="alert" aria-live="assertive">{error}</p>}{notice && <p className="pos-success" role="status" aria-live="polite">{notice}</p>}
               </div>
             </div>
             <div className="cart-actions">
@@ -222,10 +222,10 @@ export default function SalesClient({ profile, products, customers }: Props) {
     {/* FOOTER: 45px white */}
     <footer className="page-footer">
       <div className="kv-tab tabs-pos">
-        <ul className="nav nav-tabs">
-          <li><a className={`nav-link ${mode === "quick" ? "active" : ""}`} onClick={() => setMode("quick")}><Zap size={14} /> Bán nhanh</a></li>
-          <li><a className={`nav-link ${mode === "normal" ? "active" : ""}`} onClick={() => setMode("normal")}><Clock size={14} /> Bán thường</a></li>
-          <li><a className={`nav-link ${mode === "delivery" ? "active" : ""}`} onClick={() => setMode("delivery")}><Truck size={14} /> Bán giao hàng</a></li>
+        <ul className="nav nav-tabs" role="tablist" aria-label="Chế độ bán">
+          <li><button role="tab" aria-selected={mode==="quick"} className={`nav-link ${mode === "quick" ? "active" : ""}`} onClick={() => setMode("quick")}><Zap aria-hidden="true" size={14} /> Bán nhanh</button></li>
+          <li><button role="tab" aria-selected={mode==="normal"} className={`nav-link ${mode === "normal" ? "active" : ""}`} onClick={() => setMode("normal")}><Clock aria-hidden="true" size={14} /> Bán thường</button></li>
+          <li><button role="tab" aria-selected={mode==="delivery"} className={`nav-link ${mode === "delivery" ? "active" : ""}`} onClick={() => setMode("delivery")}><Truck aria-hidden="true" size={14} /> Bán giao hàng</button></li>
         </ul>
       </div>
       <div className="page-footer-right">
@@ -235,8 +235,8 @@ export default function SalesClient({ profile, products, customers }: Props) {
       </div>
     </footer>
 
-    {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
+    {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowAddCustomer(false)}><section role="dialog" aria-modal="true" aria-labelledby="add-cust-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="add-cust-title">Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
 
-    {showShortcuts && <div className="modal-backdrop" onClick={() => setShowShortcuts(false)}><section className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3>Phím tắt</h3><div className="pos-shortcuts"><div><kbd>F3</kbd><span>Tìm hàng hóa</span></div><div><kbd>F4</kbd><span>Tìm khách hàng</span></div><div><kbd>Esc</kbd><span>Đóng cửa sổ</span></div></div><div className="settings-form-actions"><button className="settings-btn-primary" onClick={() => setShowShortcuts(false)}>Đã hiểu</button></div></section></div>}
+    {showShortcuts && <div className="modal-backdrop" onClick={() => setShowShortcuts(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowShortcuts(false)}><section role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="shortcuts-title">Phím tắt</h3><div className="pos-shortcuts"><div><kbd>F3</kbd><span>Tìm hàng hóa</span></div><div><kbd>F4</kbd><span>Tìm khách hàng</span></div><div><kbd>Esc</kbd><span>Đóng cửa sổ</span></div></div><div className="settings-form-actions"><button className="settings-btn-primary" onClick={() => setShowShortcuts(false)}>Đã hiểu</button></div></section></div>}
   </main>;
 }

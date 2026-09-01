@@ -274,15 +274,15 @@ export default function DashboardClient({ profile, products: initialProducts, cu
               <span style={{fontSize:"11px", color:"#6b7a8a", border:"1px solid #e6ebef", padding:"4px 8px", borderRadius:"20px"}}>{getTodayVNKey()}</span>
             </div>
             <div className="kv-today-stats">
-              <article title="Click để xem báo cáo bán hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/sale-report"}>
+              <article role="button" tabIndex={0} aria-label="Xem báo cáo bán hàng" title="Click để xem báo cáo bán hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/sale-report"} onKeyDown={(e)=> { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); window.location.href="/sale-report"; }}}>
                 <span className="kv-stat-icon blue"><DollarSign size={18} /></span>
                 <div><small>Doanh thu</small><strong>{money(todayRevenue)}</strong>{todayInvoiceCount > 0 && <p>{todayInvoiceCount} hóa đơn • {todayCustomerCount} khách</p>}</div>
               </article>
-              <article title="Click để xem trả hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/returns"}>
+              <article role="button" tabIndex={0} aria-label="Xem trả hàng" title="Click để xem trả hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/returns"} onKeyDown={(e)=> { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); window.location.href="/returns"; }}}>
                 <span className="kv-stat-icon orange"><RotateCcw size={17} /></span>
                 <div><small>Trả hàng</small><strong>{money(todayReturns)}</strong><p>{todayOrders.filter(o=>o.status==="refunded").length} phiếu trả</p></div>
               </article>
-              <article title="Doanh thu thuần = Doanh thu - Trả hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/sale-report"}>
+              <article role="button" tabIndex={0} aria-label="Xem doanh thu thuần" title="Doanh thu thuần = Doanh thu - Trả hàng" style={{cursor:"pointer"}} onClick={()=> window.location.href="/sale-report"} onKeyDown={(e)=> { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); window.location.href="/sale-report"; }}}>
                 <span className="kv-stat-icon green"><DollarSign size={18} /></span>
                 <div><small>Doanh thu thuần</small><strong>{money(todayNet)}</strong><p style={{color: profitToday>=0?"#14894d":"#c53434"}}>LN ước tính: {money(profitToday)}</p></div>
               </article>
