@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { Clock3, DollarSign, PackageOpen, RotateCcw, ShieldAlert, ShoppingBag, Users, Download } from "lucide-react";
+import { Clock3, DollarSign, MessageCircle, PackageOpen, RotateCcw, ShieldAlert, ShoppingBag, Users, Download } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
 
@@ -319,7 +319,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
                 {chartData.values.map((value, index) => {
                   const label = chartData.labels[index];
                   const isNegative = value < 0;
-                  return <i key={`${label}-${index}`} title={`${label}: ${money(value)}`} style={{ height: value ? `${Math.max(3, Math.abs(value) / chartMax * 92)}%` : "2px", background: isNegative ? "linear-gradient(#ff7b7b,#d32f2f)" : "linear-gradient(#36afea,#078fd9)", opacity: value===0?0.2:1 }}><span>{label}</span></i>;
+                  return <i key={`${label}-${index}`} title={`${label}: ${money(value)}`} style={{ height: "92%", transform: `scaleY(${value ? Math.max(0.03, Math.abs(value) / chartMax) : 0.02})`, transformOrigin: "bottom", background: isNegative ? "linear-gradient(#ff7b7b,#d32f2f)" : "linear-gradient(#36afea,#0070f4)", opacity: value===0?0.2:1 }}><span>{label}</span></i>;
                 })}
               </div>
               {!hasChartData && <div className="kv-no-chart">Chưa có dữ liệu doanh thu trong {dateRange.toLowerCase()}</div>}
@@ -399,7 +399,7 @@ export default function DashboardClient({ profile, products: initialProducts, cu
         </aside>
       </div>
     </main>
-    <a className="kv-help" href="tel:0704040044" aria-label="Liên hệ 0704 04 0044"><i>💬</i><span>0704 04 0044</span></a>
+    <a className="kv-help" href="tel:0704040044" aria-label="Liên hệ 0704 04 0044"><MessageCircle size={18} /><span>0704 04 0044</span></a>
     {modal && <div className="modal open" role="dialog" aria-modal="true"><button className="modal-backdrop" aria-label="Đóng" onClick={() => setModal(null)} /><form className="modal-card" onSubmit={modal === "product" ? addProduct : addStaff}><div className="modal-head"><div><h3>{modal === "product" ? "Thêm hàng hóa" : "Tạo tài khoản nhân viên"}</h3><p>{modal === "product" ? "Hàng hóa được lưu vào cơ sở dữ liệu" : "Cấp quyền Quản lý hoặc Bán hàng"}</p></div><button type="button" className="close-btn" onClick={() => setModal(null)}>×</button></div>{modal === "product" ? <div className="form-grid"><label className="full">Tên hàng hóa<input name="name" required /></label><label>Mã hàng<input name="sku" required /></label><label>Giá bán<input name="price" type="number" min="0" required /></label><label>Tồn kho<input name="stock" type="number" min="0" defaultValue="0" /></label></div> : <div className="form-grid"><label className="full">Tên nhân viên<input name="fullName" required /></label><label>Tên đăng nhập<input name="username" required minLength={3} /></label><label>Mật khẩu<input name="password" type="password" required minLength={8} /></label><label>Vai trò<select name="role"><option value="sales">Bán hàng</option><option value="manager">Quản lý</option></select></label></div>}{message && <p className="form-error" role="alert">{message}</p>}<div className="modal-actions"><button type="button" className="button secondary" onClick={() => setModal(null)}>Hủy</button><button className="button primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></div>}
   </div>;
 }

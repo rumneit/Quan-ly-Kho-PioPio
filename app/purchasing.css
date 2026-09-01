@@ -1,5 +1,5 @@
 /* ===== Nhập hàng / Trả hàng nhập — KiotViet style ===== */
-.purchasing-page{--purchase-blue:#008ae6;--purchase-border:#dce2e8;--purchase-text:#263545;--purchase-muted:#6f7d8d;height:100vh;overflow:hidden;background:#f2f4f7!important}
+.purchasing-page{--purchase-blue:#0070f4;--purchase-border:#dce2e8;--purchase-text:#263545;--purchase-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Action bar */
 .purchase-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
@@ -19,10 +19,10 @@
 .purchase-create-actions{display:flex!important;align-items:center!important;gap:12px!important;grid-template-columns:none!important}
 
 /* Workspace + sidebar */
-.purchase-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100vh - 163px);min-height:0!important}
+.purchase-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 163px);min-height:0!important}
 .purchase-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
 .purchase-sidebar{position:relative!important;top:auto!important;left:auto!important;width:auto!important;height:100%!important;padding:14px 18px 40px!important;border-right:1px solid var(--purchase-border)!important;box-shadow:none!important;background:#fff!important}
-.purchase-sidebar>section{padding:10px 0 14px!important;margin:0!important;border-bottom:1px solid #eef1f4}
+.purchase-sidebar>section{padding:10px 0 14px!important;margin:0!important;border-bottom:1px solid #e1e3e6}
 .purchase-sidebar>section:last-of-type{border-bottom:0}
 .purchase-sidebar h2{margin:0 0 9px!important;color:var(--purchase-text)!important;font-size:15px!important;line-height:21px!important;font-weight:600!important}
 .purchase-sidebar .stock-radio,.purchase-sidebar .stock-check{min-height:32px;color:#334150;font-size:13px!important}
@@ -63,7 +63,7 @@
 .purchase-notice svg{width:15px;height:15px}
 
 /* ===== Create view ===== */
-.purchase-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100vh - 163px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f2f4f7}
+.purchase-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100dvh - 163px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f5f6f7}
 .purchase-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px}
 .purchase-create-toolbar{flex-wrap:wrap}
 .purchase-create-search{height:38px!important;max-width:520px!important}
@@ -111,7 +111,7 @@
   .purchase-create{grid-template-columns:minmax(0,1fr) 260px!important}
 }
 @media(max-width:768px){
-  .purchasing-page{height:auto;min-height:100vh;overflow:auto}
+  .purchasing-page{height:auto;min-height:100dvh;overflow:auto}
   .purchase-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
   .purchase-search{grid-column:1/-1;grid-row:2}
   .purchase-toolbar{grid-column:2;grid-row:1}
@@ -121,7 +121,7 @@
   .purchase-sidebar{position:relative!important;top:auto!important;left:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;width:100%!important;height:auto!important;padding:10px 14px!important;border-right:0;border-bottom:1px solid var(--purchase-border);box-shadow:none!important}
   .purchase-sidebar>section{grid-column:1/-1}
   .purchase-sidebar .sidebar-collapse{display:none}
-  .purchase-content{height:calc(100vh - 415px);min-height:430px;padding:10px!important}
+  .purchase-content{height:calc(100dvh - 415px);min-height:430px;padding:10px!important}
   .purchase-table{max-height:none!important}
   .purchase-create{display:block;height:auto}
   .purchase-create-main{min-height:60vh;padding:0}

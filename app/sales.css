@@ -2,7 +2,7 @@
    POS / Bán hàng — KiotViet-exact structure (page-header / col-left / col-right)
    ===================================================================== */
 .pos-shell {
-  min-height: 100vh !important; background: #f0f1f3 !important; color: #26323e !important;
+  min-height: 100dvh !important; background: #f0f1f3 !important; color: #26323e !important;
   font-family: Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 12.544px !important;
 }
 
@@ -86,7 +86,7 @@
 
 /* ---------- CONTENT: col-left 841 + col-right 421 ---------- */
 .page-content {
-  display: flex !important; align-items: stretch !important; height: calc(100vh - 95px) !important;
+  display: flex !important; align-items: stretch !important; height: calc(100dvh - 95px) !important;
   min-height: 0 !important; background: #f0f1f3 !important; padding: 9px 9px 9px 0 !important; gap: 1px !important;
 }
 .col-left { flex: 1 1 auto !important; min-width: 0 !important; overflow: hidden !important; }
@@ -136,7 +136,7 @@
 .delivery-component { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; }
 .form-delivery { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; border-radius: 9px !important; background: #fff !important; }
 .transport-content { flex: 1 !important; overflow-y: auto !important; padding: 0 20px !important; }
-.col-right-header { padding: 10px 0 6px !important; border-bottom: 1px solid #eef1f4 !important; }
+.col-right-header { padding: 10px 0 6px !important; border-bottom: 1px solid #e1e3e6 !important; }
 .pos-staff-row { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 12.544px !important; }
 .pos-staff-row span { font-weight: 600 !important; }
 .pos-staff-row b { color: #8a96a7 !important; }
@@ -199,7 +199,7 @@
 
 .cart-actions {
   display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 9px !important;
-  padding: 4px 8px 5px !important; border-top: 1px solid #eef1f4 !important; min-height: 54px !important; flex-shrink: 0 !important;
+  padding: 4px 8px 5px !important; border-top: 1px solid #e1e3e6 !important; min-height: 54px !important; flex-shrink: 0 !important;
 }
 .btn-xl {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
@@ -250,7 +250,7 @@
 .pos-shortcuts kbd {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
   min-width: 40px !important; height: 28px !important; padding: 0 8px !important; border: 1px solid #d0d7de !important; border-bottom-width: 2px !important;
-  border-radius: 6px !important; background: #f7f8f9 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important;
+  border-radius: 6px !important; background: #f5f6f7 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important;
 }
 .pos-shortcuts span { font-size: 12.544px !important; color: #3e464f !important; }
 
@@ -263,7 +263,7 @@
   .icon-list.header-nav { display: none !important; }
 }
 /* ---------- LEFT CART FOOTER (totals) ---------- */
-.cart-footer { padding: 8px 14px !important; border-top: 1px solid #eef1f4 !important; background: #fff !important; }
+.cart-footer { padding: 8px 14px !important; border-top: 1px solid #e1e3e6 !important; background: #fff !important; }
 .cart-footer p { display: flex !important; align-items: center !important; justify-content: space-between !important; margin: 0 !important; padding: 4px 0 !important; font-size: 12.544px !important; color: #3e464f !important; }
 .cart-footer p.strong { border-top: 1px dashed #dfe4ea !important; margin-top: 4px !important; padding-top: 8px !important; font-weight: 700 !important; color: #15171a !important; }
 .cart-footer p span { color: #6b7a8d !important; }
@@ -279,7 +279,7 @@
 
 /* ---------- PRODUCT LIST (Bán thường) ---------- */
 .pos-product-list { border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; overflow: hidden !important; }
-.pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #eef1f4 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
+.pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #e1e3e6 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
 .pos-product-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
 .pos-product-row:hover { background: #f2f8ff !important; }
 .pos-product-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; font-size: 12.544px !important; color: #2e3541 !important; }

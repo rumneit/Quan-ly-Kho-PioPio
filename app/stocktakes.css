@@ -1,5 +1,5 @@
 /* ===== Kiểm kho (Stocktake) — KiotViet style ===== */
-.stocktakes-page{--kt-blue:#008ae6;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100vh;overflow:hidden;background:#f2f4f7!important}
+.stocktakes-page{--kt-blue:#0070f4;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Shared sidebar controls used by other business pages */
 .stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:pointer}
@@ -31,7 +31,7 @@
 .stock-back svg{width:18px;height:18px}
 
 /* Workspace + sidebar */
-.stocktake-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100vh - 162px);min-height:0!important}
+.stocktake-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 162px);min-height:0!important}
 .stocktakes-page .sidebar-collapse{left:355px}
 .stocktake-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 40px!important}
 .stocktake-sidebar>section{padding:10px 0 16px!important;margin:0!important}
@@ -77,7 +77,7 @@
 .stocktake-notice svg{width:15px;height:15px}
 
 /* ===== Create view ===== */
-.stocktake-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100vh - 162px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f2f4f7}
+.stocktake-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100dvh - 162px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f5f6f7}
 .stocktake-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px}
 .stock-summary{display:flex;flex:0 0 auto;flex-wrap:wrap;gap:8px}
 .stock-chip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid #d0d7de;border-radius:17px;background:#fff;color:#334150;font-size:13px;cursor:pointer}
@@ -120,7 +120,7 @@
 .stock-side-label{display:block;margin-bottom:6px;color:#3d4c5b;font-size:13px;font-weight:600}
 .stock-side-total{display:block;font-size:24px;font-weight:700;color:#1a2332;line-height:1.2}
 .stock-recent ul{list-style:none;margin:0;padding:0}
-.stock-recent li+li{border-top:1px solid #eef1f4}
+.stock-recent li+li{border-top:1px solid #e1e3e6}
 .stock-recent button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 2px;border:0;background:transparent;cursor:pointer;color:#334150}
 .stock-recent button:hover{color:var(--kt-blue)}
 .stock-recent button b{font-weight:600;font-size:13px}
@@ -151,7 +151,7 @@
   .stock-create-table table{min-width:860px!important}
 }
 @media(max-width:768px){
-  .stocktakes-page{height:auto;min-height:100vh;overflow:auto}
+  .stocktakes-page{height:auto;min-height:100dvh;overflow:auto}
   .stocktake-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
   .stocktake-search{grid-column:1/-1;grid-row:2}
   .stock-toolbar{grid-column:2;grid-row:1}
@@ -159,7 +159,7 @@
   .stocktake-workspace{display:block!important;height:auto}
   .stocktake-sidebar{position:relative!important;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;width:100%!important;height:auto!important;padding:10px 14px!important;border-right:0;border-bottom:1px solid var(--kt-border);box-shadow:none!important}
   .stocktake-sidebar>section:first-child{grid-column:1/-1}
-  .stocktake-content{height:calc(100vh - 415px);min-height:430px;padding:10px!important}
+  .stocktake-content{height:calc(100dvh - 415px);min-height:430px;padding:10px!important}
   .stocktake-table{max-height:none!important}
   .stocktake-create{display:block;height:auto}
   .stocktake-create-main{min-height:70vh}

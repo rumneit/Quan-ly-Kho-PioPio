@@ -3,8 +3,8 @@
   --order-border: #dce2e8;
   --order-text: #253342;
   --order-muted: #6d7b89;
-  min-height: 100vh;
-  background: #f2f4f7;
+  min-height: 100dvh;
+  background: #f5f6f7;
 }
 
 .order-management-page .order-actions {
@@ -101,13 +101,13 @@
 
 .order-workspace {
   grid-template-columns: 250px minmax(0, 1fr) !important;
-  min-height: calc(100vh - 163px) !important;
+  min-height: calc(100dvh - 163px) !important;
 }
 
 .order-sidebar {
   top: 163px !important;
   width: 250px !important;
-  height: calc(100vh - 163px) !important;
+  height: calc(100dvh - 163px) !important;
   padding: 12px 12px 50px !important;
 }
 
@@ -177,7 +177,7 @@
 }
 
 .order-table {
-  max-height: calc(100vh - 222px) !important;
+  max-height: calc(100dvh - 222px) !important;
   border-radius: 5px 5px 0 0 !important;
 }
 
@@ -228,7 +228,7 @@
   min-height: 22px;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #eef1f4;
+  background: #e1e3e6;
   color: #5c6874;
   font-size: 12px;
 }
@@ -353,11 +353,11 @@
 .partner-workspace {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
-  min-height: calc(100vh - 163px);
+  min-height: calc(100dvh - 163px);
 }
 
 .partner-sidebar {
-  min-height: calc(100vh - 163px);
+  min-height: calc(100dvh - 163px);
   border-right: 1px solid var(--order-border);
   background: #fff;
 }

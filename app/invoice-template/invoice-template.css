@@ -1,5 +1,5 @@
 /* ===== Mẫu Hóa Đơn Bán Hàng A4 — y chang file Hoa Don.xlsx ===== */
-.invoice-tpl-page{background:#eceff3}
+.invoice-tpl-page{background:#f5f6f7}
 .inv-main{padding:14px}
 .inv-sheet{width:200mm;max-width:100%;min-height:280mm;margin:0 auto;padding:8mm 9mm;background:#fff;color:#111;font-family:"Times New Roman",Times,serif;font-size:13px;line-height:1.45;box-shadow:0 2px 18px rgba(16,32,54,.12);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 .inv-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
@@ -35,8 +35,8 @@
 .sign-space{height:24mm}
 .inv-toolbar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:1px solid #e1e6ec}
 .inv-btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border:1px solid #cfd6de;border-radius:7px;background:#fff;color:#2e3541;font-size:13px;cursor:pointer}
-.inv-btn:hover{border-color:#008ae6;color:#008ae6}
-.inv-btn.primary{border-color:#008ae6;background:#008ae6;color:#fff}
+.inv-btn:hover{border-color:#0070f4;color:#0070f4}
+.inv-btn.primary{border-color:#0070f4;background:#0070f4;color:#fff}
 .inv-hint{margin-left:auto;font-size:12.5px;color:#5c6a78}
 .inv-hint b{color:#0b7cc1}
 @media print{
