@@ -477,3 +477,8 @@ p { text-wrap: pretty; }
     padding: 0 8px 8px;
   }
 }
+
+/* P0 fix: touch hit-area 44px without changing visual 32px */
+.kv-btn-icon, .pos-quantity button, .pos-line-remove, .pos-add-tab, .kv-round, .kv-avatar { position: relative; }
+.kv-btn-icon::after, .pos-quantity button::after, .pos-line-remove::after, .pos-add-tab::after, .kv-round::after, .kv-avatar::after { content:""; position:absolute; inset:-6px; }
+
