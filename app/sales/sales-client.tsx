@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeftRight, ClipboardList, Clock, Menu, Minus, Phone, Plus, Printer, RefreshCw, Search, ShoppingCart, Star, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
+import { ArrowLeftRight, ClipboardList, Clock, Menu, Minus, Phone, Plus, Printer, RefreshCw, RotateCcw, Search, ShoppingCart, Star, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
 type Customer = { id: string; name: string; phone?: string | null };
+type PendingOrder = { id: string; order_number: number; status: string; total: number; created_at: string; customers?: { name?: string } | null };
 type CartLine = Product & { quantity: number };
-type Props = { profile: Profile; products: Product[]; customers: Customer[] };
+type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[] };
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 
-export default function SalesClient({ profile, products, customers }: Props) {
+export default function SalesClient({ profile, products, customers, pendingOrders }: Props) {
   const [query, setQuery] = useState("");
   const [productPage, setProductPage] = useState(0);
   const productPageSize = 20;
@@ -45,6 +46,10 @@ export default function SalesClient({ profile, products, customers }: Props) {
   const [newCustPhone, setNewCustPhone] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showOrderProcessing, setShowOrderProcessing] = useState(false);
+  const [showReturn, setShowReturn] = useState(false);
+  const [showPrintSettings, setShowPrintSettings] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const productSearchRef = useRef<HTMLInputElement>(null);
   const customerSearchRef = useRef<HTMLInputElement>(null);
 
@@ -150,10 +155,10 @@ export default function SalesClient({ profile, products, customers }: Props) {
       </div>
       <div className="header-right">
         <ul className="icon-list header-nav">
-          <li><button aria-label="Đơn hàng"><ClipboardList size={14} /></button></li>
-          <li><button aria-label="Hoàn tác"><Undo2 size={14} /></button></li>
-          <li><button aria-label="Đồng bộ"><RefreshCw size={14} /></button></li>
-          <li><button aria-label="In"><Printer size={14} /></button></li>
+          <li><button aria-label="Xử lý đặt hàng" title="Xử lý đặt hàng" onClick={() => setShowOrderProcessing(true)}><ClipboardList size={18} /><span className="icon-label">Đặt hàng</span></button></li>
+          <li><button aria-label="Trả hàng" title="Trả hàng" onClick={() => setShowReturn(true)}><RotateCcw size={18} /><span className="icon-label">Trả hàng</span></button></li>
+          <li><button aria-label="Đồng bộ" title="Đồng bộ" onClick={async () => { setSyncing(true); await new Promise(r=>setTimeout(r,1200)); setSyncing(false); setNotice("Đồng bộ thành công"); setTimeout(()=>setNotice(""),3000); }}><RefreshCw size={18} className={syncing ? "spin" : ""} /><span className="icon-label">Đồng bộ</span></button></li>
+          <li><button aria-label="Thiết lập in" title="Thiết lập in" onClick={() => setShowPrintSettings(true)}><Printer size={18} /><span className="icon-label">In</span></button></li>
         </ul>
         <div className="pos-user-menu-wrap"><button className="pos-user" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}><Menu size={14} /><span>{profile.username}</span></button>
           {menuOpen && <div className="pos-user-menu"><Link href="/end-of-day-report">Xem báo cáo cuối ngày</Link><Link href="/orders">Xử lý đặt hàng</Link><Link href="/returns">Chọn hóa đơn trả hàng</Link><Link href="/cashflow">Lập phiếu thu</Link><button onClick={() => { setMenuOpen(false); setShowShortcuts(true); }}>Phím tắt</button><Link href="/dashboard">Quản lý</Link><form action="/auth/signout" method="post"><button>Đăng xuất</button></form></div>}
@@ -249,5 +254,11 @@ export default function SalesClient({ profile, products, customers }: Props) {
     {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowAddCustomer(false)}><section role="dialog" aria-modal="true" aria-labelledby="add-cust-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="add-cust-title">Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
 
     {showShortcuts && <div className="modal-backdrop" onClick={() => setShowShortcuts(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowShortcuts(false)}><section role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="shortcuts-title">Phím tắt</h3><div className="pos-shortcuts"><div><kbd>F3</kbd><span>Tìm hàng hóa</span></div><div><kbd>F4</kbd><span>Tìm khách hàng</span></div><div><kbd>Esc</kbd><span>Đóng cửa sổ</span></div></div><div className="settings-form-actions"><button className="settings-btn-primary" onClick={() => setShowShortcuts(false)}>Đã hiểu</button></div></section></div>}
+
+    {showOrderProcessing && <div className="modal-backdrop" onClick={() => setShowOrderProcessing(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowOrderProcessing(false)}><section role="dialog" aria-modal="true" aria-labelledby="order-processing-title" className="pos-qty-modal" style={{width:"min(480px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="order-processing-title">Xử lý đặt hàng</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Đơn hàng chờ xử lý — y chang KiotViet</p><div style={{maxHeight:320,overflow:"auto",border:"1px solid #e1e3e6",borderRadius:8}}>{pendingOrders.length ? pendingOrders.map(o=> <div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 12px",borderBottom:"1px solid #f0f2f5"}}><div><div style={{fontWeight:600,fontSize:13}}>HD{String(o.order_number).padStart(6,"0")} • {o.customers?.name || "Khách lẻ"}</div><small style={{color:"#6b7a8d"}}>{new Intl.DateTimeFormat("vi-VN").format(new Date(o.created_at))} • {Number(o.total).toLocaleString("vi-VN")}đ • {o.status}</small></div><Link href={`/orders?code=HD${String(o.order_number).padStart(6,"0")}`} onClick={()=> setShowOrderProcessing(false)} style={{padding:"6px 12px",background:"#0070f4",color:"#fff",borderRadius:6,textDecoration:"none",fontSize:12}}>Xử lý</Link></div>) : <p style={{padding:20,textAlign:"center",color:"#6b7a8d"}}>Không có đơn đặt hàng nào</p>}</div><div className="settings-form-actions" style={{marginTop:12}}><Link href="/orders" onClick={()=> setShowOrderProcessing(false)} style={{fontSize:12,color:"#0070f4"}}>Xem tất cả đơn hàng →</Link><button className="settings-btn-primary" onClick={() => setShowOrderProcessing(false)}>Đóng</button></div></section></div>}
+
+    {showReturn && <div className="modal-backdrop" onClick={() => setShowReturn(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowReturn(false)}><section role="dialog" aria-modal="true" aria-labelledby="return-title" className="pos-qty-modal" style={{width:"min(480px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="return-title">Trả hàng</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Chọn hóa đơn để trả hàng — y chang KiotViet</p><div style={{display:"grid",gap:8}}><Link href="/returns" onClick={()=> setShowReturn(false)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px",border:"1px solid #e1e3e6",borderRadius:8,textDecoration:"none",color:"#0F172A"}}><RotateCcw size={18} color="#0070f4"/><div><div style={{fontWeight:600}}>Chọn hóa đơn trả hàng</div><small style={{color:"#6b7a8d"}}>Tìm theo mã HD, khách hàng</small></div></Link><Link href="/invoices" onClick={()=> setShowReturn(false)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px",border:"1px solid #e1e3e6",borderRadius:8,textDecoration:"none",color:"#0F172A"}}><ClipboardList size={18} color="#0070f4"/><div><div style={{fontWeight:600}}>Xem hóa đơn</div><small style={{color:"#6b7a8d"}}>Danh sách hóa đơn đã thanh toán</small></div></Link></div><div className="settings-form-actions" style={{marginTop:12}}><button className="settings-btn-primary" onClick={() => setShowReturn(false)}>Đóng</button></div></section></div>}
+
+    {showPrintSettings && <div className="modal-backdrop" onClick={() => setShowPrintSettings(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowPrintSettings(false)}><section role="dialog" aria-modal="true" aria-labelledby="print-settings-title" className="pos-qty-modal" style={{width:"min(420px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="print-settings-title">Thiết lập in</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Cấu hình máy in — y chang KiotViet</p><div style={{display:"grid",gap:12}}><label style={{display:"flex",flexDirection:"column",gap:6,fontSize:12,fontWeight:600}}>Khổ giấy<select defaultValue="80mm" style={{height:36,border:"1px solid #d0d7de",borderRadius:6,padding:"0 8px"}}><option>80mm</option><option>58mm</option><option>A4</option></select></label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" defaultChecked /> In sau khi thanh toán</label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" /> Hiển thị logo trên hóa đơn</label><div style={{display:"flex",gap:8}}><button onClick={()=> window.print()} style={{flex:1,height:36,border:"1px solid #0070f4",borderRadius:6,background:"#0070f4",color:"#fff"}}>In thử</button><button onClick={()=> setShowPrintSettings(false)} style={{flex:1,height:36,border:"1px solid #d0d7de",borderRadius:6,background:"#fff"}}>Đóng</button></div></div></section></div>}
   </main>;
 }

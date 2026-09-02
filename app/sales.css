@@ -394,3 +394,11 @@
   .pos-quantity button, .pos-line-remove { width:36px !important; height:36px !important; }
 }
 
+
+/* POS icon bar aesthetic - 4 modules KiotViet */
+.icon-list.header-nav button .icon-label { font-size: 11px; font-weight: 600; margin-left: 2px; }
+@media (max-width: 900px) { .icon-list.header-nav button .icon-label { display: none; } }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.icon-list.header-nav button { width: auto !important; min-width: 40px !important; padding: 0 12px !important; gap: 6px !important; }
+
