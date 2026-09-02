@@ -21,7 +21,7 @@
 .suppliers-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 60px!important}
 .suppliers-sidebar>section{padding:10px 0 16px!important;margin:0!important}
 .suppliers-sidebar h2{margin:0 0 9px!important;font-size:14px!important;line-height:20px!important}
-.suppliers-sidebar h2 button{border:0;background:transparent;padding:0;color:var(--sp-blue);font-size:13px!important;font-weight:500;cursor:poNunito Sans}
+.suppliers-sidebar h2 button{border:0;background:transparent;padding:0;color:var(--sp-blue);font-size:13px!important;font-weight:500;cursor:pointer}
 .suppliers-sidebar h2 button:hover{color:#0077c7}
 .suppliers-sidebar .filter-caption{margin:0 0 6px!important;color:var(--sp-muted)!important;font-size:12px!important;line-height:18px!important}
 .suppliers-sidebar .stock-radio,.suppliers-sidebar .stock-check{min-height:30px;color:#334150;font-size:13px!important}
@@ -50,7 +50,7 @@
 .suppliers-table .row-star button{display:inline-flex;border:0;background:transparent;color:#8994a1}
 .suppliers-table th.number-cell,.suppliers-table td.number-cell{text-align:right}
 .supplier-code,.purchase-link{color:var(--sp-blue)!important;font-weight:500}
-.suppliers-table .supplier-code{border:0;background:transparent;padding:0;cursor:poNunito Sans}
+.suppliers-table .supplier-code{border:0;background:transparent;padding:0;cursor:pointer}
 .suppliers-table .supplier-code:hover{color:#0077c7;text-decoration:underline}
 .supplier-name{color:#273544!important;font-weight:500}
 .supplier-status{display:inline-flex;min-height:24px;align-items:center;padding:2px 9px;border-radius:12px;font-size:12px!important;font-weight:600;white-space:nowrap}
@@ -95,11 +95,11 @@
 .supplier-import-modal{width:min(560px,calc(100vw - 28px))!important}
 .supplier-import-body{padding:20px 24px 24px;background:#fff}
 .supplier-import-hint{margin:0 0 12px;color:var(--sp-muted);font-size:13px!important;line-height:20px}
-.supplier-link{border:0;background:transparent;padding:0;color:var(--sp-blue);font-size:13px!important;cursor:poNunito Sans;text-decoration:underline}
+.supplier-link{border:0;background:transparent;padding:0;color:var(--sp-blue);font-size:13px!important;cursor:pointer;text-decoration:underline}
 .supplier-link:hover{color:#0077c7}
 .supplier-file{display:grid;place-items:center;gap:8px;margin:14px 0;padding:22px;border:1px dashed #c2ccd6;border-radius:7px;background:#f8fafc;color:#6b7987}
 .supplier-file svg{width:34px;height:34px}
-.supplier-file label{display:grid;gap:6px;place-items:center;font-size:13px!important;font-weight:600;color:#374450;cursor:poNunito Sans}
+.supplier-file label{display:grid;gap:6px;place-items:center;font-size:13px!important;font-weight:600;color:#374450;cursor:pointer}
 .supplier-file input{font-size:12px!important}
 
 /* ===== Settings / Help modals ===== */

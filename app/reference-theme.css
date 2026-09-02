@@ -54,12 +54,12 @@
   --muted: #475569;
   --line: #E6E8EA;
   --bg: #F8FAFC;
-  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif;
 }
 
 html,
 body {
-  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -69,7 +69,7 @@ body {
 
 html,
 body {
-  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif;
   font-size: 14px;
   line-height: 20px;
   -webkit-font-smoothing: antialiased;
@@ -80,7 +80,7 @@ body {
 button,
 select,
 textarea {
-  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif;
   font-size: inherit;
   transition: border-color .15s, background .15s, color .15s, transform .1s, box-shadow .15s;
 }
@@ -402,7 +402,7 @@ p { text-wrap: pretty; }
   border-bottom-color: #cce2fd;
   background: #e6f1fe;
   color: #15171a;
-  font-family: Nunito Sans, Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: "Nunito Sans", Roboto, Helvetica, Arial, sans-serif !important;
   font-size: 14px !important;
   font-weight: 700;
   line-height: 20px;

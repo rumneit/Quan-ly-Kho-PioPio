@@ -47,7 +47,7 @@
 .purchase-table .row-star{width:34px;min-width:34px;padding:0 6px;text-align:center}
 .purchase-table .row-star button{display:inline-flex;border:0;background:transparent;color:#8994a1;padding:2px}
 .purchase-table .number-cell{text-align:right}
-.purchase-link{color:#334155;font-weight:500;cursor:poNunito Sans}
+.purchase-link{color:#334155;font-weight:500;cursor:pointer}
 .purchase-link:hover{color:#0060c4;text-decoration:underline}
 .purchase-filter-row th{height:39px!important;padding:4px 8px!important;border-bottom:1px solid #cad6e3!important;background:#f8fafc!important}
 .purchase-empty{min-height:300px}

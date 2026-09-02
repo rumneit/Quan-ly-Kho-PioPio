@@ -6,7 +6,7 @@
 /* ===== Create price book modal (KiotViet style) ===== */
 .pricebook-create-modal{width:min(720px,calc(100vw - 28px))!important;max-height:92vh!important;display:flex!important;flex-direction:column!important}
 .pricebook-tabs{display:flex;flex:0 0 auto;border-bottom:1px solid var(--pb-border);background:#fff;padding:0 18px}
-.pricebook-tabs button{padding:14px 18px;border:0;border-bottom:2px solid transparent;background:transparent;color:#5c6a78;font-size:15px;font-weight:600;cursor:poNunito Sans}
+.pricebook-tabs button{padding:14px 18px;border:0;border-bottom:2px solid transparent;background:transparent;color:#5c6a78;font-size:15px;font-weight:600;cursor:pointer}
 .pricebook-tabs button.active{color:var(--pb-blue);border-color:var(--pb-blue)}
 .pricebook-create-body{flex:1;overflow:auto;padding:16px 20px 22px;background:#fff}
 .pricebook-tab-pane{display:grid;gap:14px}
@@ -25,7 +25,7 @@
 .pb-datetime input{height:34px;padding:0 9px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px;outline:0}
 .pb-datetime span{color:#6b7987;font-size:13px}
 .pb-radios{display:grid;gap:8px}
-.pb-radio{display:flex;align-items:flex-start;gap:8px;color:#374450;font-size:13px;line-height:20px;cursor:poNunito Sans}
+.pb-radio{display:flex;align-items:flex-start;gap:8px;color:#374450;font-size:13px;line-height:20px;cursor:pointer}
 .pb-radio input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--pb-blue);flex:0 0 auto}
 .pb-formula{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .pb-formula>span{color:#3d4c5b;font-size:13px;font-weight:600}
@@ -34,9 +34,9 @@
 .pb-formula input{width:120px}
 .pricebook-import-body{padding:22px 28px 26px;background:#fff}
 .pricebook-import-body .pb-hint{margin-bottom:12px}
-.pb-link{border:0;background:transparent;padding:0;color:var(--pb-blue);font-size:13px;cursor:poNunito Sans;text-decoration:underline}
+.pb-link{border:0;background:transparent;padding:0;color:var(--pb-blue);font-size:13px;cursor:pointer;text-decoration:underline}
 .pb-file{display:grid;place-items:center;gap:8px;margin:14px 0;padding:22px;border:1px dashed #c2ccd6;border-radius:7px;background:#f8fafc;color:#6b7987}
 .pb-file svg{width:34px;height:34px}
-.pb-file label{display:grid;gap:6px;place-items:center;font-size:13px;font-weight:600;color:#374450;cursor:poNunito Sans}
+.pb-file label{display:grid;gap:6px;place-items:center;font-size:13px;font-weight:600;color:#374450;cursor:pointer}
 .pb-file input{font-size:12px}
 .pricebook-import-modal footer .primary{min-width:110px}

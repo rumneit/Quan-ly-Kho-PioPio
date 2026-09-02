@@ -1,4 +1,4 @@
-/* impeccable-disable overused-font: POS unified to Nunito Sans intentional */
+/* impeccable-disable overused-font: POS unified to "Nunito Sans" intentional */
 /* =====================================================================
    POS / Bán hàng — KiotViet-exact structure (page-header / col-left / col-right)
    ===================================================================== */
@@ -47,7 +47,7 @@
 .pos-search-results button {
   display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important;
   width: 100% !important; padding: 8px 11px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important;
-  background: #fff !important; text-align: left !important; cursor: poNunito Sans !important;
+  background: #fff !important; text-align: left !important; cursor: pointer !important;
 }
 .pos-search-results button:hover { background: #f2f8ff !important; }
 .pos-search-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; }
@@ -66,7 +66,7 @@
 .pos-invoice-tab b { margin-left: auto !important; color: #87929c !important; }
 .pos-add-tab {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 29px !important; height: 29px !important; border: 0 !important; background: transparent !important; color: #d5e5f5 !important; cursor: poNunito Sans !important;
+  width: 29px !important; height: 29px !important; border: 0 !important; background: transparent !important; color: #d5e5f5 !important; cursor: pointer !important;
 }
 .pos-add-tab svg { width: 14px !important; height: 14px !important; }
 
@@ -78,7 +78,7 @@
 .icon-list.header-nav li { display: flex !important; align-items: center !important; }
 .icon-list.header-nav button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #fff !important; cursor: poNunito Sans !important;
+  width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #fff !important; cursor: pointer !important;
 }
 .icon-list.header-nav button:hover { background: rgba(255,255,255,.18) !important; }
 .icon-list.header-nav svg { width: 14px !important; height: 14px !important; }
@@ -86,7 +86,7 @@
 .pos-user {
   display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 29px !important;
   padding: 0 8px !important; border: 0 !important; border-radius: 4px !important; background: rgba(255,255,255,.12) !important;
-  color: #fff !important; font-size: 12px !important; cursor: poNunito Sans !important;
+  color: #fff !important; font-size: 12px !important; cursor: pointer !important;
 }
 .pos-user svg { width: 14px !important; height: 14px !important; }
 .pos-user-menu {
@@ -97,7 +97,7 @@
 .pos-user-menu a, .pos-user-menu button {
   display: flex !important; align-items: center !important; width: 100% !important; height: 34px !important;
   padding: 0 10px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important;
-  color: #3e464f !important; font-size: 12.544px !important; text-decoration: none !important; cursor: poNunito Sans !important;
+  color: #3e464f !important; font-size: 12.544px !important; text-decoration: none !important; cursor: pointer !important;
 }
 .pos-user-menu a:hover, .pos-user-menu button:hover { background: #f2f4f6 !important; }
 
@@ -117,7 +117,7 @@
 .pos-cart-head button {
   display: inline-flex !important; align-items: center !important; gap: 5px !important; height: 26px !important;
   padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important;
-  background: #fff !important; color: #b33232 !important; font-size: 11px !important; cursor: poNunito Sans !important;
+  background: #fff !important; color: #b33232 !important; font-size: 11px !important; cursor: pointer !important;
 }
 .pos-cart-head button:disabled { opacity: .45 !important; cursor: not-allowed !important; }
 .pos-cart-list article {
@@ -133,12 +133,12 @@
 .pos-quantity button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
   width: 24px !important; height: 24px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important;
-  background: #fff !important; color: #3e464f !important; cursor: poNunito Sans !important;
+  background: #fff !important; color: #3e464f !important; cursor: pointer !important;
 }
 .pos-quantity span { min-width: 28px !important; text-align: center !important; font-size: 12.544px !important; font-weight: 600 !important; }
 .pos-line-remove {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 28px !important; height: 28px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #c0392b !important; cursor: poNunito Sans !important;
+  width: 28px !important; height: 28px !important; border: 0 !important; border-radius: 6px !important; background: transparent !important; color: #c0392b !important; cursor: pointer !important;
 }
 .pos-line-remove:hover { background: #fff0f0 !important; }
 .pos-empty-cart {
@@ -167,13 +167,13 @@
 .pos-customer-search input { width: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; }
 .pos-customer-search button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 24px !important; height: 24px !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #6b7a8d !important; cursor: poNunito Sans !important;
+  width: 24px !important; height: 24px !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #6b7a8d !important; cursor: pointer !important;
 }
 .pos-customer-selected {
   display: flex !important; align-items: center !important; gap: 8px !important; padding: 8px 12px !important; margin-bottom: 8px !important;
   border: 1px solid #d8e6f7 !important; border-radius: 6px !important; background: #f4f9ff !important; color: #1f5f9e !important; font-size: 12.544px !important;
 }
-.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #5a6675 !important; cursor: poNunito Sans !important; }
+.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #5a6675 !important; cursor: pointer !important; }
 .pos-customer-list {
   position: absolute !important; z-index: 50 !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important;
   max-height: 220px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important;
@@ -181,7 +181,7 @@
 }
 .pos-customer-list button {
   display: flex !important; flex-direction: column !important; width: 100% !important; padding: 8px 12px !important;
-  border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: poNunito Sans !important;
+  border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important;
 }
 .pos-customer-list button:hover { background: #f2f8ff !important; }
 .pos-customer-list strong { font-size: 12.544px !important; color: #2e3541 !important; }
@@ -197,7 +197,7 @@
 .pos-pack-row span { font-size: 12.544px !important; color: #6b7a8d !important; flex: 1 !important; }
 .pos-pack-row button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 28px !important; height: 28px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #3e464f !important; cursor: poNunito Sans !important;
+  width: 28px !important; height: 28px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #3e464f !important; cursor: pointer !important;
 }
 .pos-pack-row b { min-width: 28px !important; text-align: center !important; font-size: 12.544px !important; }
 
@@ -220,7 +220,7 @@
 }
 .btn-xl {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  height: 45px !important; padding: 0 23px !important; border-radius: 9px !important; font-size: 14.336px !important; font-weight: 500 !important; cursor: poNunito Sans !important;
+  height: 45px !important; padding: 0 23px !important; border-radius: 9px !important; font-size: 14.336px !important; font-weight: 500 !important; cursor: pointer !important;
 }
 .btn-pay { flex: 1 !important; border: 1px solid #059669 !important; background: #059669 !important; color: #fff !important; }
 .btn-pay:disabled { opacity: .45 !important; cursor: not-allowed !important; }
@@ -234,7 +234,7 @@
 .nav-tabs .nav-link {
   display: inline-flex !important; align-items: center !important; gap: 6px !important; height: 44px !important;
   padding: 0 14px !important; border: 0 !important; border-radius: 2.24px 2.24px 0 0 !important;
-  background: transparent !important; color: #15171a !important; font-size: 12.544px !important; cursor: poNunito Sans !important; text-decoration: none !important;
+  background: transparent !important; color: #15171a !important; font-size: 12.544px !important; cursor: pointer !important; text-decoration: none !important;
 }
 .nav-tabs .nav-link.active { background: #d9edf9 !important; }
 .nav-tabs .nav-link svg { flex: 0 0 auto !important; }
@@ -245,7 +245,7 @@
 }
 .page-footer-usemanual, .page-footer-rating {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 22px !important; height: 22px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #6b7a8d !important; cursor: poNunito Sans !important;
+  width: 22px !important; height: 22px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #6b7a8d !important; cursor: pointer !important;
 }
 .page-footer-usemanual:hover, .page-footer-rating:hover { background: #f0f1f3 !important; }
 
@@ -259,7 +259,7 @@
 .pos-qty-control { display: flex !important; align-items: center !important; justify-content: center !important; gap: 12px !important; margin-bottom: 16px !important; }
 .pos-qty-control button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 36px !important; height: 36px !important; border: 1px solid #d0d7de !important; border-radius: 8px !important; background: #fff !important; color: #3e464f !important; cursor: poNunito Sans !important;
+  width: 36px !important; height: 36px !important; border: 1px solid #d0d7de !important; border-radius: 8px !important; background: #fff !important; color: #3e464f !important; cursor: pointer !important;
 }
 .pos-qty-control span { min-width: 48px !important; text-align: center !important; font-size: 20px !important; font-weight: 600 !important; }
 .pos-shortcuts { display: grid !important; gap: 8px !important; margin-bottom: 16px !important; }
@@ -297,7 +297,7 @@
 /* ---------- PRODUCT LIST (Bán thường) ---------- */
 .pos-product-list { border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; overflow: hidden !important; }
 .pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #e1e3e6 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
-.pos-product-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: poNunito Sans !important; }
+.pos-product-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
 .pos-product-row:hover { background: #f2f8ff !important; }
 .pos-product-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; font-size: 12.544px !important; color: #2e3541 !important; }
 .pos-product-name small { font-size: 11px !important; color: #5a6675 !important; }
@@ -334,11 +334,11 @@
 .pos-support:hover { color: #334155 !important; }
 .page-footer-usemanual:hover, .page-footer-rating:hover { color: #334155 !important; }
 /* ---------- FIX: inputs fill their styled wrappers + force Roboto ---------- */
-.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif !important; }
+.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif !important; }
 .pos-global-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 29px !important; font-size: 12.544px !important; }
-.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif !important; }
+.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
 /* Bán thường: left 704 + right 559 (product list, transparent) */
 .pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
@@ -360,20 +360,20 @@
 .pos-textarea {
   box-sizing: border-box !important; width: 100% !important; height: 40px !important; padding: 2px 10px !important; border: 1px solid #d0d7de !important;
   border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; resize: vertical !important;
-  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
+  font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
 }
 .pos-textarea:focus { border-color: #334155; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-textarea::placeholder { color: #5a6675; }
 .pos-select {
   width: 100%; height: 29px; padding: 0 8px; border: 1px solid #d0d7de;
   border-radius: 6px; background: #fff; font-size: 12.544px; color: #26323e;
-  appearance: auto; cursor: poNunito Sans;
+  appearance: auto; cursor: pointer;
 }
 .pos-select:focus { border-color: #334155; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-select:disabled { opacity: .5; cursor: not-allowed; }
 .pos-form-row input, .pos-form-row select, .pos-delivery-form > input, .pos-delivery-form > select {
   height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
-  font-size: 12.544px; width: 100%; font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif; color: #26323e;
+  font-size: 12.544px; width: 100%; font-family: var(--font-nunito), "Nunito Sans", system-ui, sans-serif; color: #26323e;
 }
 .pos-form-row input:focus, .pos-form-row select:focus { border-color: #334155; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
 .pos-form-row input::placeholder { color: #5a6675; }
@@ -389,7 +389,7 @@
 .pos-pack-row button {
   display: inline-flex; align-items: center; justify-content: center;
   width: 28px; height: 28px; border: 1px solid #d0d7de; border-radius: 6px;
-  background: #fff; color: #3e464f; cursor: poNunito Sans;
+  background: #fff; color: #3e464f; cursor: pointer;
 }
 /* Harden P0: focus visible + sr-only + reduced motion */
 .pos-shell :where(button, input, select, textarea):focus-visible { outline:2px solid var(--pio-primary) !important; outline-offset:2px !important; box-shadow: var(--pio-focus-shadow) !important; }
