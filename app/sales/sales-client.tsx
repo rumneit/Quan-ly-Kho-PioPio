@@ -203,30 +203,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
                   </div>
-                ) : mode === "quick" ? (
-                  <div className="pos-product-grid-quick">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Nhanh</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}</small></div>
-                    <div className="pos-quick-grid">
-                      {paginatedProducts.map(product => (
-                        <button key={product.id} className="pos-quick-card" onClick={() => addProduct(product)}>
-                          <span className="pos-quick-name">{product.name}</span>
-                          <small>{product.sku} • Tồn {product.stock_quantity}</small>
-                          <b>{money(Number(product.price))}</b>
-                        </button>
-                      ))}
-                    </div>
-                    {products.length > productPageSize && (
-                      <div className="pos-product-pagination" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",borderTop:"1px solid #e1e3e6",gap:8}}>
-                        <button disabled={productPage===0} onClick={()=> setProductPage(p=> Math.max(0,p-1))} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: productPage===0?"#f5f6f7":"#fff",cursor: productPage===0?"not-allowed":"pointer"}}>← Trước</button>
-                        <span style={{fontSize:12,color:"#6b7a8d"}}>{paginatedProducts.length} / {products.length}</span>
-                        <button disabled={(productPage+1)*productPageSize >= products.length} onClick={()=> setProductPage(p=> p+1)} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: (productPage+1)*productPageSize >= products.length?"#f5f6f7":"#fff",cursor: (productPage+1)*productPageSize >= products.length?"not-allowed":"pointer"}}>Sau →</button>
-                      </div>
-                    )}
-                    {!products.length && <p className="pos-customer-empty">Chưa có hàng hóa</p>}
-                  </div>
                 ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Thường</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
                     {paginatedProducts.map(product => (
                       <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
                         <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
