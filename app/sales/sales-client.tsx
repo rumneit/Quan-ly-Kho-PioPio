@@ -204,28 +204,32 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
                   </div>
                 ) : mode === "quick" ? (
-                  <div className="pos-quick-view">
-                    <div className="pos-quick-header"><span>Bán Nhanh — Quét mã vạch</span><small>{products.length} hàng hóa</small></div>
-                    <div className="pos-quick-grid">
-                      {paginatedProducts.slice(0, 8).map(product => (
-                        <button key={product.id} className="pos-quick-card" onClick={() => addProduct(product)}>
-                          <span className="pos-quick-name">{product.name}</span>
-                          <small>{product.sku} • Tồn {product.stock_quantity}</small>
-                          <b>{money(Number(product.price))}</b>
-                        </button>
-                      ))}
-                    </div>
-                    {products.length > 8 && <div style={{padding:"8px 12px",textAlign:"center",borderTop:"1px solid #e1e3e6"}}><small style={{color:"#6b7a8d"}}>Hiển thị 8/{products.length} — F3 để tìm thêm</small></div>}
-                  </div>
-                ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Thường</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
-                    {paginatedProducts.map(product => (
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— F3 để tìm</small></div>
+                    {paginatedProducts.slice(0, 8).map(product => (
                       <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
                         <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
                         <b>{money(Number(product.price))}</b>
                       </button>
                     ))}
+                    {products.length > 8 && <div style={{padding:"8px 12px",textAlign:"center",borderTop:"1px solid #e1e3e6"}}><small style={{color:"#6b7a8d"}}>Hiển thị 8/{products.length} — F3 để tìm thêm</small></div>}
+                    {!products.length && <p className="pos-customer-empty">Chưa có hàng hóa</p>}
+                  </div>
+                ) : (
+                  <div className="pos-product-list">
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Thường</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <div className="pos-normal-grid">
+                      {paginatedProducts.map(product => {
+                        const colors = ["#f8b4c8","#c9b3ff","#ffd166","#a8e6cf","#a0d8ef","#ffb347","#d4a5ff","#a0f0d0"];
+                        const bg = colors[product.id.charCodeAt(0) % colors.length];
+                        return (
+                          <button key={product.id} className="pos-normal-card" onClick={() => addProduct(product)}>
+                            <span className="pos-normal-img" style={{background:bg}}><span style={{fontSize:18}}>🖼️</span></span>
+                            <span className="pos-normal-info"><span className="pos-normal-name">{product.name}</span><small>{product.sku} • Tồn {product.stock_quantity}</small><b>{money(Number(product.price))}</b></span>
+                          </button>
+                        );
+                      })}
+                    </div>
                     {products.length > productPageSize && (
                       <div className="pos-product-pagination" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",borderTop:"1px solid #e1e3e6",gap:8}}>
                         <button disabled={productPage===0} onClick={()=> setProductPage(p=> Math.max(0,p-1))} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: productPage===0?"#f5f6f7":"#fff",cursor: productPage===0?"not-allowed":"pointer"}}>← Trước</button>
