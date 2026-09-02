@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { readJsonBody } from "@/lib/api-utils";
 
 export async function GET() {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const { data, error } = await supabase.from("suppliers").select("id,name,code,phone,email,address,area,ward,group_name,company,tax_code,identity,note,active,created_at,created_by,profiles(full_name)").order("created_at", { ascending: false }).limit(500);
   if (error) return NextResponse.json({ error: "Không thể tải nhà cung cấp." }, { status: 400 });
   const { data: vouchers } = await supabase.from("purchase_vouchers").select("supplier_id,payable,paid,status");
@@ -42,7 +42,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readJsonBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu nhà cung cấp không hợp lệ." }, { status: 400 });
   const name = String(body.name || "").trim();
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id") || "";
   if (!id) return NextResponse.json({ error: "Thiếu mã nhà cung cấp." }, { status: 400 });
@@ -88,7 +88,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id") || "";
   if (!id) return NextResponse.json({ error: "Thiếu mã nhà cung cấp." }, { status: 400 });

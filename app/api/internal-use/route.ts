@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { readJsonBody } from "@/lib/api-utils";
 
 type Line = { product_id: string; quantity: number };
 
 export async function GET() {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const { data, error } = await supabase
     .from("internal_use_vouchers")
     .select("*, profiles(full_name)")
@@ -27,7 +27,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readJsonBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu phiếu không hợp lệ." }, { status: 400 });
   const status = body.status === "completed" ? "completed" : "draft";

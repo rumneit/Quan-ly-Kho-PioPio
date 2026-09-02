@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { isRaisedException } from "@/lib/api-utils";
 
 const orderSelect = "id,order_number,customer_id,branch_id,status,subtotal,discount,total,note,channel,payment_method,created_at,updated_at,customers(id,customer_number,name,phone),creator:profiles!orders_created_by_fkey(full_name),store_branches(name),order_items(id,product_id,quantity,unit_price,line_total,products(sku,name)),shipments(id,shipment_number,status,partner_id,area,cod_amount,collected_cod,shipping_fee,partner_fee,delivery_at,delivery_partners(name)),sales_returns(id,return_number)";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function GET(request: Request) {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const params = new URL(request.url).searchParams;
   const page = Math.max(1, Number(params.get("page")) || 1);
   const pageSize = Math.min(100, Math.max(1, Number(params.get("pageSize")) || 15));
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = await request.json();
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = await request.json();

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireProfile, usernameToEmail } from "@/lib/auth";
+import { requireApiProfile, usernameToEmail } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { readJsonBody } from "@/lib/api-utils";
 
 const usernamePattern = /^[a-z0-9._-]{3,32}$/;
 
 export async function POST(request: Request) {
-  const { profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { profile } = auth;
   const body = await readJsonBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu nhân viên không hợp lệ." }, { status: 400 });
   const username = String(body.username || "").trim().toLowerCase();

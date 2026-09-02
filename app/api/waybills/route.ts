@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { isRaisedException } from "@/lib/api-utils";
 
 const shipmentSelect = "id,shipment_number,order_id,partner_id,status,receiver_name,receiver_phone,address,area,service,cod_amount,collected_cod,shipping_fee,partner_fee,note,created_at,delivery_at,completed_at,updated_at,delivery_partners(id,name),orders(id,order_number,customer_id,total,customers(id,customer_number,name,phone)),creator:profiles!shipments_created_by_fkey(full_name),shipment_status_history(id,status,note,created_at)";
@@ -16,7 +16,7 @@ async function readBody(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const body = await readBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu vận đơn không hợp lệ." }, { status: 400 });
   const orderId = String(body.order_id || "");
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const body = await readBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const id = String(body.id || "");

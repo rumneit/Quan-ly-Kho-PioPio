@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { isUniqueViolation } from "@/lib/api-utils";
 import { provinceAcceptedNames } from "@/app/lib/vietnam-data";
 
@@ -74,7 +74,7 @@ function customerPayload(input: CustomerInput, storeId: string, createdBy?: stri
 }
 
 export async function GET(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const params = new URL(request.url).searchParams;
   const page = Math.max(1, Number(params.get("page")) || 1);
   const pageSize = Math.min(params.get("export") === "1" ? 5000 : 100, Math.max(1, Number(params.get("pageSize")) || 15));
@@ -212,7 +212,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu khách hàng không hợp lệ." }, { status: 400 });
   const rows = Array.isArray(body.rows) ? body.rows : [body];
@@ -228,7 +228,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readBody(request);
   if (!body || typeof body.id !== "string" || !uuidPattern.test(body.id)) return NextResponse.json({ error: "Khách hàng không hợp lệ." }, { status: 400 });
   const validationError = validateInput(body);

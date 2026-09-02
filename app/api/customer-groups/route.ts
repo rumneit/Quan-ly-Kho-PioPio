@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = await request.json();

@@ -17,7 +17,26 @@ export async function proxy(request: NextRequest) {
       },
     },
   );
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
+  const isPublic = ["/login", "/setup", "/auth"].some((p) => pathname.startsWith(p));
+  const isApi = pathname.startsWith("/api");
+  if (!user && !isPublic) {
+    if (isApi) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const url = new URL("/login", request.url);
+    url.searchParams.set("next", pathname + request.nextUrl.search);
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy cookies to redirect response
+    request.cookies.getAll().forEach(({ name }) => {
+      const cookie = response.cookies.get(name);
+      if (cookie) redirectResponse.cookies.set(cookie);
+    });
+    redirectResponse.headers.set("Cache-Control", "no-store, must-revalidate");
+    return redirectResponse;
+  }
+  response.headers.set("Cache-Control", "no-store, must-revalidate");
   return response;
 }
 

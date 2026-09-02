@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { isRaisedException } from "@/lib/api-utils";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -16,7 +16,7 @@ function readBody(parsed: unknown) {
 }
 
 export async function GET(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const params = new URL(request.url).searchParams;
   const rawFund = params.get("fund") || "all";
   const fund = (["all", "cash", "bank", "ewallet"] as const).includes(rawFund as never) ? rawFund : "all";
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const body = readBody(await request.json().catch(() => null));
   if (!body) return NextResponse.json({ error: "Dữ liệu phiếu không hợp lệ." }, { status: 400 });
   const accountId = String(body.account_id || "");
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { supabase } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const body = readBody(await request.json().catch(() => null));
   if (!body) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
   const id = String(body.id || "");

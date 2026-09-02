@@ -25,3 +25,14 @@ export async function requireProfile(requiredRole?: AppRole) {
   if (requiredRole === "sales" && profile.role !== "sales") redirect("/dashboard");
   return { supabase, user, profile: profile as Profile };
 }
+
+export async function requireApiProfile(requiredRole?: AppRole) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" as const, status: 401 as const };
+  const { data: profile } = await supabase.from("profiles").select("id,username,full_name,role,active,store_id").eq("id", user.id).single();
+  if (!profile?.active) return { error: "Tài khoản đã bị vô hiệu hóa" as const, status: 403 as const };
+  if (requiredRole === "manager" && profile.role !== "manager") return { error: "Forbidden" as const, status: 403 as const };
+  if (requiredRole === "sales" && profile.role !== "sales") return { error: "Forbidden" as const, status: 403 as const };
+  return { supabase, user, profile: profile as Profile };
+}

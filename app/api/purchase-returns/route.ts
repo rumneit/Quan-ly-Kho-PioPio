@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { readJsonBody } from "@/lib/api-utils";
 
 type Line = { product_id: string; quantity: number; return_price?: number };
@@ -7,7 +7,7 @@ type Line = { product_id: string; quantity: number; return_price?: number };
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function GET() {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const { data, error } = await supabase.from("purchase_return_vouchers").select("*, suppliers(id,name,code), profiles(full_name)").order("created_at", { ascending: false }).limit(500);
   if (error) return NextResponse.json({ error: "Không thể tải phiếu trả hàng nhập." }, { status: 400 });
   const list = (data || []).map((row) => ({
@@ -33,7 +33,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readJsonBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu phiếu trả hàng không hợp lệ." }, { status: 400 });
   const status = body.status === "completed" ? "completed" : "draft";

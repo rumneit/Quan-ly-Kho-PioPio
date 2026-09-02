@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-import { requireProfile } from "@/lib/auth";
+import { requireApiProfile } from "@/lib/auth";
 import { readJsonBody } from "@/lib/api-utils";
 
 export async function GET() {
-  const { supabase } = await requireProfile();
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   const { data, error } = await supabase.from("product_brands").select("id,name,description").order("name");
   if (error) return NextResponse.json({ error: "Không thể tải thương hiệu. Cần áp dụng migration 004_product_catalog.sql." }, { status: 400 });
   return NextResponse.json({ brands: data || [] });
 }
 
 export async function POST(request: Request) {
-  const { supabase, profile } = await requireProfile("manager");
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
   const body = await readJsonBody(request);
   if (!body) return NextResponse.json({ error: "Dữ liệu thương hiệu không hợp lệ." }, { status: 400 });
   const name = String(body.name || "").trim();
