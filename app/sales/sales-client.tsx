@@ -23,7 +23,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
-  const [mode, setMode] = useState<"quick" | "normal" | "delivery">("normal");
+  const [mode, setMode] = useState<"normal" | "delivery">("normal");
   const [customerQuery, setCustomerQuery] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [customerListOpen, setCustomerListOpen] = useState(false);
@@ -203,21 +203,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
                   </div>
-                ) : mode === "quick" ? (
-                  <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— F3 để tìm</small></div>
-                    {paginatedProducts.slice(0, 8).map(product => (
-                      <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
-                        <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
-                        <b>{money(Number(product.price))}</b>
-                      </button>
-                    ))}
-                    {products.length > 8 && <div style={{padding:"8px 12px",textAlign:"center",borderTop:"1px solid #e1e3e6"}}><small style={{color:"#6b7a8d"}}>Hiển thị 8/{products.length} — F3 để tìm thêm</small></div>}
-                    {!products.length && <p className="pos-customer-empty">Chưa có hàng hóa</p>}
-                  </div>
                 ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Thường</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
                     <div className="pos-normal-grid">
                       {paginatedProducts.map(product => {
                         const colors = ["#f8b4c8","#c9b3ff","#ffd166","#a8e6cf","#a0d8ef","#ffb347","#d4a5ff","#a0f0d0"];
@@ -257,7 +245,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     <footer className="page-footer">
       <div className="kv-tab tabs-pos">
         <ul className="nav nav-tabs" role="tablist" aria-label="Chế độ bán">
-          <li><button role="tab" aria-selected={mode==="quick"} className={`nav-link ${mode === "quick" ? "active" : ""}`} onClick={() => setMode("quick")}><Zap aria-hidden="true" size={14} /> Bán nhanh</button></li>
           <li><button role="tab" aria-selected={mode==="normal"} className={`nav-link ${mode === "normal" ? "active" : ""}`} onClick={() => setMode("normal")}><Clock aria-hidden="true" size={14} /> Bán thường</button></li>
           <li><button role="tab" aria-selected={mode==="delivery"} className={`nav-link ${mode === "delivery" ? "active" : ""}`} onClick={() => setMode("delivery")}><Truck aria-hidden="true" size={14} /> Bán giao hàng</button></li>
         </ul>

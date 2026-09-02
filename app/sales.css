@@ -326,11 +326,11 @@
 .pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: var(--font-inter), Inter, system-ui, sans-serif !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
 /* Bán thường: left 704 + right 559 (product list, transparent) */
-.pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
-.pos-shell.mode-normal .col-right, .pos-shell.mode-quick .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
-.pos-shell.mode-normal .form-delivery, .pos-shell.mode-quick .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
-.pos-shell.mode-normal .pos-product-list, .pos-shell.mode-quick .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
-.pos-shell.mode-normal .cart-footer, .pos-shell.mode-quick .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
+.pos-shell.mode-normal .col-left { flex: 0 0 704px !important; width: 704px !important; }
+.pos-shell.mode-normal .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
+.pos-shell.mode-normal .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
 
 /* Bán giao hàng: left 841 + right 421 (delivery form, white card) */
 .pos-shell.mode-delivery .col-left { flex: 1 1 auto !important; width: auto !important; }
