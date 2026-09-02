@@ -1,9 +1,9 @@
 /* ===== Kiểm kho (Stocktake) — KiotViet style ===== */
-.stocktakes-page{--kt-blue:#0070f4;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.stocktakes-page{--kt-blue:#334155;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Shared sidebar controls used by other business pages */
-.stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:pointer}
-.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#0070f4;flex:0 0 auto}
+.stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:poNunito Sans}
+.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#334155;flex:0 0 auto}
 .stock-radio span{flex:1}
 .stock-radio svg{color:#525d6a}
 .stock-status{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:12px;font-size:12px!important;font-weight:600;white-space:nowrap}
@@ -26,7 +26,7 @@
 
 /* Create header */
 .stocktake-create-actions{display:flex!important;align-items:center!important;gap:12px!important;grid-template-columns:none!important}
-.stock-back{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:pointer}
+.stock-back{display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:poNunito Sans}
 .stock-back:hover{background:#eaf4ff}
 .stock-back svg{width:18px;height:18px}
 
@@ -80,7 +80,7 @@
 .stocktake-create{display:grid;grid-template-columns:minmax(0,1fr) 300px;height:calc(100dvh - 162px);min-height:0;gap:14px;padding:14px 16px 12px;background:#f5f6f7}
 .stocktake-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px}
 .stock-summary{display:flex;flex:0 0 auto;flex-wrap:wrap;gap:8px}
-.stock-chip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid #d0d7de;border-radius:17px;background:#fff;color:#334150;font-size:13px;cursor:pointer}
+.stock-chip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border:1px solid #d0d7de;border-radius:17px;background:#fff;color:#334150;font-size:13px;cursor:poNunito Sans}
 .stock-chip:hover{border-color:var(--kt-blue);color:var(--kt-blue)}
 .stock-chip.active{border-color:var(--kt-blue);background:#eaf4ff;color:var(--kt-blue)}
 .stock-chip b{font-weight:600}
@@ -88,12 +88,12 @@
 .stock-create-search{height:38px!important;max-width:520px!important}
 .stock-create-search input{font-size:14px!important}
 .stock-import{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.stock-import-btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border:1px solid var(--kt-blue);border-radius:6px;background:#eaf4ff;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:pointer}
+.stock-import-btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border:1px solid var(--kt-blue);border-radius:6px;background:#eaf4ff;color:var(--kt-blue);font-size:13px;font-weight:600;cursor:poNunito Sans}
 .stock-import-btn:hover{background:#d9ecff}
 .stock-import-btn:disabled{opacity:.6;cursor:not-allowed}
 .stock-import-btn svg{width:20px;height:20px}
 .stock-import-hint{color:var(--kt-muted);font-size:12px}
-.stock-link{border:0;background:transparent;padding:0;color:var(--kt-blue);font-size:12px;cursor:pointer;text-decoration:underline}
+.stock-link{border:0;background:transparent;padding:0;color:var(--kt-blue);font-size:12px;cursor:poNunito Sans;text-decoration:underline}
 .stock-import input[type=file]{display:none}
 .stock-create-table{flex:1;min-height:0!important;max-height:none!important;border-radius:6px!important}
 .stock-create-table table{min-width:920px!important}
@@ -121,13 +121,13 @@
 .stock-side-total{display:block;font-size:24px;font-weight:700;color:#1a2332;line-height:1.2}
 .stock-recent ul{list-style:none;margin:0;padding:0}
 .stock-recent li+li{border-top:1px solid #e1e3e6}
-.stock-recent button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 2px;border:0;background:transparent;cursor:pointer;color:#334150}
+.stock-recent button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 2px;border:0;background:transparent;cursor:poNunito Sans;color:#334150}
 .stock-recent button:hover{color:var(--kt-blue)}
 .stock-recent button b{font-weight:600;font-size:13px}
 .stock-recent button span{font-size:12px;color:var(--kt-muted)}
 .stock-recent-empty{color:#8a96a7;font-size:12px;padding:6px 0}
 .stock-side-footer{flex:0 0 auto;display:flex;gap:8px;margin-top:auto;padding-top:2px}
-.stock-side-footer button{flex:1;height:36px;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#2e3541;font-size:13px;font-weight:600;cursor:pointer}
+.stock-side-footer button{flex:1;height:36px;border:1px solid #d0d7de;border-radius:6px;background:#fff;color:#2e3541;font-size:13px;font-weight:600;cursor:poNunito Sans}
 .stock-side-footer button:hover{border-color:#b8c2cc;background:#f7f9fb}
 .stock-side-footer button.primary{border-color:var(--kt-blue);background:var(--kt-blue);color:#fff}
 .stock-side-footer button.primary:hover{background:#0077c7;border-color:#0077c7}

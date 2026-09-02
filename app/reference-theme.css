@@ -1,31 +1,38 @@
 :root {
-  --pio-primary-25: #f2f8fe;
-  --pio-primary-50: #e6f1fe;
-  --pio-primary-100: #cce2fd;
-  --pio-primary-300: #66a9f8;
-  --pio-primary-400: #338df6;
-  --pio-primary-600: #005ac3;
-  --pio-primary-700: #004392;
-  --pio-primary-900: #001631;
-  --pio-primary: #0070f4;
-  --pio-neutral-25: #f5f6f7;
-  --pio-neutral-50: #f0f1f3;
-  --pio-neutral-100: #e1e3e6;
-  --pio-neutral-200: #c2c7ce;
-  --pio-neutral-300: #a4acb5;
-  --pio-neutral-400: #85909d;
-  --pio-neutral-600: #525d6a;
-  --pio-neutral-700: #3e464f;
-  --pio-neutral-900: #15171a;
-  --pio-success-50: #e6f8ec;
-  --pio-success: #00b63e;
-  --pio-success-700: #006d25;
-  --pio-warning-50: #fff3e6;
-  --pio-warning: #ff8800;
-  --pio-warning-700: #995200;
-  --pio-danger-50: #ffe6e6;
-  --pio-danger: #ff0000;
-  --pio-danger-700: #990000;
+  --pio-primary-25: #F8FAFC;
+  --pio-primary-50: #E6E8EA;
+  --pio-primary-100: #d1d5db;
+  --pio-primary-300: #94a3b8;
+  --pio-primary-400: #475569;
+  --pio-primary-600: #1E293B;
+  --pio-primary-700: #0F172A;
+  --pio-primary-900: #020617;
+  --pio-primary: #334155;
+  --color-primary: #334155;
+  --color-secondary: #475569;
+  --color-accent: #059669;
+  --color-background: #F8FAFC;
+  --color-foreground: #0F172A;
+  --color-card: #FFFFFF;
+  --color-border: #E6E8EA;
+  --pio-neutral-25: #F8FAFC;
+  --pio-neutral-50: #F2F3F4;
+  --pio-neutral-100: #E6E8EA;
+  --pio-neutral-200: #cbd5e1;
+  --pio-neutral-300: #94a3b8;
+  --pio-neutral-400: #64748b;
+  --pio-neutral-600: #475569;
+  --pio-neutral-700: #334155;
+  --pio-neutral-900: #0F172A;
+  --pio-success-50: #ecfdf5;
+  --pio-success: #059669;
+  --pio-success-700: #047857;
+  --pio-warning-50: #fffbeb;
+  --pio-warning: #d97706;
+  --pio-warning-700: #92400e;
+  --pio-danger-50: #fef2f2;
+  --pio-danger: #DC2626;
+  --pio-danger-700: #991b1b;
   --pio-space-1: 2px;
   --pio-space-2: 4px;
   --pio-space-3: 8px;
@@ -36,23 +43,33 @@
   --pio-radius-md: 8px;
   --pio-radius-xl: 16px;
   --pio-radius-pill: 9999px;
-  --pio-control-height: 48px;
+  --pio-control-height: 44px;
   --pio-body-size: 14px;
   --pio-body-line-height: 20px;
-  --pio-popup-shadow: 0 8px 24px rgba(16, 30, 54, 0.12);
-  --pio-focus-shadow: 0 0 0 2px rgba(0, 112, 244, 0.2);
-  --blue: #0070f4;
-  --blue-dark: #004392;
-  --text: #15171a;
-  --muted: #525d6a;
-  --line: #e1e3e6;
-  --bg: #f5f6f7;
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  --pio-popup-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  --pio-focus-shadow: 0 0 0 2px rgba(51,65,85,0.2);
+  --blue: #334155;
+  --blue-dark: #1E293B;
+  --text: #0F172A;
+  --muted: #475569;
+  --line: #E6E8EA;
+  --bg: #F8FAFC;
+  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
 }
 
 html,
 body {
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body {
+  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
   font-size: 14px;
   line-height: 20px;
   -webkit-font-smoothing: antialiased;
@@ -63,7 +80,7 @@ body {
 button,
 select,
 textarea {
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: var(--font-nunito), Nunito Sans, system-ui, sans-serif;
   font-size: inherit;
   transition: border-color .15s, background .15s, color .15s, transform .1s, box-shadow .15s;
 }
@@ -73,11 +90,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .product-row td, .kv-card, .kv-top-products>div, .kv-activity-list article { transition: background .15s, box-shadow .15s; }
 .skeleton { background: linear-gradient(90deg, #e1e3e6 25%, #f5f6f7 50%, #e1e3e6 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.skip-link { position: absolute; top: -100px; left: 8px; z-index: 999; padding: 8px 12px; background: #fff; border: 1px solid #e1e3e6; border-radius: 6px; color: #0070f4; font-weight: 600; }
+.skip-link { position: absolute; top: -100px; left: 8px; z-index: 999; padding: 8px 12px; background: #fff; border: 1px solid #e1e3e6; border-radius: 6px; color: #334155; font-weight: 600; }
 .skip-link:focus { top: 8px; }
 
 .product-page {
-  --product-primary: #0070f4;
+  --product-primary: #334155;
   --product-primary-hover: #004392;
   --product-text: #15171a;
   --product-secondary: #525d6a;
@@ -128,8 +145,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* Typography scale - hierarchy restored, no kill-switch */
-h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
-h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; text-wrap: balance; }
+h1 { font-family: var(--font-rubik), Rubik, sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
+h2 { font-family: var(--font-rubik), Rubik, sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; text-wrap: balance; }
 p { text-wrap: pretty; }
 .money, .kv-today-stats strong, .pos-totals b, .report-kpis b, .cash-summary b { font-family: var(--font-mono), 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
 .kv-horizontal-nav :where(.kv-top-item, .kv-sale-link),
@@ -194,7 +211,7 @@ p { text-wrap: pretty; }
 }
 
 .product-actions .product-query:focus-within {
-  border-color: #0070f4;
+  border-color: #334155;
   background: #fff;
 }
 
@@ -213,9 +230,9 @@ p { text-wrap: pretty; }
 }
 
 .product-actions .product-toolbar > .primary {
-  border-color: #0070f4;
+  border-color: #334155;
   background: #fff;
-  color: #0070f4;
+  color: #334155;
 }
 
 .product-actions .product-toolbar > .primary:hover {
@@ -385,7 +402,7 @@ p { text-wrap: pretty; }
   border-bottom-color: #cce2fd;
   background: #e6f1fe;
   color: #15171a;
-  font-family: Inter, Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: Nunito Sans, Roboto, Helvetica, Arial, sans-serif !important;
   font-size: 14px !important;
   font-weight: 700;
   line-height: 20px;

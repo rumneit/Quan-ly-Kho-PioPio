@@ -1,101 +1,101 @@
-.internal-use-page{--internal-blue:#0070f4;--internal-border:#dce2e8;--internal-text:#263545;--internal-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
-.internal-use-page .internal-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
-.internal-use-page .internal-actions h1{font-size:22px!important;line-height:30px!important}
-.internal-search{display:flex;justify-content:center;min-width:0}
-.internal-search .product-query{width:100%;max-width:760px!important;min-width:0!important;height:40px!important;min-height:40px!important;border-radius:8px!important}
-.internal-use-page .internal-search .product-query input{font-size:15px!important}
-.internal-toolbar{justify-self:end;flex-shrink:0;gap:8px!important;margin:0!important;flex-wrap:nowrap!important}
-.internal-use-page .internal-tool{display:grid!important;place-items:center!important;width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;border:1px solid #cfd6de!important;border-radius:7px!important;background:#fff!important;color:#394858!important}
-.internal-use-page .internal-tool:hover{border-color:var(--internal-blue)!important;color:var(--internal-blue)!important;background:#f7fbff!important}
-.internal-use-page .internal-tool.primary{border-color:var(--internal-blue)!important;background:var(--internal-blue)!important;color:#fff!important}
-.internal-use-page .internal-tool.primary:hover{background:#0077c7!important;border-color:#0077c7!important}
-.internal-tool svg{width:19px;height:19px}
+.Nunito Sansnal-use-page{--Nunito Sansnal-blue:#334155;--Nunito Sansnal-border:#dce2e8;--Nunito Sansnal-text:#263545;--Nunito Sansnal-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-actions h1{font-size:22px!important;line-height:30px!important}
+.Nunito Sansnal-search{display:flex;justify-content:center;min-width:0}
+.Nunito Sansnal-search .product-query{width:100%;max-width:760px!important;min-width:0!important;height:40px!important;min-height:40px!important;border-radius:8px!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-search .product-query input{font-size:15px!important}
+.Nunito Sansnal-toolbar{justify-self:end;flex-shrink:0;gap:8px!important;margin:0!important;flex-wrap:nowrap!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-tool{display:grid!important;place-items:center!important;width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;border:1px solid #cfd6de!important;border-radius:7px!important;background:#fff!important;color:#394858!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-tool:hover{border-color:var(--Nunito Sansnal-blue)!important;color:var(--Nunito Sansnal-blue)!important;background:#f7fbff!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-tool.primary{border-color:var(--Nunito Sansnal-blue)!important;background:var(--Nunito Sansnal-blue)!important;color:#fff!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-tool.primary:hover{background:#0077c7!important;border-color:#0077c7!important}
+.Nunito Sansnal-tool svg{width:19px;height:19px}
 .kt-file-icon{width:23px!important;height:23px!important;overflow:visible;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.internal-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 163px);min-height:0!important}
-.internal-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
-.internal-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 60px!important}
-.internal-sidebar>section{padding:10px 0 16px!important;margin:0!important}
-.internal-use-page .internal-sidebar h2{margin:0 0 9px!important;font-size:14px!important;line-height:20px!important}
-.internal-sidebar .stock-check,.internal-sidebar .stock-radio{font-size:13px!important}
-.internal-sidebar select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;color:#44515f;font-size:13px!important;outline:0}
-.internal-sidebar select:focus{border-color:var(--internal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.internal-date-range{display:grid;gap:6px;margin-top:6px}
-.internal-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;font-size:13px!important;outline:0}
-.internal-date-range input:focus{border-color:var(--internal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.internal-sidebar .sidebar-collapse{left:343px!important}
-.internal-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
-.internal-notice{flex:0 0 auto;margin-bottom:8px!important;padding:8px 12px!important}
-.internal-notice.error{border-color:#f1b8b8;background:#fff0f0;color:#b42323}
-.internal-table{min-height:0!important;max-height:none!important;flex:1;border-radius:8px 8px 0 0!important}
-.internal-use-page .internal-table table{min-width:1100px!important}
-.internal-table thead{position:sticky;top:0;z-index:20}
-.internal-use-page .internal-table th{height:36px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
-.internal-use-page .internal-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
-.internal-table .number-cell{text-align:right}
-.internal-use-page .internal-table .internal-check{width:38px!important;min-width:38px!important;padding:0 4px!important;text-align:center}
-.internal-use-page .internal-table .internal-star{width:34px!important;min-width:34px!important;padding:0 4px!important;text-align:center}
-.internal-use-page .internal-table .internal-star button{display:inline-flex;border:0;background:transparent;color:#8994a1;padding:2px}
-.internal-use-page .internal-table th:nth-child(3){min-width:150px}
-.internal-use-page .internal-filter-row th{height:39px!important;padding:4px 8px!important;border-bottom:1px solid #cad6e3!important;background:#f8fafc!important}
-.internal-filter-row label{display:flex;align-items:center;gap:6px;width:100%;height:28px;padding:0 8px;border:1px solid #d5dce4;border-radius:4px;background:#fff;color:#8190a0}
-.internal-filter-row label:focus-within{border-color:var(--internal-blue)}
-.internal-filter-row svg{width:13px;height:13px;flex:0 0 auto}
-.internal-filter-row input{width:100%!important;height:25px!important;flex:1;border:0!important;outline:0;background:transparent;font-size:12px!important}
-.internal-use-page .internal-code{color:#0078d4;font-weight:500}
-.internal-use-page .product-empty{min-height:290px}
-.internal-empty .primary{height:32px;margin-top:10px;padding:0 16px;border:1px solid var(--internal-blue);border-radius:8px;background:var(--internal-blue);color:#fff;font-weight:600}
-.internal-use-page .product-pager{border-radius:0 0 8px 8px}
+.Nunito Sansnal-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 163px);min-height:0!important}
+.Nunito Sansnal-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
+.Nunito Sansnal-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 60px!important}
+.Nunito Sansnal-sidebar>section{padding:10px 0 16px!important;margin:0!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-sidebar h2{margin:0 0 9px!important;font-size:14px!important;line-height:20px!important}
+.Nunito Sansnal-sidebar .stock-check,.Nunito Sansnal-sidebar .stock-radio{font-size:13px!important}
+.Nunito Sansnal-sidebar select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;color:#44515f;font-size:13px!important;outline:0}
+.Nunito Sansnal-sidebar select:focus{border-color:var(--Nunito Sansnal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.Nunito Sansnal-date-range{display:grid;gap:6px;margin-top:6px}
+.Nunito Sansnal-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;font-size:13px!important;outline:0}
+.Nunito Sansnal-date-range input:focus{border-color:var(--Nunito Sansnal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.Nunito Sansnal-sidebar .sidebar-collapse{left:343px!important}
+.Nunito Sansnal-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
+.Nunito Sansnal-notice{flex:0 0 auto;margin-bottom:8px!important;padding:8px 12px!important}
+.Nunito Sansnal-notice.error{border-color:#f1b8b8;background:#fff0f0;color:#b42323}
+.Nunito Sansnal-table{min-height:0!important;max-height:none!important;flex:1;border-radius:8px 8px 0 0!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-table table{min-width:1100px!important}
+.Nunito Sansnal-table thead{position:sticky;top:0;z-index:20}
+.Nunito Sansnal-use-page .Nunito Sansnal-table th{height:36px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
+.Nunito Sansnal-table .number-cell{text-align:right}
+.Nunito Sansnal-use-page .Nunito Sansnal-table .Nunito Sansnal-check{width:38px!important;min-width:38px!important;padding:0 4px!important;text-align:center}
+.Nunito Sansnal-use-page .Nunito Sansnal-table .Nunito Sansnal-star{width:34px!important;min-width:34px!important;padding:0 4px!important;text-align:center}
+.Nunito Sansnal-use-page .Nunito Sansnal-table .Nunito Sansnal-star button{display:inline-flex;border:0;background:transparent;color:#8994a1;padding:2px}
+.Nunito Sansnal-use-page .Nunito Sansnal-table th:nth-child(3){min-width:150px}
+.Nunito Sansnal-use-page .Nunito Sansnal-filter-row th{height:39px!important;padding:4px 8px!important;border-bottom:1px solid #cad6e3!important;background:#f8fafc!important}
+.Nunito Sansnal-filter-row label{display:flex;align-items:center;gap:6px;width:100%;height:28px;padding:0 8px;border:1px solid #d5dce4;border-radius:4px;background:#fff;color:#8190a0}
+.Nunito Sansnal-filter-row label:focus-within{border-color:var(--Nunito Sansnal-blue)}
+.Nunito Sansnal-filter-row svg{width:13px;height:13px;flex:0 0 auto}
+.Nunito Sansnal-filter-row input{width:100%!important;height:25px!important;flex:1;border:0!important;outline:0;background:transparent;font-size:12px!important}
+.Nunito Sansnal-use-page .Nunito Sansnal-code{color:#0078d4;font-weight:500}
+.Nunito Sansnal-use-page .product-empty{min-height:290px}
+.Nunito Sansnal-empty .primary{height:32px;margin-top:10px;padding:0 16px;border:1px solid var(--Nunito Sansnal-blue);border-radius:8px;background:var(--Nunito Sansnal-blue);color:#fff;font-weight:600}
+.Nunito Sansnal-use-page .product-pager{border-radius:0 0 8px 8px}
 
 /* ===== Create view ===== */
-.internal-use-page .internal-create-actions{display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:16px!important}
-.internal-create-title{display:flex;align-items:center;gap:10px;min-width:0}
-.internal-use-page .internal-create-workspace{grid-template-columns:minmax(0,1fr) 300px!important;height:calc(100dvh - 163px);min-height:0!important}
-.internal-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px;padding:14px 16px 12px}
-.internal-create-tools{display:flex;align-items:center;gap:14px;flex:0 0 auto}
-.internal-create-search{height:36px!important;min-height:36px!important;max-width:420px!important;min-width:0!important;flex:0 1 420px!important;border-radius:8px!important}
-.internal-create-search input{font-size:13px!important}
-.internal-excel{display:flex;align-items:center;gap:8px;color:var(--internal-muted);font-size:13px!important}
-.internal-excel-link{border:0;background:transparent;padding:0;color:var(--internal-blue);font-size:13px!important;cursor:pointer;text-decoration:underline}
-.internal-excel-link:hover{color:#0077c7}
-.internal-excel-upload{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border:1px solid #cfd6de;border-radius:6px;background:#fff;color:#394858;font-size:13px!important;cursor:pointer}
-.internal-excel-upload:hover{border-color:var(--internal-blue);color:var(--internal-blue)}
-.internal-excel-upload svg{width:15px;height:15px}
-.internal-excel-upload input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.internal-create-table{flex:1;min-height:0!important;max-height:none!important;border-radius:8px!important}
-.internal-create-table table{min-width:820px}
-.internal-create-table th{height:36px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
-.internal-create-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
-.internal-create-table .number-cell{text-align:right}
-.internal-use-page .internal-table .internal-stt{width:44px!important;min-width:44px!important;text-align:center}
-.internal-create-table input[type=number]{width:88px;height:30px;padding:0 8px;border:1px solid #d0d7de;border-radius:4px;font:inherit;font-size:13px!important;text-align:right;outline:0}
-.internal-create-table input[type=number]:focus{border-color:var(--internal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.internal-use-page .internal-product-sku{color:#0078d4;font-weight:500}
-.internal-create-empty{min-height:260px!important}
-.internal-create-panel{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;padding:14px 16px 12px;border-left:1px solid var(--internal-border);background:#fff;overflow:auto}
-.internal-create-panel h2{margin:0;font-size:15px!important;font-weight:700;color:var(--internal-text)}
-.internal-create-panel label{display:flex;flex-direction:column;gap:5px;color:#3d4c5b;font-size:13px!important;font-weight:600}
-.internal-create-panel input,.internal-create-panel select,.internal-create-panel textarea{height:34px;padding:0 10px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;font-weight:400;outline:0}
-.internal-create-panel textarea{height:auto;padding:8px 10px;resize:vertical}
-.internal-create-panel input:focus,.internal-create-panel select:focus,.internal-create-panel textarea:focus{border-color:var(--internal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.internal-create-total{display:flex;align-items:center;justify-content:space-between;margin-top:4px;padding:10px 0 2px;border-top:1px dashed #d5dce5}
-.internal-create-total span{color:var(--internal-muted);font-size:13px!important}
-.internal-create-total strong{color:var(--internal-blue);font-size:17px!important}
-.internal-create-note{margin:0;color:var(--internal-muted);font-size:12px!important}
-.internal-create-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:auto;padding-top:12px;border-top:1px solid #e5eaf0}
-.internal-create-footer button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid #cfd6de;border-radius:6px;background:#fff;color:#394858;font-size:13px!important;font-weight:600}
-.internal-create-footer button.primary{border-color:var(--internal-blue);background:var(--internal-blue);color:#fff}
-.internal-create-footer button.primary:hover{background:#0077c7;border-color:#0077c7}
-.internal-create-footer button:disabled{cursor:not-allowed;opacity:.5}
+.Nunito Sansnal-use-page .Nunito Sansnal-create-actions{display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:16px!important}
+.Nunito Sansnal-create-title{display:flex;align-items:center;gap:10px;min-width:0}
+.Nunito Sansnal-use-page .Nunito Sansnal-create-workspace{grid-template-columns:minmax(0,1fr) 300px!important;height:calc(100dvh - 163px);min-height:0!important}
+.Nunito Sansnal-create-main{display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px;padding:14px 16px 12px}
+.Nunito Sansnal-create-tools{display:flex;align-items:center;gap:14px;flex:0 0 auto}
+.Nunito Sansnal-create-search{height:36px!important;min-height:36px!important;max-width:420px!important;min-width:0!important;flex:0 1 420px!important;border-radius:8px!important}
+.Nunito Sansnal-create-search input{font-size:13px!important}
+.Nunito Sansnal-excel{display:flex;align-items:center;gap:8px;color:var(--Nunito Sansnal-muted);font-size:13px!important}
+.Nunito Sansnal-excel-link{border:0;background:transparent;padding:0;color:var(--Nunito Sansnal-blue);font-size:13px!important;cursor:poNunito Sans;text-decoration:underline}
+.Nunito Sansnal-excel-link:hover{color:#0077c7}
+.Nunito Sansnal-excel-upload{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border:1px solid #cfd6de;border-radius:6px;background:#fff;color:#394858;font-size:13px!important;cursor:poNunito Sans}
+.Nunito Sansnal-excel-upload:hover{border-color:var(--Nunito Sansnal-blue);color:var(--Nunito Sansnal-blue)}
+.Nunito Sansnal-excel-upload svg{width:15px;height:15px}
+.Nunito Sansnal-excel-upload input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.Nunito Sansnal-create-table{flex:1;min-height:0!important;max-height:none!important;border-radius:8px!important}
+.Nunito Sansnal-create-table table{min-width:820px}
+.Nunito Sansnal-create-table th{height:36px!important;padding:0 11px!important;background:#e9f1fc!important;font-size:13px!important}
+.Nunito Sansnal-create-table td{height:42px!important;padding:5px 11px!important;font-size:13px!important}
+.Nunito Sansnal-create-table .number-cell{text-align:right}
+.Nunito Sansnal-use-page .Nunito Sansnal-table .Nunito Sansnal-stt{width:44px!important;min-width:44px!important;text-align:center}
+.Nunito Sansnal-create-table input[type=number]{width:88px;height:30px;padding:0 8px;border:1px solid #d0d7de;border-radius:4px;font:inherit;font-size:13px!important;text-align:right;outline:0}
+.Nunito Sansnal-create-table input[type=number]:focus{border-color:var(--Nunito Sansnal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.Nunito Sansnal-use-page .Nunito Sansnal-product-sku{color:#0078d4;font-weight:500}
+.Nunito Sansnal-create-empty{min-height:260px!important}
+.Nunito Sansnal-create-panel{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;padding:14px 16px 12px;border-left:1px solid var(--Nunito Sansnal-border);background:#fff;overflow:auto}
+.Nunito Sansnal-create-panel h2{margin:0;font-size:15px!important;font-weight:700;color:var(--Nunito Sansnal-text)}
+.Nunito Sansnal-create-panel label{display:flex;flex-direction:column;gap:5px;color:#3d4c5b;font-size:13px!important;font-weight:600}
+.Nunito Sansnal-create-panel input,.Nunito Sansnal-create-panel select,.Nunito Sansnal-create-panel textarea{height:34px;padding:0 10px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;font-weight:400;outline:0}
+.Nunito Sansnal-create-panel textarea{height:auto;padding:8px 10px;resize:vertical}
+.Nunito Sansnal-create-panel input:focus,.Nunito Sansnal-create-panel select:focus,.Nunito Sansnal-create-panel textarea:focus{border-color:var(--Nunito Sansnal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
+.Nunito Sansnal-create-total{display:flex;align-items:center;justify-content:space-between;margin-top:4px;padding:10px 0 2px;border-top:1px dashed #d5dce5}
+.Nunito Sansnal-create-total span{color:var(--Nunito Sansnal-muted);font-size:13px!important}
+.Nunito Sansnal-create-total strong{color:var(--Nunito Sansnal-blue);font-size:17px!important}
+.Nunito Sansnal-create-note{margin:0;color:var(--Nunito Sansnal-muted);font-size:12px!important}
+.Nunito Sansnal-create-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:auto;padding-top:12px;border-top:1px solid #e5eaf0}
+.Nunito Sansnal-create-footer button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid #cfd6de;border-radius:6px;background:#fff;color:#394858;font-size:13px!important;font-weight:600}
+.Nunito Sansnal-create-footer button.primary{border-color:var(--Nunito Sansnal-blue);background:var(--Nunito Sansnal-blue);color:#fff}
+.Nunito Sansnal-create-footer button.primary:hover{background:#0077c7;border-color:#0077c7}
+.Nunito Sansnal-create-footer button:disabled{cursor:not-allowed;opacity:.5}
 
 /* ===== Settings / Help modals ===== */
-.internal-modal{width:min(620px,calc(100vw - 28px))!important}
-.internal-settings{padding:18px 20px;background:#fff}
-.internal-settings-note{margin:0;color:#4c5968;font-size:13px!important;line-height:20px}
-.internal-help{padding:20px 22px;background:#fff}
-.internal-help h3{margin:0 0 4px;color:var(--internal-text);font-size:14px!important}
-.internal-help p{margin:0 0 16px;color:#4c5968;font-size:13px!important;line-height:20px}
-.internal-help p:last-child{margin-bottom:0}
-.internal-modal footer span{flex:1}
-.internal-modal footer .primary{min-width:110px}
+.Nunito Sansnal-modal{width:min(620px,calc(100vw - 28px))!important}
+.Nunito Sansnal-settings{padding:18px 20px;background:#fff}
+.Nunito Sansnal-settings-note{margin:0;color:#4c5968;font-size:13px!important;line-height:20px}
+.Nunito Sansnal-help{padding:20px 22px;background:#fff}
+.Nunito Sansnal-help h3{margin:0 0 4px;color:var(--Nunito Sansnal-text);font-size:14px!important}
+.Nunito Sansnal-help p{margin:0 0 16px;color:#4c5968;font-size:13px!important;line-height:20px}
+.Nunito Sansnal-help p:last-child{margin-bottom:0}
+.Nunito Sansnal-modal footer span{flex:1}
+.Nunito Sansnal-modal footer .primary{min-width:110px}
 
-@media(max-width:1100px){.internal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.internal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.internal-sidebar .sidebar-collapse{left:268px!important}.internal-use-page .internal-table table{min-width:820px!important}}
+@media(max-width:1100px){.Nunito Sansnal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.Nunito Sansnal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.Nunito Sansnal-sidebar .sidebar-collapse{left:268px!important}.Nunito Sansnal-use-page .Nunito Sansnal-table table{min-width:820px!important}}
