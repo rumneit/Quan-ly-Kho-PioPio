@@ -482,3 +482,13 @@ p { text-wrap: pretty; }
 .kv-btn-icon, .pos-quantity button, .pos-line-remove, .pos-add-tab, .kv-round, .kv-avatar { position: relative; }
 .kv-btn-icon::after, .pos-quantity button::after, .pos-line-remove::after, .pos-add-tab::after, .kv-round::after, .kv-avatar::after { content:""; position:absolute; inset:-6px; }
 
+
+/* P0 fix: unify sticky top 96px (48 header + 48 nav) */
+.kv-header { height: 48px !important; }
+.kv-horizontal-nav { top: 48px !important; height: 48px !important; }
+.product-actions { top: 96px !important; }
+.product-filter-sidebar, .business-sidebar, .report-sidebar { top: 96px !important; height: calc(100dvh - 96px) !important; }
+/* Responsive tables: overflow + sticky first col */
+.product-table, .business-table, .customer-table, .cash-table, .orders-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.product-table th:first-child, .business-table th:first-child { position: sticky; left: 0; background: var(--pio-primary-50); z-index: 2; }
+

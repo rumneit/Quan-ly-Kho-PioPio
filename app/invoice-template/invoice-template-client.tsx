@@ -174,8 +174,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
           <p><b>Địa chỉ:</b> <input className="inv-line w-kh" value={diaChi} onChange={(e) => setDiaChi(e.target.value)} /></p>
         </div>
         <table className="inv-table">
+          <caption className="sr-only">Chi tiết hàng hóa 24 dòng - Mẫu số 02-VT</caption>
           <thead>
-            <tr><th style={{ width: "5%" }}>STT</th><th style={{ width: "11%" }}>Mã SP</th><th style={{ width: "26%" }}>Tên sản phẩm/hàng hóa</th><th style={{ width: "8%" }}>ĐVT</th><th style={{ width: "12%" }}>Số lượng</th><th style={{ width: "12%" }}>Đơn giá</th><th style={{ width: "14%" }}>Thành tiền</th><th style={{ width: "12%" }}>Ghi chú</th></tr>
+            <tr><th scope="col" style={{ width: "5%" }}>STT</th><th scope="col" style={{ width: "11%" }}>Mã SP</th><th scope="col" style={{ width: "26%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "12%" }}>Số lượng</th><th scope="col" style={{ width: "12%" }}>Đơn giá</th><th scope="col" style={{ width: "14%" }}>Thành tiền</th><th scope="col" style={{ width: "12%" }}>Ghi chú</th></tr>
           </thead>
           <tbody>
             {rows.map((r, i) => {
@@ -184,11 +185,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               return (
                 <tr key={i}>
                   <td className="c">{sttMap.get(i) ?? ""}</td>
-                  <td><input className="inv-cell" list="inv-products" value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /></td>
-                  <td><input className="inv-cell" value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /></td>
-                  <td><input className="inv-cell" value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /></td>
+                  <td><input className="inv-cell" list="inv-products" aria-label={`Mã SP dòng ${i + 1}`} value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /></td>
+                  <td><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /></td>
+                  <td><input className="inv-cell" aria-label={`ĐVT dòng ${i + 1}`} value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /></td>
                   <td className={slRaw ? "right" : "c"}>
-                    <input className="inv-cell" inputMode="decimal"
+                    <input className="inv-cell" inputMode="decimal" aria-label={`Số lượng dòng ${i + 1}`}
                       style={{ textAlign: slRaw ? "right" : "center", color: slRaw ? undefined : "#9aa4b0" }}
                       title={Number(r.tax) ? `VAT ${r.tax}%: ${moneyUS(Math.round(lineVats[i]))}` : undefined}
                       value={focusKey === `sl${i}` ? r.sl : (slRaw ? qtyUS(parseNum(r.sl)) : "-")}
@@ -196,9 +197,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                       onBlur={() => { setFocusKey(""); if (!parseNum(r.sl)) setRow(i, { sl: "" }); }}
                       onChange={(e) => setRow(i, { sl: e.target.value.replace(/[^\d.,]/g, "") })} />
                   </td>
-                  <td><input className="inv-cell right" inputMode="decimal" value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /></td>
+                  <td><input className="inv-cell right" inputMode="decimal" aria-label={`Đơn giá dòng ${i + 1}`} value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /></td>
                   <td className="right" title={Number(r.tax) ? `VAT ${r.tax}%` : undefined}>{lineTotals[i] ? moneyUS(lineTotals[i]) : ""}</td>
-                  <td><input className="inv-cell" value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /></td>
+                  <td><input className="inv-cell" aria-label={`Ghi chú dòng ${i + 1}`} value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /></td>
                 </tr>
               );
             })}
