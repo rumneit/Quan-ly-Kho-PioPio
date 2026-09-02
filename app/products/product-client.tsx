@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckSquare, ChevronDown, ChevronUp, Columns3, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
+import { CheckSquare, ChevronDown, ChevronUp, Columns3, Download, FileUp, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
 import { getXLSX } from "@/lib/xlsx";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
@@ -502,8 +502,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
             <button type="button" onClick={() => { setNewProduct((p) => ({ ...p, product_type: "combo" })); setShowCreate(true); setShowCreateMenu(false); setCreateTab("info"); }}>Combo - đóng gói</button>
           </div>}
         </div>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><ImportFileIcon /><span className="kv-toolbar-label">Import file</span></button>
-        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><ExportFileIcon /><span className="kv-toolbar-label">Xuất file</span></button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-import" title="Import file" aria-label="Import file" onClick={() => setShowImportChooser(true)}><FileUp size={18} strokeWidth={2} /><span className="kv-toolbar-label">Import file</span></button>
+        <button type="button" className="kv-btn kv-btn-file kv-btn-export" title="Xuất file" aria-label="Xuất file" onClick={exportCsv}><Download size={18} strokeWidth={2} /><span className="kv-toolbar-label">Xuất file</span></button>
         <div className="column-control" ref={columnsRef}><button type="button" className="kv-btn-icon" aria-label="Chọn cột" aria-expanded={showColumns} onClick={() => setShowColumns((value) => !value)}><Columns3 size={14} strokeWidth={2} /></button>{showColumns && <div className="columns-popover">{COLUMNS.map((column) => <label key={column.key}><input type="checkbox" checked={visible[column.key]} onChange={() => setVisible((current) => ({ ...current, [column.key]: !current[column.key] }))} />{column.label}</label>)}</div>}</div>
         <Link href="/settings/product-info" className="kv-btn-icon" aria-label="Cài đặt bảng" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><Settings size={14} strokeWidth={2} /></Link>
         <Link href="https://www.kiotviet.vn/huong-dan-su-dung-kiotviet/retail-hang-hoa/danh-sach-hang-hoa/" target="_blank" className="kv-btn-icon" aria-label="Trợ giúp" style={{display:"grid", placeItems:"center", textDecoration:"none"}}><HelpCircle size={14} strokeWidth={2} /></Link>

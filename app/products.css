@@ -195,9 +195,7 @@
   .product-actions{display:grid!important;grid-template-columns:235px minmax(420px,750px) auto!important;justify-content:stretch!important;padding:14px 18px!important;gap:16px!important;min-height:66px!important}
   .product-actions-center{width:100%!important;justify-content:stretch!important}
   .product-query-wrap{width:100%!important;max-width:none!important;min-width:0!important}
-  .kv-toolbar-100{justify-self:end!important}
-  .kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{width:48px!important;min-width:48px!important;padding:0!important;font-size:0!important;gap:0!important}
-  .kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+  .kv-toolbar-100{justify-self:end!important;flex-wrap:wrap!important;gap:8px!important}
 }
 .product-page .product-actions h1{font-size:28px!important;line-height:34px!important}
 .product-query{height:48px!important;border-radius:10px!important;padding:0 16px!important;gap:12px!important}
@@ -288,9 +286,7 @@
 /* Balanced scale: compact enough for daily use while preserving KiotViet proportions. */
 @media(min-width:1201px){
   .product-actions{grid-template-columns:240px minmax(360px,760px) auto!important;min-height:56px!important;padding:8px 18px!important;gap:16px!important}
-  .kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{width:40px!important;min-width:40px!important;height:40px!important;min-height:40px!important;padding:0!important;font-size:0!important;line-height:0!important;gap:0!important;overflow:hidden!important}
-  .kv-toolbar-100>.kv-btn svg,.kv-create-wrap>.kv-btn svg{width:18px!important;height:18px!important;margin:0!important;flex:0 0 18px!important}
-  .kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+  .kv-toolbar-100{flex-wrap:wrap!important;gap:8px!important}
 }
 .product-page .product-actions h1{font-size:22px!important;line-height:28px!important}
 .product-query{height:40px!important;border-radius:8px!important;padding:0 13px!important}
@@ -358,11 +354,15 @@
 .kv-suggest-table td{padding:9px 11px!important;line-height:19px!important}
 .kv-cell-input{width:105px!important;height:32px!important;border-radius:7px!important;font-size:14px!important}
 
-/* Action buttons are icon-only at every viewport/zoom level. */
-.kv-toolbar-label{display:none!important}
-.kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{display:inline-grid!important;place-items:center!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;padding:0!important;gap:0!important;font-size:0!important;line-height:0!important;overflow:hidden!important;flex:0 0 40px!important}
-.kv-toolbar-100>.kv-btn .kv-file-action-icon{display:block!important;width:22px!important;height:22px!important;min-width:22px!important;margin:0!important}
-.kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+/* Toolbar: icon+label on desktop, icon-only on mobile (<=1100px) like toolbar-unified */
+.kv-toolbar-100{flex-wrap:wrap!important;gap:8px!important}
+.kv-toolbar-100 .kv-toolbar-label{display:inline!important}
+@media(max-width:1100px){
+  .kv-toolbar-label{display:none!important}
+  .kv-toolbar-100>.kv-btn,.kv-create-wrap>.kv-btn{display:inline-grid!important;place-items:center!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;padding:0!important;gap:0!important;font-size:0!important;line-height:0!important;overflow:hidden!important;flex:0 0 40px!important}
+  .kv-toolbar-100>.kv-btn .kv-file-action-icon{display:block!important;width:22px!important;height:22px!important;min-width:22px!important;margin:0!important}
+  .kv-create-wrap>.kv-btn span,.kv-create-wrap>.kv-btn .kv-caret{display:none!important}
+}
 
 /* Products catalog metrics measured from KiotViet at desktop size. */
 .products-catalog-page .product-workspace{grid-template-columns:250px minmax(0,1fr)!important}
@@ -377,10 +377,7 @@
 .products-catalog-page .product-table td{height:40px!important;padding:0 10px!important}
 @media(min-width:1201px){
   .products-catalog-page .product-actions{grid-template-columns:250px minmax(360px,760px) auto!important;min-height:60px!important;padding:0 16px!important}
-  .products-catalog-page .kv-toolbar-100>.kv-btn,
-  .products-catalog-page .kv-create-wrap>.kv-btn,
-  .products-catalog-page .kv-toolbar-100 .kv-btn-icon{width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important;flex-basis:32px!important;border-radius:6px!important}
-  .products-catalog-page .kv-toolbar-100 .kv-file-action-icon{width:18px!important;height:18px!important;min-width:18px!important;flex-basis:18px!important}
+  .products-catalog-page .kv-toolbar-100{flex-wrap:wrap!important;gap:8px!important}
 }
 
 /* ===== FINAL POP-UP ALIGNMENT & SIZE FIX - pixel-perfect, no lech ===== */
