@@ -1,9 +1,9 @@
 /* ===== Kiểm kho (Stocktake) — KiotViet style ===== */
-.stocktakes-page{--kt-blue:#334155;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.stocktakes-page{--kt-blue:#0070f4;--kt-border:#dce2e8;--kt-text:#263545;--kt-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Shared sidebar controls used by other business pages */
 .stock-radio,.stock-check{display:flex;align-items:center;gap:9px;min-height:34px;color:#313942;cursor:pointer}
-.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#334155;flex:0 0 auto}
+.stock-radio input,.stock-check input{width:16px;height:16px;margin:0;accent-color:#0070f4;flex:0 0 auto}
 .stock-radio span{flex:1}
 .stock-radio svg{color:#525d6a}
 .stock-status{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border-radius:12px;font-size:12px!important;font-weight:600;white-space:nowrap}

@@ -1,5 +1,5 @@
 /* ===== Nhập hàng / Trả hàng nhập — KiotViet style ===== */
-.purchasing-page{--purchase-blue:#334155;--purchase-border:#dce2e8;--purchase-text:#263545;--purchase-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.purchasing-page{--purchase-blue:#0070f4;--purchase-border:#dce2e8;--purchase-text:#263545;--purchase-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Action bar */
 .purchase-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
@@ -47,7 +47,7 @@
 .purchase-table .row-star{width:34px;min-width:34px;padding:0 6px;text-align:center}
 .purchase-table .row-star button{display:inline-flex;border:0;background:transparent;color:#8994a1;padding:2px}
 .purchase-table .number-cell{text-align:right}
-.purchase-link{color:#334155;font-weight:500;cursor:pointer}
+.purchase-link{color:#0070f4;font-weight:500;cursor:pointer}
 .purchase-link:hover{color:#0060c4;text-decoration:underline}
 .purchase-filter-row th{height:39px!important;padding:4px 8px!important;border-bottom:1px solid #cad6e3!important;background:#f8fafc!important}
 .purchase-empty{min-height:300px}

@@ -1,5 +1,5 @@
 /* ===== Nhà cung cấp (Suppliers) — KiotViet style ===== */
-.suppliers-page{--sp-blue:#334155;--sp-border:#dce2e8;--sp-text:#263545;--sp-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.suppliers-page{--sp-blue:#0070f4;--sp-border:#dce2e8;--sp-text:#263545;--sp-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
 
 /* Action bar */
 .suppliers-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}

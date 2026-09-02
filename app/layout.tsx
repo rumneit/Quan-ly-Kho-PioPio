@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Rubik, Nunito_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./dashboard.css";
 import "./menu-overrides.css";
@@ -17,8 +17,7 @@ import "./reference-theme.css";
 import "./orders-modules.css";
 import "./toolbar-unified.css";
 
-const rubik = Rubik({ subsets: ["latin", "latin-ext"], weight: ["300", "400", "500", "600", "700"], display: "swap", variable: "--font-rubik" });
-const nunitoSans = Nunito_Sans({ subsets: ["latin", "latin-ext"], weight: ["300", "400", "500", "600", "700"], display: "swap", variable: "--font-nunito" });
+const inter = Inter({ subsets: ["latin", "vietnamese"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font-inter" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin", "vietnamese"], weight: ["400", "500", "700"], display: "swap", variable: "--font-mono" });
 
 export const metadata: Metadata = {
@@ -28,8 +27,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="vi" className={`${rubik.variable} ${nunitoSans.variable} ${jetbrainsMono.variable}`}>
-      <body className={nunitoSans.className}>
+    <html lang="vi" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className={inter.className}>
         <a href="#main" className="skip-link">
           Bỏ qua đến nội dung
         </a>
