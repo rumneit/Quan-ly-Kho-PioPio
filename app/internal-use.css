@@ -100,4 +100,4 @@
 .internal-modal footer span{flex:1}
 .internal-modal footer .primary{min-width:110px}
 
-@media(max-width:1100px){.internal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.internal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.internal-sidebar .sidebar-collapse{left:268px!important}.internal-use-page .internal-table table{min-width:820px!important}}
+@media(max-width:1100px){.internal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.internal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.internal-sidebar .sidebar-collapse{left:284px!important}.internal-use-page .internal-table table{min-width:820px!important}}
