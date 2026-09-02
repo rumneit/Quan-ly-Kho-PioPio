@@ -135,72 +135,11 @@ export async function GET(request: Request) {
     const rpcMin = rawMin !== null && Number.isFinite(rawMin) ? rawMin : null;
     const rpcMax = rawMax !== null && Number.isFinite(rawMax) ? rawMax : null;
     let ids: string[] = [];
-    let usedRpc = false;
-    try {
-      const rpcResult = await supabase.rpc("customers_by_debt", { p_min: rpcMin, p_max: rpcMax });
-      if (!rpcResult.error && Array.isArray(rpcResult.data)) {
-        ids = (rpcResult.data as Array<{ customer_id: string }>).map((r) => r.customer_id).filter(Boolean);
-        usedRpc = true;
-      }
-    } catch {
-      usedRpc = false;
+    const rpcResult = await supabase.rpc("customers_by_debt", { p_min: rpcMin, p_max: rpcMax });
+    if (rpcResult.error || !Array.isArray(rpcResult.data)) {
+      return NextResponse.json({ error: "Bộ lọc nợ tạm thời lỗi, vui lòng thu hẹp khoảng lọc hoặc thử lại." }, { status: 400 });
     }
-    if (!usedRpc) {
-      const min = rpcMin !== null ? rpcMin : Number.NEGATIVE_INFINITY;
-      const max = rpcMax !== null ? rpcMax : Number.POSITIVE_INFINITY;
-      const debtByCustomer = new Map<string, number>();
-      const batchSize = 1000;
-      let offset = 0;
-      while (true) {
-        const shipmentResult = await supabase
-          .from("shipments")
-          .select("cod_amount,collected_cod,status,orders!inner(customer_id,status)")
-          .eq("store_id", profile.store_id)
-          .neq("status", "cancelled")
-          .range(offset, offset + batchSize - 1);
-        if (shipmentResult.error) break;
-        const rows = (shipmentResult.data || []) as unknown as Array<{
-          cod_amount: number;
-          collected_cod: number;
-          status: string;
-          orders: { customer_id: string | null; status: string } | Array<{ customer_id: string | null; status: string }>;
-        }>;
-        for (const shipment of rows) {
-          const order = Array.isArray(shipment.orders) ? shipment.orders[0] : shipment.orders;
-          const customerId = order?.customer_id;
-          const orderStatus = order?.status;
-          if (!customerId) continue;
-          if (orderStatus === "draft" || orderStatus === "cancelled") continue;
-          if (shipment.status === "cancelled") continue;
-          debtByCustomer.set(customerId, (debtByCustomer.get(customerId) || 0) + Math.max(0, Number(shipment.cod_amount) - Number(shipment.collected_cod)));
-        }
-        if (rows.length < batchSize) break;
-        offset += batchSize;
-        if (offset > 20000) break;
-      }
-      let fallbackIds = Array.from(debtByCustomer.entries())
-        .filter(([, debt]) => debt >= min && debt <= max)
-        .map(([id]) => id);
-      if (min <= 0 && 0 <= max) {
-        const cBatchSize = 1000;
-        let cOffset = 0;
-        const allCustomerIds: string[] = [];
-        while (true) {
-          const res = await supabase.from("customers").select("id").eq("store_id", profile.store_id).range(cOffset, cOffset + cBatchSize - 1);
-          if (res.error) break;
-          const batch = (res.data || []).map((c) => (c as { id: string }).id);
-          allCustomerIds.push(...batch);
-          if (batch.length < cBatchSize) break;
-          cOffset += cBatchSize;
-          if (cOffset > 20000) break;
-        }
-        for (const cid of allCustomerIds) {
-          if (!debtByCustomer.has(cid)) fallbackIds.push(cid);
-        }
-        fallbackIds = Array.from(new Set(fallbackIds));
-      }
-      ids = fallbackIds;
-    }
+    ids = (rpcResult.data as Array<{ customer_id: string }>).map((r) => r.customer_id).filter(Boolean);
     query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
   }
   const from = (page - 1) * pageSize;
