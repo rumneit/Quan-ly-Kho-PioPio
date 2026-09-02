@@ -203,9 +203,23 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                     <div className="pos-dim-row"><input className="pos-pack-input" value={packCount} onChange={e => setPackCount(Number(e.target.value) || 1)} placeholder="Số kiện" /><input className="pos-pack-input" value={dimL} onChange={e => setDimL(e.target.value)} placeholder="Dài" /><input className="pos-pack-input" value={dimW} onChange={e => setDimW(e.target.value)} placeholder="Rộng" /><input className="pos-pack-input" value={dimH} onChange={e => setDimH(e.target.value)} placeholder="Cao" /><span>cm</span></div>
                     <textarea className="pos-textarea" rows={1} placeholder="Ghi chú cho bưu tá" value={deliveryNote} onChange={e => setDeliveryNote(e.target.value)} />
                   </div>
+                ) : mode === "quick" ? (
+                  <div className="pos-quick-view">
+                    <div className="pos-quick-header"><span>Bán Nhanh — Quét mã vạch</span><small>{products.length} hàng hóa</small></div>
+                    <div className="pos-quick-grid">
+                      {paginatedProducts.slice(0, 8).map(product => (
+                        <button key={product.id} className="pos-quick-card" onClick={() => addProduct(product)}>
+                          <span className="pos-quick-name">{product.name}</span>
+                          <small>{product.sku} • Tồn {product.stock_quantity}</small>
+                          <b>{money(Number(product.price))}</b>
+                        </button>
+                      ))}
+                    </div>
+                    {products.length > 8 && <div style={{padding:"8px 12px",textAlign:"center",borderTop:"1px solid #e1e3e6"}}><small style={{color:"#6b7a8d"}}>Hiển thị 8/{products.length} — F3 để tìm thêm</small></div>}
+                  </div>
                 ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <div className="pos-product-list-head"><span>{products.length} hàng hóa • Bán Thường</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
                     {paginatedProducts.map(product => (
                       <button key={product.id} className="pos-product-row" onClick={() => addProduct(product)}>
                         <span className="pos-product-name">{product.name}<small>{product.sku} · Tồn {product.stock_quantity}</small></span>
