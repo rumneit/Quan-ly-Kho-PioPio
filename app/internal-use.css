@@ -13,7 +13,7 @@
 .kt-file-icon{width:23px!important;height:23px!important;overflow:visible;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .internal-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 163px);min-height:0!important}
 .internal-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
-.internal-sidebar{position:sticky!important;top:96px!important;align-self:start!important;width:auto!important;height:calc(100dvh - 96px)!important;overflow:auto!important;padding:18px 20px 60px!important;scrollbar-width:thin!important;scrollbar-color:#cbd5e1 transparent!important}
+.internal-sidebar{position:sticky!important;top:0!important;align-self:start!important;width:auto!important;height:100%;max-height:calc(100dvh - 163px)!important;overflow:auto!important;padding:18px 20px 60px!important;scrollbar-width:thin!important;scrollbar-color:#cbd5e1 transparent!important}
 .internal-sidebar>section{padding:10px 0 16px!important;margin:0!important}
 .internal-use-page .internal-sidebar h2{margin:0 0 9px!important;font-size:14px!important;line-height:20px!important}
 .internal-sidebar .stock-check,.internal-sidebar .stock-radio{font-size:13px!important}

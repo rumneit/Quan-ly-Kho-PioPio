@@ -34,7 +34,7 @@
 .stocktake-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 162px);min-height:0!important}
 .stocktakes-page .sidebar-collapse{left:355px;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important}
 .stocktakes-page .sidebar-collapse.collapsed{left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important}
-.stocktake-sidebar{position:sticky!important;top:96px!important;align-self:start!important;width:auto!important;height:calc(100dvh - 96px)!important;overflow:auto!important;padding:18px 20px 40px!important;scrollbar-width:thin!important;scrollbar-color:#cbd5e1 transparent!important}
+.stocktake-sidebar{position:sticky!important;top:0!important;align-self:start!important;width:auto!important;height:100%;max-height:calc(100dvh - 163px)!important;overflow:auto!important;padding:18px 20px 40px!important;scrollbar-width:thin!important;scrollbar-color:#cbd5e1 transparent!important}
 .stocktake-sidebar>section{padding:10px 0 16px!important;margin:0!important}
 .stocktake-sidebar h2{margin:0 0 9px!important;font-size:15px!important;line-height:21px!important}
 .stocktake-sidebar select{width:100%;height:38px;padding:0 34px 0 11px;border:1px solid #c9d1da;border-radius:5px;background:#fff;color:#44515f;font-size:13px;outline:0}
