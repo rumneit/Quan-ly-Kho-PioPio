@@ -70,7 +70,7 @@
 }
 
 /* Content + list table */
-.suppliers-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
+.suppliers-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 22px 12px!important}
 .suppliers-table{min-height:0!important;max-height:none!important;flex:1;border-radius:6px 6px 0 0!important}
 .suppliers-page .suppliers-table table{min-width:1000px!important}
 .suppliers-table th,.suppliers-table td{white-space:nowrap}
@@ -159,6 +159,7 @@
   .supplier-field.wide{grid-column:auto}
 }
 @media(max-width:768px){
+  .suppliers-sidebar .sidebar-collapse{display:none!important}
   .suppliers-page{height:auto;min-height:100vh;overflow:auto}
   .suppliers-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
   .suppliers-search{grid-column:1/-1;grid-row:2}

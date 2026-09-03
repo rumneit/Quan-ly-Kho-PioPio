@@ -78,7 +78,7 @@
 .stock-custom-range input:focus{border-color:var(--kt-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
 
 /* Content + list table */
-.stocktake-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
+.stocktake-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 22px 12px!important}
 .stocktake-table{min-height:0!important;max-height:none!important;flex:1;border-radius:6px 6px 0 0!important}
 .stocktakes-page .stocktake-table table{min-width:1250px!important}
 .stocktake-table th,.stocktake-table td{white-space:nowrap}
@@ -183,6 +183,7 @@
   .stock-create-table table{min-width:860px!important}
 }
 @media(max-width:768px){
+  .stocktake-sidebar .sidebar-collapse{display:none!important}
   .stocktakes-page{height:auto;min-height:100vh;overflow:auto}
   .stocktake-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
   .stocktake-search{grid-column:1/-1;grid-row:2}
