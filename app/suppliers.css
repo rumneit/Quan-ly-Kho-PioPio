@@ -1,5 +1,5 @@
 /* ===== Nhà cung cấp (Suppliers) — KiotViet style ===== */
-.suppliers-page{--sp-blue:#0070f4;--sp-border:#dce2e8;--sp-text:#263545;--sp-muted:#6f7d8d;height:100dvh;overflow:hidden;background:#f5f6f7!important}
+.suppliers-page{--sp-blue:#008ae6;--sp-border:#dce2e8;--sp-text:#263545;--sp-muted:#6f7d8d;height:100vh;overflow:hidden;background:#f2f4f7!important}
 
 /* Action bar */
 .suppliers-actions{display:grid!important;grid-template-columns:375px minmax(320px,760px) auto!important;min-height:58px!important;padding:9px 18px!important;gap:16px!important}
@@ -16,9 +16,9 @@
 .kt-file-icon{width:23px!important;height:23px!important;overflow:visible;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 
 /* Workspace + sidebar */
-.suppliers-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100dvh - 163px);min-height:0!important}
+.suppliers-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100vh - 163px);min-height:0!important}
 .suppliers-workspace.sidebar-is-collapsed{grid-template-columns:26px minmax(0,1fr)!important}
-.suppliers-sidebar{position:sticky!important;top:96px!important;align-self:start!important;width:auto!important;height:calc(100dvh - 96px)!important;overflow:auto!important;padding:18px 20px 60px!important;scrollbar-width:thin!important;scrollbar-color:#cbd5e1 transparent!important}
+.suppliers-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 60px!important}
 .suppliers-sidebar>section{padding:10px 0 16px!important;margin:0!important}
 .suppliers-sidebar h2{margin:0 0 9px!important;font-size:14px!important;line-height:20px!important}
 .suppliers-sidebar h2 button{border:0;background:transparent;padding:0;color:var(--sp-blue);font-size:13px!important;font-weight:500;cursor:pointer}
@@ -35,9 +35,7 @@
 .supplier-date-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
 .supplier-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;color:#2e3541;outline:0}
 .supplier-date-range input:focus{border-color:var(--sp-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.suppliers-sidebar .sidebar-collapse{position:absolute!important;left:auto!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border:1px solid var(--product-primary)!important;border-radius:50%!important;background:#fff!important;color:var(--product-primary)!important;box-shadow:0 3px 10px rgba(0,73,146,.14)!important}
-.suppliers-page .sidebar-collapse.collapsed{position:fixed!important;left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border:1px solid var(--product-primary)!important;border-radius:50%!important;background:#fff!important;color:var(--product-primary)!important}
-.suppliers-page .sidebar-collapse{position:fixed!important;z-index:25!important;display:grid!important;place-items:center!important;transition:left .23s ease!important}
+.suppliers-sidebar .sidebar-collapse{left:343px!important}
 
 /* Content + list table */
 .suppliers-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
@@ -81,7 +79,7 @@
 .supplier-modal-body{flex:1;overflow:auto;padding:16px 20px 20px;background:#fff}
 .supplier-section{margin-bottom:18px}
 .supplier-section:last-child{margin-bottom:0}
-.supplier-section h3{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #e1e3e6;color:var(--sp-text);font-size:14px!important;font-weight:700}
+.supplier-section h3{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #eef1f4;color:var(--sp-text);font-size:14px!important;font-weight:700}
 .supplier-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 16px}
 .supplier-field{display:grid;gap:6px;min-width:0}
 .supplier-field.wide{grid-column:1/-1}
@@ -123,13 +121,13 @@
 @media(max-width:1100px){
   .suppliers-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}
   .suppliers-workspace{grid-template-columns:300px minmax(0,1fr)!important}
-  .suppliers-sidebar .sidebar-collapse{right:8px!important}
+  .suppliers-sidebar .sidebar-collapse{left:268px!important}
   .suppliers-page .suppliers-table table{min-width:820px!important}
   .supplier-grid{grid-template-columns:1fr}
   .supplier-field.wide{grid-column:auto}
 }
 @media(max-width:768px){
-  .suppliers-page{height:auto;min-height:100dvh;overflow:auto}
+  .suppliers-page{height:auto;min-height:100vh;overflow:auto}
   .suppliers-actions{display:grid!important;grid-template-columns:1fr auto!important;padding:10px 12px!important}
   .suppliers-search{grid-column:1/-1;grid-row:2}
   .suppliers-toolbar{grid-column:2;grid-row:1}
@@ -137,6 +135,6 @@
   .suppliers-workspace{display:block!important;height:auto}
   .suppliers-sidebar{position:relative!important;top:auto!important;display:grid;grid-template-columns:1fr 1fr;gap:0 14px;width:100%!important;height:auto!important;padding:10px 14px!important;border-right:0;border-bottom:1px solid var(--sp-border);box-shadow:none!important}
   .suppliers-sidebar>section:first-child{grid-column:1/-1}
-  .suppliers-content{height:calc(100dvh - 415px);min-height:430px;padding:10px!important}
+  .suppliers-content{height:calc(100vh - 415px);min-height:430px;padding:10px!important}
   .suppliers-table{max-height:none!important}
 }

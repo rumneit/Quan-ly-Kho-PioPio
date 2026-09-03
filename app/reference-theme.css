@@ -8,7 +8,7 @@
   --pio-primary-700: #004392;
   --pio-primary-900: #001631;
   --pio-primary: #0070f4;
-  --pio-neutral-25: #f5f6f7;
+  --pio-neutral-25: #f7f8f9;
   --pio-neutral-50: #f0f1f3;
   --pio-neutral-100: #e1e3e6;
   --pio-neutral-200: #c2c7ce;
@@ -39,42 +39,29 @@
   --pio-control-height: 48px;
   --pio-body-size: 14px;
   --pio-body-line-height: 20px;
-  --pio-popup-shadow: 0 8px 24px rgba(16, 30, 54, 0.12);
-  --pio-focus-shadow: 0 0 0 2px rgba(0, 112, 244, 0.2);
+  --pio-popup-shadow: 0 8px 10px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.12);
+  --pio-focus-shadow: 0 2px 12px rgba(0, 112, 244, 0.2);
   --blue: #0070f4;
   --blue-dark: #004392;
   --text: #15171a;
   --muted: #525d6a;
   --line: #e1e3e6;
   --bg: #f5f6f7;
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
 }
 
 html,
 body {
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
   font-size: 14px;
-  line-height: 20px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 button,
 select,
 textarea {
-  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
   font-size: inherit;
-  transition: border-color .15s, background .15s, color .15s, transform .1s, box-shadow .15s;
 }
-button:active, .kv-btn:active, .product-toolbar button:active { transform: scale(0.98); }
-:focus-visible { outline: 2px solid var(--pio-primary); outline-offset: 2px; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { box-shadow: var(--pio-focus-shadow); }
-.product-row td, .kv-card, .kv-top-products>div, .kv-activity-list article { transition: background .15s, box-shadow .15s; }
-.skeleton { background: linear-gradient(90deg, #e1e3e6 25%, #f5f6f7 50%, #e1e3e6 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.skip-link { position: absolute; top: -100px; left: 8px; z-index: 999; padding: 8px 12px; background: #fff; border: 1px solid #e1e3e6; border-radius: 6px; color: #0070f4; font-weight: 600; }
-.skip-link:focus { top: 8px; }
 
 .product-page {
   --product-primary: #0070f4;
@@ -127,17 +114,39 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background: var(--pio-neutral-50);
 }
 
-/* Typography scale - hierarchy restored, no kill-switch */
-h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
-h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25; text-wrap: balance; }
-p { text-wrap: pretty; }
-.money, .kv-today-stats strong, .pos-totals b, .report-kpis b, .cash-summary b { font-family: var(--font-mono), 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+/* Final typography layer: legacy component rules must not override 14px. */
+body :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  span,
+  small,
+  strong,
+  b,
+  em,
+  th,
+  td,
+  li
+) {
+  font-size: 14px !important;
+}
+
 .kv-horizontal-nav :where(.kv-top-item, .kv-sale-link),
 .kv-horizontal-nav .kv-submenu :where(h3, button),
 .kv-menu-list :where(h3, button),
 .main-nav .nav-item {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 14px !important;
+  font-weight: 700 !important;
 }
 
 /* Product page metrics extracted from the supplied management-page snapshot. */
@@ -149,7 +158,7 @@ p { text-wrap: pretty; }
   --filter-radius: 8px;
   --filter-section-gap: 22px;
   --product-cell-padding: 10px;
-  background: #f5f6f7;
+  background: #f7f8f9;
 }
 
 .product-actions {
@@ -161,7 +170,7 @@ p { text-wrap: pretty; }
   align-items: center;
   min-height: var(--product-actions-height);
   padding: 0 16px 0 12px;
-  border-bottom: 1px solid #e1e3e6;
+  border-bottom: 1px solid #e8eaed;
   background: #fff;
 }
 
@@ -190,7 +199,7 @@ p { text-wrap: pretty; }
   padding: 0 8px;
   border-color: transparent;
   border-radius: 8px;
-  background: #f5f6f7;
+  background: #f7f8f9;
 }
 
 .product-actions .product-query:focus-within {
@@ -232,8 +241,8 @@ p { text-wrap: pretty; }
 
 .product-workspace {
   grid-template-columns: var(--filter-sidebar-width) minmax(0, 1fr);
-  min-height: calc(100dvh - var(--product-header-height) - var(--product-actions-height));
-  background: #f5f6f7;
+  min-height: calc(100vh - var(--product-header-height) - var(--product-actions-height));
+  background: #f7f8f9;
 }
 
 .product-workspace.sidebar-is-collapsed {
@@ -243,7 +252,7 @@ p { text-wrap: pretty; }
 .product-filter-sidebar {
   top: calc(var(--product-header-height) + var(--product-actions-height));
   width: var(--filter-sidebar-width);
-  height: calc(100dvh - var(--product-header-height) - var(--product-actions-height));
+  height: calc(100vh - var(--product-header-height) - var(--product-actions-height));
   padding: 12px 8px 48px 12px;
   border-right: 0;
   border-radius: 0 8px 8px 0;
@@ -374,7 +383,7 @@ p { text-wrap: pretty; }
 }
 
 .product-table {
-  max-height: calc(100dvh - 222px);
+  max-height: calc(100vh - 222px);
   border-color: #e1e3e6;
   border-radius: 8px 8px 0 0;
 }
@@ -394,7 +403,7 @@ p { text-wrap: pretty; }
 .product-table td {
   height: 24px;
   padding: var(--product-cell-padding);
-  border-bottom-color: #e1e3e6;
+  border-bottom-color: #e8eaed;
   color: #3e464f;
   font-size: 14px !important;
   line-height: 20px;
@@ -460,7 +469,7 @@ p { text-wrap: pretty; }
   .product-filter-sidebar {
     top: calc(var(--product-header-height) + var(--product-actions-height));
     width: min(250px, calc(100vw - 28px));
-    height: calc(100dvh - var(--product-header-height) - var(--product-actions-height));
+    height: calc(100vh - var(--product-header-height) - var(--product-actions-height));
   }
 
   .product-filter-sidebar .sidebar-collapse {
@@ -477,18 +486,3 @@ p { text-wrap: pretty; }
     padding: 0 8px 8px;
   }
 }
-
-/* P0 fix: touch hit-area 44px without changing visual 32px */
-.kv-btn-icon, .pos-quantity button, .pos-line-remove, .pos-add-tab, .kv-round, .kv-avatar { position: relative; }
-.kv-btn-icon::after, .pos-quantity button::after, .pos-line-remove::after, .pos-add-tab::after, .kv-round::after, .kv-avatar::after { content:""; position:absolute; inset:-6px; }
-
-
-/* P0 fix: unify sticky top 96px (48 header + 48 nav) */
-.kv-header { height: 48px !important; }
-.kv-horizontal-nav { top: 48px !important; height: 48px !important; }
-.product-actions { top: 96px !important; }
-.product-filter-sidebar, .business-sidebar, .report-sidebar { top: 96px !important; height: calc(100dvh - 96px) !important; }
-/* Responsive tables: overflow + sticky first col */
-.product-table, .business-table, .customer-table, .cash-table, .orders-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.product-table th:first-child, .business-table th:first-child { position: sticky; left: 0; background: var(--pio-primary-50); z-index: 2; }
-

@@ -1,26 +1,25 @@
-/* impeccable-disable overused-font: POS unified to Inter intentional */
 /* =====================================================================
    POS / Bán hàng — KiotViet-exact structure (page-header / col-left / col-right)
    ===================================================================== */
 .pos-shell {
-  min-height: 100dvh !important; background: #f0f1f3 !important; color: #26323e !important;
-  font-family: var(--font-inter), Inter, system-ui, sans-serif !important; font-size: 12.544px !important;
+  min-height: 100vh !important; background: #f0f1f3 !important; color: #26323e !important;
+  font-family: Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 12.544px !important;
 }
 
-/* ---------- HEADER: 56px aesthetic blue ---------- */
+/* ---------- HEADER: 41px blue ---------- */
 .page-header {
-  position: sticky !important; top: 0 !important; z-index: 30 !important; display: flex !important; align-items: center !important; gap: 16px !important;
-  height: 56px !important; padding: 0 16px !important; background: #0070f4 !important; color: #fff !important; box-shadow: 0 2px 8px rgba(0,60,120,.12) !important;
+  position: relative !important; z-index: 10 !important; display: flex !important; align-items: center !important;
+  height: 41px !important; padding-left: 5px !important; background: #0070f4 !important; color: #fff !important;
 }
-.header-left { display: flex !important; align-items: center !important; flex: 1 !important; min-width: 0 !important; gap: 16px !important; }
-.col-left-control { display: flex !important; align-items: center !important; flex: 0 0 auto !important; }
+.header-left { display: flex !important; align-items: center !important; flex: 1 !important; min-width: 0 !important; }
+.col-left-control { display: flex !important; align-items: center !important; flex: 0 0 401px !important; }
 .pos-global-search {
-  display: flex !important; align-items: center !important; gap: 8px !important; width: 360px !important; height: 40px !important;
-  padding: 0 12px !important; border: 1px solid #E6E8EA !important; border-radius: 8px !important; background: #fff !important; color: #5a6675 !important; box-shadow: 0 1px 2px rgba(0,0,0,.05) !important;
+  display: flex !important; align-items: center !important; gap: 6px !important; width: 352px !important; height: 29px !important;
+  padding: 0 10px !important; border-radius: 4px !important; background: #fff !important; color: #7e8b96 !important;
 }
 .pos-global-search input {
   width: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important;
-  color: #0F172A !important; font-size: 14px !important; font-family: inherit !important;
+  color: #34414d !important; font-size: 12.544px !important;
 }
 .pos-search-results {
   position: absolute !important; z-index: 70 !important; top: 100% !important; left: 0 !important; width: 392px !important;
@@ -36,14 +35,14 @@
 .pos-search-results button:hover { background: #f2f8ff !important; }
 .pos-search-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; }
 .pos-search-name strong { font-size: 12.544px !important; color: #2e3541 !important; }
-.pos-search-name small { font-size: 11px !important; color: #5a6675 !important; }
+.pos-search-name small { font-size: 11px !important; color: #8a96a7 !important; }
 .pos-search-results b { flex: 0 0 auto !important; font-size: 12.544px !important; color: #0070f4 !important; font-weight: 600 !important; }
-.pos-search-results p { padding: 14px !important; text-align: center !important; color: #5a6675 !important; font-size: 12.544px !important; }
+.pos-search-results p { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 12.544px !important; }
 
-.cart-tabs { display: flex !important; align-items: center !important; gap: 8px !important; flex: 0 0 auto !important; }
+.cart-tabs { display: flex !important; align-items: center !important; gap: 0 !important; flex: 0 0 592px !important; }
 .pos-invoice-tab {
-  display: flex !important; align-items: center !important; gap: 8px !important; min-width: 140px !important; height: 40px !important; align-self: center !important;
-  padding: 0 16px !important; border-radius: 8px !important; background: #fff !important; color: #0F172A !important; border: 1px solid #E1F2ED !important; box-shadow: 0 1px 2px rgba(0,0,0,.05) !important;
+  display: flex !important; align-items: center !important; gap: 8px !important; min-width: 129px !important; height: 36px !important; align-self: flex-end !important;
+  padding: 0 12px !important; border-radius: 6px 6px 0 0 !important; background: #f0f1f3 !important; color: #283642 !important;
 }
 .pos-invoice-tab svg { flex: 0 0 auto !important; opacity: .85 !important; }
 .pos-invoice-tab strong { font-size: 12.544px !important; }
@@ -58,15 +57,14 @@
   display: flex !important; align-items: center !important; justify-content: flex-end !important;
   gap: 10px !important; margin-left: auto !important; padding: 0 12px !important;
 }
-.icon-list.header-nav { display: flex !important; align-items: center !important; gap: 8px !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
+.icon-list.header-nav { display: flex !important; align-items: center !important; gap: 2px !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
 .icon-list.header-nav li { display: flex !important; align-items: center !important; }
 .icon-list.header-nav button {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 40px !important; height: 40px !important; padding: 0 !important; border: 0 !important; border-radius: 8px !important; background: rgba(255,255,255,.08) !important; color: #fff !important; cursor: pointer !important; transition: background .2s ease, transform .1s ease !important;
+  width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #fff !important; cursor: pointer !important;
 }
-.icon-list.header-nav button:hover { background: rgba(255,255,255,.18) !important; transform: translateY(-1px) !important; }
-.icon-list.header-nav button:active { transform: scale(.95) !important; }
-.icon-list.header-nav svg { width: 18px !important; height: 18px !important; }
+.icon-list.header-nav button:hover { background: rgba(255,255,255,.18) !important; }
+.icon-list.header-nav svg { width: 14px !important; height: 14px !important; }
 .pos-user-menu-wrap { display: flex !important; align-items: center !important; }
 .pos-user {
   display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 29px !important;
@@ -88,7 +86,7 @@
 
 /* ---------- CONTENT: col-left 841 + col-right 421 ---------- */
 .page-content {
-  display: flex !important; align-items: stretch !important; height: calc(100dvh - 95px) !important;
+  display: flex !important; align-items: stretch !important; height: calc(100vh - 95px) !important;
   min-height: 0 !important; background: #f0f1f3 !important; padding: 9px 9px 9px 0 !important; gap: 1px !important;
 }
 .col-left { flex: 1 1 auto !important; min-width: 0 !important; overflow: hidden !important; }
@@ -111,7 +109,7 @@
 }
 .pos-cart-info { display: flex !important; flex-direction: column !important; min-width: 0 !important; }
 .pos-cart-info strong { font-size: 12.544px !important; color: #15171a !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-.pos-cart-info small { font-size: 11px !important; color: #5a6675 !important; }
+.pos-cart-info small { font-size: 11px !important; color: #8a96a7 !important; }
 .pos-cart-right { display: flex !important; align-items: center !important; gap: 14px !important; flex: 0 0 auto !important; }
 .pos-cart-right > b { min-width: 90px !important; text-align: right !important; font-size: 12.544px !important; color: #15171a !important; }
 .pos-quantity { display: inline-flex !important; align-items: center !important; gap: 4px !important; }
@@ -138,11 +136,11 @@
 .delivery-component { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; }
 .form-delivery { display: flex !important; flex-direction: column !important; flex: 1 !important; min-height: 0 !important; border-radius: 9px !important; background: #fff !important; }
 .transport-content { flex: 1 !important; overflow-y: auto !important; padding: 0 20px !important; }
-.col-right-header { padding: 10px 0 6px !important; border-bottom: 1px solid #e1e3e6 !important; }
+.col-right-header { padding: 10px 0 6px !important; border-bottom: 1px solid #eef1f4 !important; }
 .pos-staff-row { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 12.544px !important; }
 .pos-staff-row span { font-weight: 600 !important; }
-.pos-staff-row b { color: #5a6675 !important; }
-.pos-staff-row time { margin-left: auto !important; color: #5a6675 !important; }
+.pos-staff-row b { color: #8a96a7 !important; }
+.pos-staff-row time { margin-left: auto !important; color: #8a96a7 !important; }
 .col-wrap { padding: 12px 0 8px !important; }
 
 .pos-customer-search {
@@ -158,7 +156,7 @@
   display: flex !important; align-items: center !important; gap: 8px !important; padding: 8px 12px !important; margin-bottom: 8px !important;
   border: 1px solid #d8e6f7 !important; border-radius: 6px !important; background: #f4f9ff !important; color: #1f5f9e !important; font-size: 12.544px !important;
 }
-.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #5a6675 !important; cursor: pointer !important; }
+.pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #8a96a7 !important; cursor: pointer !important; }
 .pos-customer-list {
   position: absolute !important; z-index: 50 !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important;
   max-height: 220px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important;
@@ -170,8 +168,8 @@
 }
 .pos-customer-list button:hover { background: #f2f8ff !important; }
 .pos-customer-list strong { font-size: 12.544px !important; color: #2e3541 !important; }
-.pos-customer-list small { font-size: 11px !important; color: #5a6675 !important; }
-.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #5a6675 !important; font-size: 12.544px !important; }
+.pos-customer-list small { font-size: 11px !important; color: #8a96a7 !important; }
+.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 12.544px !important; }
 
 .pos-delivery-fields { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin-bottom: 8px !important; }
 .pos-delivery-fields input {
@@ -201,7 +199,7 @@
 
 .cart-actions {
   display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 9px !important;
-  padding: 4px 8px 5px !important; border-top: 1px solid #e1e3e6 !important; min-height: 54px !important; flex-shrink: 0 !important;
+  padding: 4px 8px 5px !important; border-top: 1px solid #eef1f4 !important; min-height: 54px !important; flex-shrink: 0 !important;
 }
 .btn-xl {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
@@ -252,7 +250,7 @@
 .pos-shortcuts kbd {
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
   min-width: 40px !important; height: 28px !important; padding: 0 8px !important; border: 1px solid #d0d7de !important; border-bottom-width: 2px !important;
-  border-radius: 6px !important; background: #f5f6f7 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important;
+  border-radius: 6px !important; background: #f7f8f9 !important; color: #2e3541 !important; font-size: 12px !important; font-weight: 600 !important; font-family: inherit !important;
 }
 .pos-shortcuts span { font-size: 12.544px !important; color: #3e464f !important; }
 
@@ -265,7 +263,7 @@
   .icon-list.header-nav { display: none !important; }
 }
 /* ---------- LEFT CART FOOTER (totals) ---------- */
-.cart-footer { padding: 8px 14px !important; border-top: 1px solid #e1e3e6 !important; background: #fff !important; }
+.cart-footer { padding: 8px 14px !important; border-top: 1px solid #eef1f4 !important; background: #fff !important; }
 .cart-footer p { display: flex !important; align-items: center !important; justify-content: space-between !important; margin: 0 !important; padding: 4px 0 !important; font-size: 12.544px !important; color: #3e464f !important; }
 .cart-footer p.strong { border-top: 1px dashed #dfe4ea !important; margin-top: 4px !important; padding-top: 8px !important; font-weight: 700 !important; color: #15171a !important; }
 .cart-footer p span { color: #6b7a8d !important; }
@@ -281,13 +279,13 @@
 
 /* ---------- PRODUCT LIST (Bán thường) ---------- */
 .pos-product-list { border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; overflow: hidden !important; }
-.pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #e1e3e6 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
+.pos-product-list-head { padding: 8px 12px !important; border-bottom: 1px solid #eef1f4 !important; color: #6b7a8d !important; font-size: 12.544px !important; }
 .pos-product-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; width: 100% !important; padding: 9px 12px !important; border: 0 !important; border-bottom: 1px solid #f0f2f5 !important; background: #fff !important; text-align: left !important; cursor: pointer !important; }
 .pos-product-row:hover { background: #f2f8ff !important; }
 .pos-product-name { display: flex !important; flex-direction: column !important; min-width: 0 !important; font-size: 12.544px !important; color: #2e3541 !important; }
-.pos-product-name small { font-size: 11px !important; color: #5a6675 !important; }
+.pos-product-name small { font-size: 11px !important; color: #8a96a7 !important; }
 .pos-product-row b { flex: 0 0 auto !important; font-size: 12.544px !important; color: #0070f4 !important; font-weight: 600 !important; }
-.pos-product-list p.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #5a6675 !important; font-size: 12.544px !important; }
+.pos-product-list p.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 12.544px !important; }
 
 /* col-left flex column so cart-footer sits below list */
 .col-left { display: flex !important; flex-direction: column !important; }
@@ -296,7 +294,7 @@
 .page-header { box-shadow: 0 1px 4px rgba(0,60,120,.15) !important; }
 .pos-global-search { transition: border-color .15s, box-shadow .15s !important; }
 .pos-global-search:focus-within { border-color: #0070f4 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
-.pos-global-search input::placeholder { color: #5a6675 !important; }
+.pos-global-search input::placeholder { color: #8a96a7 !important; }
 .pos-invoice-tab { box-shadow: 0 -1px 4px rgba(0,60,120,.08) !important; }
 .pos-cart-list { box-shadow: 0 1px 4px rgba(0,60,120,.06) !important; }
 .pos-cart-list article:hover { background: #f7faff !important; }
@@ -305,7 +303,7 @@
 .form-delivery { box-shadow: 0 2px 8px rgba(0,60,120,.08) !important; }
 .pos-customer-search { transition: border-color .15s !important; }
 .pos-customer-search:focus-within { box-shadow: 0 0 0 2px rgba(0,112,244,.1) !important; }
-.pos-customer-search input::placeholder { color: #5a6675 !important; }
+.pos-customer-search input::placeholder { color: #8a96a7 !important; }
 .pos-customer-search button:hover { background: #e8f4ff !important; color: #0070f4 !important; }
 .pos-delivery-fields input, .pos-form-row input { transition: border-color .15s, box-shadow .15s !important; }
 .btn-xl { transition: background .15s, border-color .15s, transform .1s !important; }
@@ -319,18 +317,18 @@
 .pos-support:hover { color: #0070f4 !important; }
 .page-footer-usemanual:hover, .page-footer-rating:hover { color: #0070f4 !important; }
 /* ---------- FIX: inputs fill their styled wrappers + force Roboto ---------- */
-.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: var(--font-inter), Inter, system-ui, sans-serif !important; }
+.pos-shell, .pos-shell *, .pos-shell input, .pos-shell select, .pos-shell textarea, .pos-shell button, .pos-shell a, .pos-shell strong, .pos-shell b, .pos-shell span, .pos-shell small, .pos-shell p, .pos-shell h3, .pos-shell label, .pos-shell time, .pos-shell kbd, .pos-shell code { font-family: Roboto, 'Helvetica Neue', Arial, sans-serif !important; }
 .pos-global-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-customer-search input { width: 100% !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-delivery-form input, .pos-delivery-fields input, .pos-form-row input { width: 100% !important; height: 29px !important; font-size: 12.544px !important; }
-.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: var(--font-inter), Inter, system-ui, sans-serif !important; }
+.pos-search-results, .pos-customer-list, .pos-qty-modal { font-size: 12.544px !important; font-family: Roboto !important; }
 /* ---------- MODE-SPECIFIC LAYOUT (KiotViet exact) ---------- */
 /* Bán thường: left 704 + right 559 (product list, transparent) */
-.pos-shell.mode-normal .col-left { flex: 0 0 704px !important; width: 704px !important; }
-.pos-shell.mode-normal .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
-.pos-shell.mode-normal .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
-.pos-shell.mode-normal .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
-.pos-shell.mode-normal .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
+.pos-shell.mode-normal .col-left, .pos-shell.mode-quick .col-left { flex: 0 0 704px !important; width: 704px !important; }
+.pos-shell.mode-normal .col-right, .pos-shell.mode-quick .col-right { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; background: transparent !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .form-delivery, .pos-shell.mode-quick .form-delivery { background: transparent !important; border-radius: 0 !important; box-shadow: none !important; }
+.pos-shell.mode-normal .pos-product-list, .pos-shell.mode-quick .pos-product-list { background: transparent !important; border: 0 !important; border-radius: 0 !important; }
+.pos-shell.mode-normal .cart-footer, .pos-shell.mode-quick .cart-footer { border-radius: 9px !important; max-width: 686px !important; }
 
 /* Bán giao hàng: left 841 + right 421 (delivery form, white card) */
 .pos-shell.mode-delivery .col-left { flex: 1 1 auto !important; width: auto !important; }
@@ -345,10 +343,10 @@
 .pos-textarea {
   box-sizing: border-box !important; width: 100% !important; height: 40px !important; padding: 2px 10px !important; border: 1px solid #d0d7de !important;
   border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; resize: vertical !important;
-  font-family: var(--font-inter), Inter, system-ui, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
+  font-family: Roboto, Arial, sans-serif !important; color: #26323e !important; line-height: 1.4 !important;
 }
 .pos-textarea:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
-.pos-textarea::placeholder { color: #5a6675; }
+.pos-textarea::placeholder { color: #8a96a7; }
 .pos-select {
   width: 100%; height: 29px; padding: 0 8px; border: 1px solid #d0d7de;
   border-radius: 6px; background: #fff; font-size: 12.544px; color: #26323e;
@@ -358,10 +356,10 @@
 .pos-select:disabled { opacity: .5; cursor: not-allowed; }
 .pos-form-row input, .pos-form-row select, .pos-delivery-form > input, .pos-delivery-form > select {
   height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px; background: #fff;
-  font-size: 12.544px; width: 100%; font-family: var(--font-inter), Inter, system-ui, sans-serif; color: #26323e;
+  font-size: 12.544px; width: 100%; font-family: Roboto, Arial, sans-serif; color: #26323e;
 }
 .pos-form-row input:focus, .pos-form-row select:focus { border-color: #0070f4; outline: 0; box-shadow: 0 0 0 2px rgba(0,112,244,.12); }
-.pos-form-row input::placeholder { color: #5a6675; }
+.pos-form-row input::placeholder { color: #8a96a7; }
 .pos-pack-input {
   height: 29px; padding: 0 8px; border: 1px solid #d0d7de; border-radius: 6px;
   background: #fff; font-size: 12.544px; color: #26323e; text-align: center; width: 56px;
@@ -376,52 +374,3 @@
   width: 28px; height: 28px; border: 1px solid #d0d7de; border-radius: 6px;
   background: #fff; color: #3e464f; cursor: pointer;
 }
-/* Harden P0: focus visible + sr-only + reduced motion */
-.pos-shell :where(button, input, select, textarea):focus-visible { outline:2px solid var(--pio-primary) !important; outline-offset:2px !important; box-shadow: var(--pio-focus-shadow) !important; }
-.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
-@media (prefers-reduced-motion: reduce) { .btn-xl:active{transform:none !important} .kv-enter,.skeleton,.kv-bars i,.analytics-bar i{animation:none !important;transition:none !important} }
-
-
-/* Adapt: POS tablet fluid */
-@media (max-width:1024px) {
-  .col-left-control { flex:1 1 auto !important; min-width:0 !important; }
-  .pos-global-search { width:clamp(200px,35vw,352px) !important; }
-  .cart-tabs { flex:1 1 auto !important; min-width:0 !important; }
-  .icon-list.header-nav { gap:6px !important; }
-}
-@media (max-width:768px) {
-  .page-content { flex-direction:column !important; }
-  .pos-quantity button, .pos-line-remove { width:36px !important; height:36px !important; }
-}
-
-
-/* POS icon bar aesthetic - 4 modules KiotViet */
-.icon-list.header-nav button .icon-label { font-size: 11px; font-weight: 600; margin-left: 2px; }
-@media (max-width: 900px) { .icon-list.header-nav button .icon-label { display: none; } }
-.spin { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.icon-list.header-nav button { width: auto !important; min-width: 40px !important; padding: 0 12px !important; gap: 6px !important; }
-
-
-/* Ban Nhanh vs Ban Thuong y chang KiotViet + 3 github dep */
-.pos-quick-view { border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; overflow: hidden !important; }
-.pos-quick-header { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 12px 16px !important; border-bottom: 1px solid #e1e3e6 !important; background: #f8fafc !important; font-weight: 600 !important; font-size: 13px !important; color: #0F172A !important; }
-.pos-quick-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; padding: 12px !important; }
-.pos-quick-card { display: flex !important; flex-direction: column !important; gap: 6px !important; padding: 12px !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; text-align: left !important; cursor: pointer !important; transition: border-color .15s, background .15s, transform .15s !important; min-height: 88px !important; }
-.pos-quick-card:hover { border-color: #0070f4 !important; background: #f2f8ff !important; transform: translateY(-1px) !important; box-shadow: 0 4px 12px rgba(0,112,244,.1) !important; }
-.pos-quick-name { font-size: 13px !important; font-weight: 600 !important; color: #0F172A !important; line-height: 1.3 !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; }
-@media (max-width: 768px) { .pos-quick-grid { grid-template-columns: 1fr !important; } }
-
-
-/* Ban Thuong grid 3 col co anh y chang KiotViet anh 2 */
-.pos-normal-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 12px !important; padding: 12px !important; }
-.pos-normal-card { display: flex !important; gap: 10px !important; padding: 10px !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; text-align: left !important; cursor: pointer !important; transition: border-color .15s, background .15s !important; }
-.pos-normal-card:hover { border-color: #0070f4 !important; background: #f2f8ff !important; }
-.pos-normal-img { width: 48px !important; height: 48px !important; border-radius: 6px !important; display: grid !important; place-items: center !important; flex-shrink: 0 !important; font-size: 18px !important; }
-.pos-normal-info { display: flex !important; flex-direction: column !important; gap: 2px !important; min-width: 0 !important; flex: 1 !important; }
-.pos-normal-name { font-size: 12px !important; font-weight: 600 !important; color: #0F172A !important; line-height: 1.3 !important; display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; }
-.pos-normal-card small { font-size: 11px !important; color: #6b7a8d !important; }
-.pos-normal-card b { font-size: 12px !important; color: #0070f4 !important; font-weight: 700 !important; margin-top: 4px !important; }
-@media (max-width: 900px) { .pos-normal-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-@media (max-width: 600px) { .pos-normal-grid { grid-template-columns: 1fr !important; } }
-
