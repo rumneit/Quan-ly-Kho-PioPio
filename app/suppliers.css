@@ -35,9 +35,9 @@
 .supplier-date-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
 .supplier-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;background:#fff;font:inherit;font-size:13px!important;color:#2e3541;outline:0}
 .supplier-date-range input:focus{border-color:var(--sp-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.suppliers-sidebar .sidebar-collapse{left:343px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important}
-.suppliers-page .sidebar-collapse.collapsed{left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important}
-.suppliers-page .sidebar-collapse{position:fixed!important;z-index:25!important;display:grid!important;place-items:center!important;border:1px solid #dfe4ea!important;border-radius:6px!important;background:#fff!important;color:#6b7a8d!important;box-shadow:0 2px 8px rgba(16,30,54,.08)!important}
+.suppliers-sidebar .sidebar-collapse{position:absolute!important;left:auto!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border:1px solid var(--product-primary)!important;border-radius:50%!important;background:#fff!important;color:var(--product-primary)!important;box-shadow:0 3px 10px rgba(0,73,146,.14)!important}
+.suppliers-page .sidebar-collapse.collapsed{position:fixed!important;left:8px!important;top:50%!important;transform:translateY(-50%)!important;width:32px!important;height:32px!important;border:1px solid var(--product-primary)!important;border-radius:50%!important;background:#fff!important;color:var(--product-primary)!important}
+.suppliers-page .sidebar-collapse{position:fixed!important;z-index:25!important;display:grid!important;place-items:center!important;transition:left .23s ease!important}
 
 /* Content + list table */
 .suppliers-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
@@ -123,7 +123,7 @@
 @media(max-width:1100px){
   .suppliers-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}
   .suppliers-workspace{grid-template-columns:300px minmax(0,1fr)!important}
-  .suppliers-sidebar .sidebar-collapse{left:268px!important}
+  .suppliers-sidebar .sidebar-collapse{right:8px!important}
   .suppliers-page .suppliers-table table{min-width:820px!important}
   .supplier-grid{grid-template-columns:1fr}
   .supplier-field.wide{grid-column:auto}
