@@ -131,6 +131,18 @@ export async function POST(request: Request) {
     p_affects_profit: affectsProfit,
   });
   if (error || !voucherId) { console.error("[api:cashbook:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể lưu phiếu." }, { status: 400 }); }
+  
+  // Tự động gạch nợ vận đơn khi thu nợ khách hàng nếu có shipment_id
+  if (type === "receipt" && kind === "debt_collection") {
+    const shipmentId = String(body.shipment_id || "").trim();
+    if (shipmentId && uuidPattern.test(shipmentId)) {
+      await supabase.rpc("link_debt_collection_to_shipment", {
+        p_voucher_id: voucherId,
+        p_shipment_id: shipmentId,
+      });
+    }
+  }
+
   const result = await supabase.from("cash_vouchers").select(voucherSelect).eq("id", voucherId).single();
   if (result.error) return NextResponse.json({ error: "Phiếu đã lưu nhưng không thể tải lại dữ liệu." }, { status: 500 });
   return NextResponse.json({ voucher: result.data }, { status: 201 });
