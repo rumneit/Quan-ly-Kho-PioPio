@@ -12,7 +12,7 @@
 .auth-page,.sales-app{font-family:var(--font-inter), Inter, system-ui, sans-serif}
 
 /* Hide Chi Nhanh - single branch default */
-section:has(> select[aria-label*="Chi nhÃ¡nh"]), section:has(> select[aria-label*="chi nhÃ¡nh"]) { display:none!important; }
+section:has(> select[aria-label*="Chi nhánh"]), section:has(> select[aria-label*="chi nhánh"]) { display:none!important; }
 th.branch, td.branch { display:none!important; }
 
 /* ===== Login: font & khoang cach deu, tham my ===== */

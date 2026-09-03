@@ -1,6 +1,6 @@
-/* =====================================================================
-   UNIFIED MANAGEMENT TOOLBAR â€” loaded last for maximum specificity.
-   Metrics measured from KiotViet "Danh sÃ¡ch hÃ ng hÃ³a" (#/Products/) at
+﻿/* =====================================================================
+   UNIFIED MANAGEMENT TOOLBAR — loaded last for maximum specificity.
+   Metrics measured from KiotViet "Danh sách hàng hóa" (#/Products/) at
    1272px viewport:
      H1        250x28, x=16, font 20px/28px 700, margin-right 12px
      Search    430x32 wrapper, radius 8px, border 1px #d1d5da
@@ -66,7 +66,7 @@
   box-shadow: none !important;
 }
 /* Products page defines .kv-btn-icon / .column-control > button with
-   radius 6px !important outside .product-toolbar â€” override to 8px. */
+   radius 6px !important outside .product-toolbar — override to 8px. */
 .product-page .kv-btn-icon,
 .product-page .kv-toolbar-100 .kv-btn,
 .product-page .kv-toolbar-100 .kv-btn-icon,
@@ -101,7 +101,7 @@
   padding: 0 !important;
 }
 
-/* Products page wraps the search in .product-actions-center â€” pin it to
+/* Products page wraps the search in .product-actions-center — pin it to
    the same 430px slot so the search box lands at x=278 like KiotViet. */
 .product-page .product-actions .product-actions-center {
   flex: 0 0 var(--kv-search-width) !important;
@@ -225,7 +225,7 @@
   }
 }
 
-/* Primary "Táº¡o má»›i" â€” KiotViet outline style, not filled */
+/* Primary "Táº¡o má»›i" — KiotViet outline style, not filled */
 .product-page .product-toolbar > .primary,
 .product-page .product-toolbar > .kv-btn-create,
 .product-page .product-toolbar .kv-create-wrap > .kv-btn-create,
@@ -253,7 +253,7 @@
   color: var(--kv-tool-primary) !important;
 }
 
-/* Icons inside buttons â€” uniform 18px */
+/* Icons inside buttons — uniform 18px */
 .product-page .product-toolbar button svg,
 .product-page .product-toolbar .kv-btn svg,
 .product-page .product-toolbar .column-control button svg {
@@ -440,7 +440,7 @@
 }
 
 /* =====================================================================
-   HEADER + NAV + TABLE â€” KiotViet "Danh sÃ¡ch hÃ ng hÃ³a" measurements.
+   HEADER + NAV + TABLE — KiotViet "Danh sách hàng hóa" measurements.
    Top bar = 48px header + 48px blue nav = 96px (project was 56+48=104).
    ===================================================================== */
 
@@ -458,7 +458,7 @@
   box-shadow: none !important;
 }
 
-/* Nav items â€” KiotViet: 36px tall, 8px radius, 14px/600, white, pad 8px 12px */
+/* Nav items — KiotViet: 36px tall, 8px radius, 14px/600, white, pad 8px 12px */
 .kv-shell .kv-horizontal-nav .kv-top-item {
   height: 36px !important;
   padding: 0 12px !important;
@@ -522,7 +522,7 @@
   top: 166px !important;
 }
 
-/* Table header â€” KiotViet: bg #e6f1fe, 12px/16px 600, #15171a, border #b3d4fc */
+/* Table header — KiotViet: bg #e6f1fe, 12px/16px 600, #15171a, border #b3d4fc */
 .product-page .product-table th,
 .business-table th,
 .order-table th,
@@ -548,7 +548,7 @@
 }
 
 /* =====================================================================
-   DATE RANGE PICKER â€” KiotViet-style calendar popover (date-range-picker.tsx)
+   DATE RANGE PICKER — KiotViet-style calendar popover (date-range-picker.tsx)
    ===================================================================== */
 .date-range-picker {
   position: relative !important;
@@ -665,7 +665,7 @@
 }
 
 /* =====================================================================
-   SETTINGS â€” KiotViet-style sidebar + content layout
+   SETTINGS — KiotViet-style sidebar + content layout
    ===================================================================== */
 .settings-shell {
   display: grid !important;
@@ -795,7 +795,7 @@
 }
 
 /* =====================================================================
-   SETTINGS â€” interactive components (store, security, permissions, etc.)
+   SETTINGS — interactive components (store, security, permissions, etc.)
    ===================================================================== */
 .settings-loading { padding: 60px 0 !important; text-align: center !important; color: #85909d !important; }
 .settings-toast { margin-bottom: 14px !important; padding: 10px 14px !important; border: 1px solid #b9e2c9 !important; border-radius: 6px !important; background: #effaf3 !important; color: #187442 !important; font-size: 13px !important; }
@@ -834,7 +834,7 @@
 .settings-table code { padding: 2px 6px !important; border-radius: 4px !important; background: #f4f5f7 !important; color: #2e3541 !important; font-size: 12px !important; }
 
 /* =====================================================================
-   DASHBOARD â€” KiotViet "Káº¿t quáº£ bÃ¡n hÃ ng hÃ´m nay" additions
+   DASHBOARD — KiotViet "Kết quả bán hàng hôm nay" additions
    ===================================================================== */
 .kv-stat-icon.green { background: #20ae5b !important; }
 .kv-today-stats article:nth-child(3) { padding-left: 24px !important; border-left: 1px solid #e7ebef !important; }
