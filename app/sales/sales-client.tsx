@@ -75,15 +75,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       const e = c[product.id];
       const nextQty = (e?.quantity || 0) + 1;
       if (nextQty > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}.`);
-        // vẫn cho phép thêm vượt tồn để server quyết định (nếu cho phép âm tồn)
-        // nhưng giới hạn hiển thị: nếu muốn chặn, uncomment dòng dưới
-        // return c;
+        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}. Server sẽ chặn khi thanh toán.`);
       }
-      const q = Math.min(nextQty, Math.max(product.stock_quantity, nextQty));
-      // P0 fix: không im lặng cắt số lượng; nếu vượt tồn, giữ nguyên nextQty và báo lỗi để server check
-      const finalQty = nextQty > product.stock_quantity ? nextQty : q;
-      return { ...c, [product.id]: { ...product, quantity: finalQty } };
+      return { ...c, [product.id]: { ...product, quantity: nextQty } };
     });
   }
   function changeQuantity(product: Product, amount: number) {
@@ -133,10 +127,10 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         const fullAddress = [address, ward, area].filter(Boolean).join(", ");
         const shipRes = await fetch("/api/waybills", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, receiver_name: receiverName, receiver_phone: receiverPhone, address: fullAddress, area, cod_amount: total, shipping_fee: 0, partner_fee: 0, note: deliveryNote }) });
         const shipData = await shipRes.json();
-        if (!shipRes.ok) { setError("Đơn đã tạo nhưng không thể tạo vận đơn: " + (shipData.error || "")); return; }
+        setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1);
+        if (!shipRes.ok) { setError(`Đã lưu hóa đơn HD${String(orderNum).padStart(6, "0")} nhưng CHƯA tạo được vận đơn: ${shipData.error || ""}. Đừng thanh toán lại — hãy tạo vận đơn ở mục Đặt hàng cho hóa đơn này.`); return; }
         setNotice("Đã tạo đơn hàng và vận đơn!");
-      } else { setNotice("Thanh toán thành công!"); }
-      setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1);
+      } else { setNotice("Thanh toán thành công!"); setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1); }
     } catch { setError("Không thể kết nối máy chủ."); } finally { setSaving(false); }
   }
 

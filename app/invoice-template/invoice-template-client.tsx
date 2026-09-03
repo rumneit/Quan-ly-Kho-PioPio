@@ -13,9 +13,17 @@ type Row = { ma: string; ten: string; dvt: string; sl: string; dg: string; ghich
 const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu: "", tax: 0 });
 
 // Định dạng số theo file mẫu: 4,000.00 · 2,320,000 · 185,600 · 2,505,600
+// GIỮ en-US theo mẫu 02-VT — không đổi sang vi-VN
 const moneyUS = (n: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 const qtyUS = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
-const parseNum = (v: string) => { const n = Number(String(v).replace(/[,\s]/g, "")); return Number.isFinite(n) ? n : 0; };
+// Nhận cả kiểu VN "1.000.000" lẫn kiểu US "1,000,000" — không âm thầm thành 1
+const parseNum = (v: string) => {
+  let s = String(v).replace(/\s/g, "");
+  if (/,\d{1,2}$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+  else s = s.replace(/[.,]/g, "");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+};
 
 function docBlock(x: number, full: boolean): string {
   const d = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
@@ -37,8 +45,9 @@ function docBlock(x: number, full: boolean): string {
 
 function docSo(n: number): string {
   if (!n) return "không";
-  let result = "", started = false, rest = n;
-  const scales: Array<[string, number]> = [["tỷ", 1e9], ["triệu", 1e6], ["ngàn", 1e3]];
+  if (!Number.isFinite(n) || Math.abs(n) >= 1e15) return moneyUS(Math.round(n)) + " đồng (viết bằng số)";
+  let result = "", started = false, rest = Math.round(n);
+  const scales: Array<[string, number]> = [["nghìn tỷ", 1e12], ["tỷ", 1e9], ["triệu", 1e6], ["ngàn", 1e3]];
   for (const [name, val] of scales) {
     const b = Math.floor(rest / val);
     rest %= val;
@@ -110,7 +119,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const lineVats = rows.map((r, i) => (lineTotals[i] * Number(r.tax || 0)) / 100);
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
   const vat = Math.round(lineVats.reduce((a, b) => a + b, 0));
-  const total = subtotal + vat;
+  const total = Math.round(subtotal) + vat;
   const totalWords = docSo(total) + " đồng";
   const vatBreakdown = useMemo(() => {
     const m = new Map<number, number>();

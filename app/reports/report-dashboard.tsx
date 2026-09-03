@@ -190,7 +190,9 @@ export default function ReportDashboard({ mode, profile, orders, products, custo
     for (const order of filteredOrders) {
       const key = toVnDateKey(order.created_at);
       const current = groups.get(key) || { id: key, code: key, label: day(order.created_at), orders: 0, quantity: 0, gross: 0, discount: 0, returns: 0, net: 0, cost: 0, profit: 0, payable: 0 };
-      current.orders += 1;
+      if (order.status === "paid") current.orders += 1; // Doanh thu/chỉ tính paid — draft/cancelled/refunded không tính tiền
+      else if (order.status === "draft") { current.orders += 1; groups.set(key, current); continue; }
+      else if (order.status === "cancelled") { groups.set(key, current); continue; }
       current.quantity += (order.order_items || []).reduce((sum, item) => sum + Number(item.quantity), 0);
       current.gross += Number(order.subtotal);
       current.discount += Number(order.discount);

@@ -45,7 +45,7 @@ function getVNParts(date: Date) {
   return { y, m, d };
 }
 function getVNHour(iso: string): number {
-  const str = new Intl.DateTimeFormat("en-US", { timeZone: VN_TZ, hour: "2-digit", hour12: false }).format(new Date(iso));
+  const str = new Intl.DateTimeFormat("en-US", { timeZone: VN_TZ, hour: "2-digit", hourCycle: "h23" }).format(new Date(iso));
   return Number(str);
 }
 function getVNWeekdayIndex(iso: string): number {
