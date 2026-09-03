@@ -612,7 +612,18 @@ export default function OrderListClient({
       return <section key={label}><h2>{label}</h2><button type="button" className="filter-select-button" aria-expanded={!!areaAnchor} onClick={(event) => setAreaAnchor(event.currentTarget)}><span className={selectedAreas.length ? "has-value" : ""}>{selectedAreas.length ? `${selectedAreas.length} tỉnh đã chọn` : `Chọn khu vực`}</span></button><FilterPopover open={!!areaAnchor} anchor={areaAnchor} onClose={() => { setAreaAnchor(null); setAreaSearch(""); }} ariaLabel={label} className="area"><div className="picker-panel"><header><h3>Khu vực giao hàng</h3><span style={{fontSize:"12px", color:"#6b7a8d"}}>{selectedAreas.length} đã chọn</span></header><label className="picker-search"><Search size={14} /><input autoFocus value={areaSearch} onChange={(event) => setAreaSearch(event.target.value)} placeholder="Tìm tỉnh/thành" /></label><div className="picker-list" style={{maxHeight:"280px", overflow:"auto"}}>{filteredProvinces.map((p) => <label key={p} style={{display:"flex", alignItems:"center", gap:"8px", padding:"8px 12px"}}><input type="checkbox" checked={selectedAreas.includes(p)} onChange={() => toggleArea(p)} /><span style={{flex:1}}>{p}</span></label>)}{!filteredProvinces.length && <p style={{padding:"12px", color:"#8a96a7", textAlign:"center"}}>Không tìm thấy</p>}</div><footer style={{display:"flex", justifyContent:"space-between", padding:"10px 12px", borderTop:"1px solid #e6ebf0"}}><button type="button" onClick={clearArea}>Xóa lọc</button><button type="button" className="primary" onClick={() => { setAreaAnchor(null); setAreaSearch(""); }}>Áp dụng</button></footer></div></FilterPopover></section>;
     }
     const key = filterKey(label);
-    const options = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
+    const dynamicOptions = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
+    // Fallback tĩnh giống KiotViet: luôn có lựa chọn dù chưa có dữ liệu
+    const staticOptions: Record<string, string[]> = {
+      paymentMethod: ["Tiền mặt", "Chuyển khoản", "Thẻ", "COD"],
+      channel: ["Bán trực tiếp", "Bán online", "Shopee", "Lazada", "TikTok Shop", "Facebook"],
+      partner: dynamicOptions.length ? dynamicOptions : [],
+      area: dynamicOptions.length ? dynamicOptions : [],
+      creator: dynamicOptions.length ? dynamicOptions : [],
+      seller: dynamicOptions.length ? dynamicOptions : [],
+      receiver: dynamicOptions.length ? dynamicOptions : [],
+    };
+    const options = dynamicOptions.length ? dynamicOptions : (key && staticOptions[key]) || [];
     return <section key={label}><h2>{label}</h2><select aria-label={label} disabled={!key} value={filters[key] || ""} onChange={(event) => { setFilters((current) => ({ ...current, [key]: event.target.value })); resetResults(); }}><option value="">Chọn {label.toLocaleLowerCase("vi")}</option>{options.map((option) => <option key={option}>{option}</option>)}</select></section>;
   };
 

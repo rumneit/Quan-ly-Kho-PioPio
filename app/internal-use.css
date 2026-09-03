@@ -22,7 +22,39 @@
 .internal-date-range{display:grid;gap:6px;margin-top:6px}
 .internal-date-range input{height:32px;padding:0 8px;border:1px solid #c9d1da;border-radius:5px;font-size:13px!important;outline:0}
 .internal-date-range input:focus{border-color:var(--internal-blue);box-shadow:0 0 0 2px rgba(0,138,230,.12)}
-.internal-sidebar .sidebar-collapse{left:343px!important}
+.internal-sidebar .sidebar-collapse {
+  position: fixed !important;
+  z-index: 25 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 359px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid #0070f4 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #0070f4 !important;
+  box-shadow: 0 3px 10px rgba(0, 73, 146, 0.14) !important;
+  transition: left .23s ease !important;
+}
+.internal-use-page .sidebar-collapse.collapsed {
+  position: fixed !important;
+  z-index: 25 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid #0070f4 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #0070f4 !important;
+  box-shadow: 0 3px 10px rgba(0, 73, 146, 0.14) !important;
+}
 .internal-content{display:flex;min-width:0;min-height:0;flex-direction:column;padding:14px 16px 12px!important}
 .internal-notice{flex:0 0 auto;margin-bottom:8px!important;padding:8px 12px!important}
 .internal-notice.error{border-color:#f1b8b8;background:#fff0f0;color:#b42323}
@@ -98,4 +130,4 @@
 .internal-modal footer span{flex:1}
 .internal-modal footer .primary{min-width:110px}
 
-@media(max-width:1100px){.internal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.internal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.internal-sidebar .sidebar-collapse{left:268px!important}.internal-use-page .internal-table table{min-width:820px!important}}
+@media(max-width:1100px){.internal-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}.internal-workspace{grid-template-columns:300px minmax(0,1fr)!important}.internal-sidebar .sidebar-collapse{left:284px!important}.internal-use-page .internal-table table{min-width:820px!important}}

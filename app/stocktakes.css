@@ -32,7 +32,39 @@
 
 /* Workspace + sidebar */
 .stocktake-workspace{grid-template-columns:375px minmax(0,1fr)!important;height:calc(100vh - 162px);min-height:0!important}
-.stocktakes-page .sidebar-collapse{left:355px}
+.stocktakes-page .sidebar-collapse {
+  position: fixed !important;
+  z-index: 25 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 359px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid #0070f4 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #0070f4 !important;
+  box-shadow: 0 3px 10px rgba(0, 73, 146, 0.14) !important;
+  transition: left .23s ease !important;
+}
+.stocktakes-page .sidebar-collapse.collapsed {
+  position: fixed !important;
+  z-index: 25 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid #0070f4 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #0070f4 !important;
+  box-shadow: 0 3px 10px rgba(0, 73, 146, 0.14) !important;
+}
 .stocktake-sidebar{position:relative!important;top:auto!important;width:auto!important;height:100%!important;padding:18px 20px 40px!important}
 .stocktake-sidebar>section{padding:10px 0 16px!important;margin:0!important}
 .stocktake-sidebar h2{margin:0 0 9px!important;font-size:15px!important;line-height:21px!important}

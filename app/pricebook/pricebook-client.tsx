@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileUp, HelpCircle, Plus, Search, Settings, Trash2, X } from "lucide-react";
@@ -108,6 +108,7 @@ export default function PriceBookClient({ profile, initialProducts, categories }
   const [priceFilter, setPriceFilter] = useState("all");
   const [compareFilter, setCompareFilter] = useState("cost");
   const [costMin, setCostMin] = useState("");
+  const [costFilter, setCostFilter] = useState("all");
   const [costMax, setCostMax] = useState("");
   const [modal, setModal] = useState<"create" | "import" | "settings" | "help" | null>(null);
   const [createTab, setCreateTab] = useState<CreateTab>("info");
@@ -155,9 +156,14 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     const priceMatch = priceFilter === "all" || (priceFilter === "below_cost" ? currentPrice < compare : priceFilter === "above_cost" ? currentPrice > compare : currentPrice === 0);
     const costMinValue = Number(costMin.replace(/[^\d]/g, "")) || 0;
     const costMaxValue = Number(costMax.replace(/[^\d]/g, "")) || 0;
-    const costMatch = (!costMinValue || cost >= costMinValue) && (!costMaxValue || cost <= costMaxValue);
+    const costMatch = costFilter === "all" ? true
+      : costFilter === "zero" ? cost === 0
+      : costFilter === "has" ? cost > 0
+      : costFilter === "lt_price" ? cost < basePrice
+      : costFilter === "gt_price" ? cost > basePrice
+      : (!costMinValue || cost >= costMinValue) && (!costMaxValue || cost <= costMaxValue);
     return globalMatch && skuMatch && nameMatch && categoryMatch && stockMatch && priceMatch && costMatch;
-  }), [initialProducts, query, skuQuery, nameQuery, categoryId, stockFilter, priceFilter, compareFilter, costMin, costMax, selectedBook, getPrice]);
+  }), [initialProducts, query, skuQuery, nameQuery, categoryId, stockFilter, priceFilter, compareFilter, costMin, costMax, costFilter, selectedBook, getPrice]);
 
   function selectBook(id: string) {
     setSelectedBookId(id);
@@ -352,7 +358,7 @@ export default function PriceBookClient({ profile, initialProducts, categories }
         <section><h2>Bảng giá <button type="button" onClick={() => { setCreateTab("info"); setModal("create"); }}>Tạo mới</button></h2><select aria-label="Chọn bảng giá" value={selectedBook.id} onChange={(event) => selectBook(event.target.value)}>{books.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}</select><div className="pricebook-chip"><span>{selectedBook.name}</span>{isDirty && <i title="Có thay đổi chưa lưu" />}<button type="button" aria-label="Bỏ chọn bảng giá" title="Bỏ chọn" onClick={() => selectBook("base")}><X /></button></div></section>
         <section><h2>Nhóm hàng</h2><select aria-label="Nhóm hàng" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="all">Chọn nhóm hàng</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></section>
         <section><h2>Tồn kho</h2><select aria-label="Tồn kho" value={stockFilter} onChange={(event) => setStockFilter(event.target.value)}><option value="all">Tất cả</option><option value="in">Còn hàng trong kho</option><option value="out">Hết hàng trong kho</option></select></section>
-        <section><h2>Giá vốn</h2><div className="pricebook-cost-range"><input aria-label="Giá vốn từ" type="text" inputMode="numeric" placeholder="Từ" value={costMin} onChange={(event) => setCostMin(event.target.value)} /><span>đến</span><input aria-label="Giá vốn đến" type="text" inputMode="numeric" placeholder="Đến" value={costMax} onChange={(event) => setCostMax(event.target.value)} /></div></section>
+        <section><h2>Giá vốn</h2><select aria-label="Điều kiện giá vốn" value={costFilter} onChange={(event) => setCostFilter(event.target.value)}><option value="all">Tất cả</option><option value="has">Có giá vốn (lớn hơn 0)</option><option value="zero">Chưa có giá vốn (bằng 0)</option><option value="lt_price">Nhỏ hơn giá bán</option><option value="gt_price">Lớn hơn giá bán</option><option value="custom">Tùy chỉnh khoảng giá</option></select><div className="pricebook-cost-range" style={{ display: costFilter === "custom" ? "flex" : "none" }}><input aria-label="Giá vốn từ" type="text" inputMode="numeric" placeholder="Từ" value={costMin} onChange={(event) => setCostMin(event.target.value)} /><span>đến</span><input aria-label="Giá vốn đến" type="text" inputMode="numeric" placeholder="Đến" value={costMax} onChange={(event) => setCostMax(event.target.value)} /></div></section>
         <section><h2>Giá bán</h2><select aria-label="Điều kiện giá bán" value={priceFilter} onChange={(event) => setPriceFilter(event.target.value)}><option value="all">Chọn điều kiện</option><option value="below_cost">Nhỏ hơn giá so sánh</option><option value="above_cost">Lớn hơn giá so sánh</option><option value="zero">Bằng 0</option></select><select aria-label="Giá so sánh" value={compareFilter} onChange={(event) => setCompareFilter(event.target.value)} className={priceFilter === "all" ? "pricebook-compare-muted" : ""}><option value="cost">Giá vốn</option><option value="base">Bảng giá chung</option></select></section>
       </aside>
       <section className="product-content pricebook-content">
