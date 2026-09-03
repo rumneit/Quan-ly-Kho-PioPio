@@ -40,7 +40,7 @@
   z-index: 25 !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  left: 359px !important;
+  left: 234px !important;
   width: 32px !important;
   height: 32px !important;
   display: grid !important;
@@ -153,7 +153,7 @@
 @media(max-width:1100px){
   .suppliers-actions{grid-template-columns:250px minmax(260px,1fr) auto!important}
   .suppliers-workspace{grid-template-columns:300px minmax(0,1fr)!important}
-  .suppliers-sidebar .sidebar-collapse{left:284px!important}
+  .suppliers-sidebar .sidebar-collapse{left:234px!important}
   .suppliers-page .suppliers-table table{min-width:820px!important}
   .supplier-grid{grid-template-columns:1fr}
   .supplier-field.wide{grid-column:auto}
