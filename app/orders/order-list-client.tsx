@@ -62,7 +62,7 @@ export type SourceReturn = {
   created_at: string;
   updated_at?: string;
   creator?: { full_name?: string } | null;
-  orders?: { id: string; order_number: number; customer_id?: string | null; created_at: string; customers?: Customer | null; creator?: { full_name?: string } | null; shipments?: Array<{ status: string }> } | null;
+  orders?: { id: string; order_number: number; customer_id?: string | null; created_at: string; channel?: string | null; payment_method?: string | null; customers?: Customer | null; creator?: { full_name?: string } | null; shipments?: Array<{ status: string }> } | null;
   sales_return_items?: OrderItem[];
 };
 
@@ -204,6 +204,8 @@ function orderRow(order: SourceOrder, mode: "orders" | "invoices"): GridRow {
       partner: shipment?.delivery_partners?.name || "---",
       area: shipment?.area || "---",
       creator: order.creator?.full_name || "---",
+      seller: order.creator?.full_name || "---",
+      receiver: order.creator?.full_name || "---",
       channel: order.channel === "direct" ? "Bán trực tiếp" : order.channel || "---",
       paymentMethod: order.payment_method || "---",
       note: order.note || "---",
@@ -233,6 +235,9 @@ function returnRow(item: SourceReturn): GridRow {
       customerCode: customerCode(order?.customers),
       customer: order?.customers?.name || "Khách lẻ",
       creator: item.creator?.full_name || "---",
+      receiver: order?.creator?.full_name || "---",
+      channel: order?.channel === "direct" ? "Bán trực tiếp" : order?.channel || "---",
+      paymentMethod: order?.payment_method || "---",
       note: item.note || "---",
       subtotal: Number(item.subtotal),
       payable: Number(item.refund_amount),
@@ -584,7 +589,7 @@ export default function OrderListClient({
     return String(row.values[key] ?? "---");
   }
 
-  const filterKey = (label: string) => label.includes("Đối tác") ? "partner" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? (label === "Người bán" ? "seller" : "creator") : label.includes("Kênh") ? "channel" : "";
+  const filterKey = (label: string) => label === "Người bán" ? "seller" : label === "Người nhận đặt" || label === "Người nhận trả" ? "receiver" : label.includes("Đối tác") ? "partner" : label.includes("Khu vực") ? "area" : label.includes("Phương thức") ? "paymentMethod" : label.includes("Người") ? "creator" : label.includes("Kênh") ? "channel" : "";
   const renderFilter = (label: string, index: number) => {
     if (label.includes("Thời gian")) {
       const criterion = dateFilters[label] || { preset: "all", from: "", to: "" };
@@ -608,7 +613,7 @@ export default function OrderListClient({
     }
     const key = filterKey(label);
     const options = key ? Array.from(new Set(rows.map((row) => String(row.values[key] || "")).filter((value) => value && value !== "---"))) : [];
-    return <section key={label}><h2>{label}</h2><select aria-label={label} disabled={!key || !options.length} value={filters[key] || ""} onChange={(event) => { setFilters((current) => ({ ...current, [key]: event.target.value })); resetResults(); }}><option value="">Chọn {label.toLocaleLowerCase("vi")}</option>{options.map((option) => <option key={option}>{option}</option>)}</select></section>;
+    return <section key={label}><h2>{label}</h2><select aria-label={label} disabled={!key} value={filters[key] || ""} onChange={(event) => { setFilters((current) => ({ ...current, [key]: event.target.value })); resetResults(); }}><option value="">Chọn {label.toLocaleLowerCase("vi")}</option>{options.map((option) => <option key={option}>{option}</option>)}</select></section>;
   };
 
   const toolbar = <div className="product-toolbar order-toolbar">

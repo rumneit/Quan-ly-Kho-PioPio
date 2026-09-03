@@ -107,6 +107,8 @@ export default function PriceBookClient({ profile, initialProducts, categories }
   const [stockFilter, setStockFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
   const [compareFilter, setCompareFilter] = useState("cost");
+  const [costMin, setCostMin] = useState("");
+  const [costMax, setCostMax] = useState("");
   const [modal, setModal] = useState<"create" | "import" | "settings" | "help" | null>(null);
   const [createTab, setCreateTab] = useState<CreateTab>("info");
   const [notice, setNotice] = useState<Notice>(null);
@@ -151,8 +153,11 @@ export default function PriceBookClient({ profile, initialProducts, categories }
     const basePrice = Number(product.price) || 0;
     const compare = compareFilter === "cost" ? cost : basePrice;
     const priceMatch = priceFilter === "all" || (priceFilter === "below_cost" ? currentPrice < compare : priceFilter === "above_cost" ? currentPrice > compare : currentPrice === 0);
-    return globalMatch && skuMatch && nameMatch && categoryMatch && stockMatch && priceMatch;
-  }), [initialProducts, query, skuQuery, nameQuery, categoryId, stockFilter, priceFilter, compareFilter, selectedBook, getPrice]);
+    const costMinValue = Number(costMin.replace(/[^\d]/g, "")) || 0;
+    const costMaxValue = Number(costMax.replace(/[^\d]/g, "")) || 0;
+    const costMatch = (!costMinValue || cost >= costMinValue) && (!costMaxValue || cost <= costMaxValue);
+    return globalMatch && skuMatch && nameMatch && categoryMatch && stockMatch && priceMatch && costMatch;
+  }), [initialProducts, query, skuQuery, nameQuery, categoryId, stockFilter, priceFilter, compareFilter, costMin, costMax, selectedBook, getPrice]);
 
   function selectBook(id: string) {
     setSelectedBookId(id);
@@ -347,7 +352,8 @@ export default function PriceBookClient({ profile, initialProducts, categories }
         <section><h2>Bảng giá <button type="button" onClick={() => { setCreateTab("info"); setModal("create"); }}>Tạo mới</button></h2><select aria-label="Chọn bảng giá" value={selectedBook.id} onChange={(event) => selectBook(event.target.value)}>{books.map((book) => <option key={book.id} value={book.id}>{book.name}</option>)}</select><div className="pricebook-chip"><span>{selectedBook.name}</span>{isDirty && <i title="Có thay đổi chưa lưu" />}<button type="button" aria-label="Bỏ chọn bảng giá" title="Bỏ chọn" onClick={() => selectBook("base")}><X /></button></div></section>
         <section><h2>Nhóm hàng</h2><select aria-label="Nhóm hàng" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="all">Chọn nhóm hàng</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></section>
         <section><h2>Tồn kho</h2><select aria-label="Tồn kho" value={stockFilter} onChange={(event) => setStockFilter(event.target.value)}><option value="all">Tất cả</option><option value="in">Còn hàng trong kho</option><option value="out">Hết hàng trong kho</option></select></section>
-        <section><h2>Giá bán</h2><select aria-label="Điều kiện giá bán" value={priceFilter} onChange={(event) => setPriceFilter(event.target.value)}><option value="all">Chọn điều kiện</option><option value="below_cost">Nhỏ hơn giá so sánh</option><option value="above_cost">Lớn hơn giá so sánh</option><option value="zero">Bằng 0</option></select><select aria-label="Giá so sánh" value={compareFilter} onChange={(event) => setCompareFilter(event.target.value)} disabled={priceFilter === "all"}><option value="cost">Giá vốn</option><option value="base">Bảng giá chung</option></select></section>
+        <section><h2>Giá vốn</h2><div className="pricebook-cost-range"><input aria-label="Giá vốn từ" type="text" inputMode="numeric" placeholder="Từ" value={costMin} onChange={(event) => setCostMin(event.target.value)} /><span>đến</span><input aria-label="Giá vốn đến" type="text" inputMode="numeric" placeholder="Đến" value={costMax} onChange={(event) => setCostMax(event.target.value)} /></div></section>
+        <section><h2>Giá bán</h2><select aria-label="Điều kiện giá bán" value={priceFilter} onChange={(event) => setPriceFilter(event.target.value)}><option value="all">Chọn điều kiện</option><option value="below_cost">Nhỏ hơn giá so sánh</option><option value="above_cost">Lớn hơn giá so sánh</option><option value="zero">Bằng 0</option></select><select aria-label="Giá so sánh" value={compareFilter} onChange={(event) => setCompareFilter(event.target.value)} className={priceFilter === "all" ? "pricebook-compare-muted" : ""}><option value="cost">Giá vốn</option><option value="base">Bảng giá chung</option></select></section>
       </aside>
       <section className="product-content pricebook-content">
         {notice && <div className={`product-notice pricebook-notice ${notice.kind}`} role={notice.kind === "error" ? "alert" : "status"}><span>{notice.text}</span><button type="button" aria-label="Đóng thông báo" onClick={() => setNotice(null)}>×</button></div>}
