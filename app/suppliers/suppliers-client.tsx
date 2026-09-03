@@ -8,7 +8,6 @@ import type { Profile } from "@/lib/auth";
 import DateRangePicker, { type DateValue } from "@/app/date-range-picker";
 import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 import { toVnDateKey } from "@/lib/vn-time";
-import "../suppliers.css";
 
 type Supplier = {
   id: string;
