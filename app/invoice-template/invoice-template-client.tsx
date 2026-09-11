@@ -255,13 +255,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                 </tr>
               );
             })}
-            {(feeVatAmount > 0 || feeShip > 0 || feeDiscount > 0) && <tr className="fee-row">
-              <td colSpan={6}>
-                {feeVatAmount > 0 && <b style={{ marginRight: 16 }}>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: +{moneyVnd(feeVatAmount)}</b>}
-                {feeShip > 0 && <b style={{ marginRight: 16 }}>Phí ship: +{moneyVnd(feeShip)}</b>}
-                {feeDiscount > 0 && <b>Chiết khấu: -{moneyVnd(feeDiscount)}</b>}
-              </td>
-            </tr>}
+            {feeVatAmount > 0 && <tr className="fee-row"><td colSpan={6}><b>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: +{moneyVnd(feeVatAmount)}</b></td></tr>}
+            {feeShip > 0 && <tr className="fee-row"><td colSpan={6}><b>Phí ship: +{moneyVnd(feeShip)}</b></td></tr>}
+            {feeDiscount > 0 && <tr className="fee-row"><td colSpan={6}><b>Chiết khấu: -{moneyVnd(feeDiscount)}</b></td></tr>}
             <tr className="total-row">
               <td colSpan={2} style={{ whiteSpace: "nowrap" }}><b>Tổng cộng:</b></td>
               <td /><td><b>{totalQty ? fmtQty(totalQty) : ""}</b></td><td />
