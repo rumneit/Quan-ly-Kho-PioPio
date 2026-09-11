@@ -171,7 +171,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const lineTotals = rows.map((r) => parseNum(r.sl) * parseNum(r.dg));
   const totalQty = rows.reduce((sum, r) => sum + (parseNum(r.sl) || 0), 0);
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
-  const total = Math.max(0, Math.round(subtotal - feeDiscount + feeVatAmount + feeShip));
+  const total = Math.max(0, Math.round(subtotal + feeVatAmount + feeShip - feeDiscount));
   const totalWords = docSo(total) + " đồng";
 
   // STT chỉ đánh cho dòng có nội dung (y chang file)
@@ -207,7 +207,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a5-l">A5 ngang</option><option value="a5-p">A5 dọc</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
-      <span className="inv-hint">{feeDiscount > 0 && <span>Chiết khấu: <b>{moneyVnd(feeDiscount)}</b> · </span>}{feeVatAmount > 0 && <span>VAT: <b>{moneyVnd(feeVatAmount)}</b> · </span>}{feeShip > 0 && <span>Ship: <b>{moneyVnd(feeShip)}</b> · </span>}Tổng: <b>{moneyVnd(total)}</b></span>
+      <span className="inv-hint">{feeVatAmount > 0 && <span>VAT: <b>{moneyVnd(feeVatAmount)}</b> · </span>}{feeShip > 0 && <span>Ship: <b>{moneyVnd(feeShip)}</b> · </span>}{feeDiscount > 0 && <span>Chiết khấu: <b>{moneyVnd(feeDiscount)}</b> · </span>}Tổng: <b>{moneyVnd(total)}</b></span>
     </div>
     <main className="inv-main no-print-gap">
       <div className="inv-sheet" ref={sheetRef}>
@@ -274,9 +274,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
           </tbody>
         </table>
         {(feeDiscount > 0 || feeVatAmount > 0 || feeShip > 0) && <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, margin: "4px 0", fontSize: "inherit" }}>
-          {feeDiscount > 0 && <span>Chiết khấu: <b>{moneyVnd(feeDiscount)}</b></span>}
-          {feeVatAmount > 0 && <span>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: <b>{moneyVnd(feeVatAmount)}</b></span>}
-          {feeShip > 0 && <span>Phí ship: <b>{moneyVnd(feeShip)}</b></span>}
+          {feeVatAmount > 0 && <span>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: <b>+{moneyVnd(feeVatAmount)}</b></span>}
+          {feeShip > 0 && <span>Phí ship: <b>+{moneyVnd(feeShip)}</b></span>}
+          {feeDiscount > 0 && <span>Chiết khấu: <b>-{moneyVnd(feeDiscount)}</b></span>}
         </div>}
         <p className="inv-words"><b>Tổng số tiền viết bằng chữ:</b> {total ? <i>{totalWords}</i> : <span className="ph">.......................................................................................</span>}</p>
         <div className="inv-date inv-date-footer">

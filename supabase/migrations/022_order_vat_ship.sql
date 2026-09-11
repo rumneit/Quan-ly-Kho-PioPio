@@ -103,7 +103,7 @@ begin
     raise exception 'Nhân viên bán hàng chỉ được giảm giá tối đa 10%% giá trị đơn hàng. Vui lòng nhờ quản lý duyệt.';
   end if;
   if v_discount > v_subtotal then raise exception 'Giảm giá vượt quá tổng tiền hàng'; end if;
-  v_vat := round((v_subtotal - v_discount) * coalesce(p_vat_percent, 0) / 100);
+  v_vat := round(v_subtotal * coalesce(p_vat_percent, 0) / 100);
   v_total := v_subtotal - v_discount + v_vat + v_ship;
 
   insert into public.orders(store_id, customer_id, status, subtotal, discount, discount_percent, vat_percent, vat_amount, ship_fee, total, note, branch_id, created_by, updated_at)
@@ -333,7 +333,7 @@ begin
     raise exception 'Nhân viên bán hàng chỉ được giảm giá tối đa 10%% giá trị đơn hàng. Vui lòng nhờ quản lý duyệt.';
   end if;
   if v_discount > v_subtotal then raise exception 'Giảm giá vượt quá tổng tiền hàng'; end if;
-  v_vat := round((v_subtotal - v_discount) * coalesce(p_vat_percent, 0) / 100);
+  v_vat := round(v_subtotal * coalesce(p_vat_percent, 0) / 100);
   v_total := v_subtotal - v_discount + v_vat + v_ship;
 
   -- 4) Trừ tồn theo items MỚI

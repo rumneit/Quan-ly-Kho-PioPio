@@ -160,9 +160,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const isDelivery = mode === "delivery";
   const total = lines.reduce((sum, line) => sum + lineTotal(line), 0);
   const discountAmount = Math.round(total * (Number(discountPercent) || 0) / 100);
-  const vatAmount = Math.round((total - discountAmount) * (Number(vatPercent) || 0) / 100);
+  const vatAmount = Math.round(total * (Number(vatPercent) || 0) / 100);
   const shipAmount = isDelivery ? (Number(shipFee) || 0) : 0;
-  const grandTotal = total - discountAmount + vatAmount + shipAmount;
+  const grandTotal = total + vatAmount + shipAmount - discountAmount;
   const selectedCustomer = customers.find(c => c.id === customerId);
 
   function addProduct(product: Product) {
@@ -288,9 +288,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         </div>
         <div className="cart-footer">
           <p><span>Tổng tiền hàng</span><b>{money(total)}</b></p>
-          <p><span>Chiết khấu (%)</span><input className="pos-pct" inputMode="decimal" value={discountPercent} onChange={e => setDiscountPercent(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{discountAmount ? `-${money(discountAmount)}` : "0"}</b></p>
           <p><span>VAT (%)</span><input className="pos-pct" inputMode="decimal" value={vatPercent} onChange={e => setVatPercent(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{vatAmount ? `+${money(vatAmount)}` : "0"}</b></p>
           {isDelivery && <p><span>Phí ship</span><input className="pos-pct" inputMode="decimal" value={shipFee} onChange={e => setShipFee(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{shipAmount ? `+${money(shipAmount)}` : "0"}</b></p>}
+          <p><span>Chiết khấu (%)</span><input className="pos-pct" inputMode="decimal" value={discountPercent} onChange={e => setDiscountPercent(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{discountAmount ? `-${money(discountAmount)}` : "0"}</b></p>
           <p className="strong"><span>Khách cần trả</span><b>{money(grandTotal)}</b></p>
         </div>
       </div>
