@@ -82,16 +82,17 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const sheetRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
 
-  // Tự co tỷ lệ để TOÀN BỘ bill luôn gọn trong 1 mặt giấy
+  // Tự co tỷ lệ để TOÀN BỘ bill luôn gọn trong 1 mặt giấy (chỉ dùng như an toàn cuối, min 0.85)
   useLayoutEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
     const printableMm = paper === "a5-p" ? 198 : 138; // A5 dọc 210-12 / A5 ngang 148-10
     const availPx = (printableMm / 25.4) * 96;
     const scale = Math.min(1, availPx / Math.max(1, el.scrollHeight));
-    const rounded = Math.max(0.4, Math.floor(scale * 100) / 100);
+    const rounded = Math.max(0.85, Math.floor(scale * 100) / 100);
     setFitScale((prev) => (Math.abs(prev - rounded) > 0.01 ? rounded : prev));
   });
+  const filledCount = rows.filter((r) => r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim()).length;
 
   // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
@@ -193,7 +194,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
   }
 
-  return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""}`}>
+  return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""} ${filledCount > 10 ? "inv-dense" : ""}`}>
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
     {orderMissing && <div className="no-print" style={{ margin: "8px 16px 0", padding: "10px 14px", border: "1px solid #f0c3c3", borderRadius: 8, background: "#fff0f0", color: "#a33131", fontSize: 13 }}>Không tìm thấy hóa đơn <b>{orderMissing}</b> trong 200 hóa đơn đã thanh toán gần nhất. Hãy chọn lại mã ở ô "Đơn hàng" bên dưới rồi bấm In.</div>}
     <div className="inv-toolbar no-print">

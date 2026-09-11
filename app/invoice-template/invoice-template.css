@@ -118,4 +118,15 @@
   .print-value{display:inline!important;white-space:normal;word-break:break-word;font:inherit}
   .inv-table th,.inv-table td{white-space:normal;overflow:visible}
   img,svg{max-width:100%!important}
+  /* Nhieu hang: nen bang co chu dinh — van dep, khong dua thZoom lam mo chu */
+  .inv-dense .inv-table th,.inv-dense .inv-table td{padding:1px 2px!important}
+  .inv-dense .inv-table tbody td{font-size:9.5px!important;line-height:1.15}
+  .inv-dense .inv-table tbody td:nth-child(3){font-size:10.5px!important}
+  .inv-dense .inv-table td.right{font-size:9.5px!important}
+  .inv-dense .vat-row td,.inv-dense .total-row td{font-size:10px!important}
+  .inv-dense .inv-table thead th{font-size:8.5px!important}
+  .inv-dense .inv-table tbody tr{min-height:0!important}
+  .inv-dense .sign-space{height:7mm!important}
+  .inv-dense .inv-signs{margin-top:3mm!important}
+  .inv-dense .inv-title{margin:4px 0 2px!important}
 }
