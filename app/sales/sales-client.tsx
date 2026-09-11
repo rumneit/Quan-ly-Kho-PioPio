@@ -8,11 +8,12 @@ import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
 type ProductUnit = { name: string; conversion: number; price?: number };
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean; base_unit?: string; units?: ProductUnit[] };
+type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
 type Customer = { id: string; name: string; phone?: string | null };
 type CustomerGroup = { id: string; name: string };
 type PendingOrder = { id: string; order_number: number; status: string; total: number; created_at: string; customers?: { name?: string } | null };
 type CartLine = Product & { quantity: number; unitName: string };
-type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[]; customerGroups: CustomerGroup[] };
+type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[]; customerGroups: CustomerGroup[]; editOrder?: EditOrder | null };
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 
 const unitOf = (p: Product, unitName: string) => unitName ? (p.units || []).find(u => u.name === unitName) || null : null;
@@ -22,7 +23,8 @@ const boxUnit = (p: Product) => p.units && p.units.length ? [...p.units].sort((a
 const linePieces = (l: CartLine) => l.quantity * piecesPer(l, l.unitName);
 const lineTotal = (l: CartLine) => l.quantity * unitPriceOf(l, l.unitName);
 
-export default function SalesClient({ profile, products, customers, pendingOrders, customerGroups }: Props) {
+export default function SalesClient({ profile, products, customers, pendingOrders, customerGroups, editOrder = null }: Props) {
+  const [editingOrder, setEditingOrder] = useState<EditOrder | null>(editOrder);
   const [query, setQuery] = useState("");
   const [productPage, setProductPage] = useState(0);
   const productPageSize = 20;
@@ -112,6 +114,26 @@ export default function SalesClient({ profile, products, customers, pendingOrder
 
   useEffect(() => { setProductPage(0); }, [gridQuery]);
 
+  // Nạp hóa đơn cần sửa vào giỏ (từ /sales?edit=<id>)
+  useEffect(() => {
+    if (!editOrder) return;
+    const cartNext: Record<string, CartLine> = {};
+    for (const item of editOrder.items) {
+      const product = products.find((p) => p.id === item.product_id);
+      if (product) cartNext[product.id] = { ...product, quantity: item.quantity, unitName: "" };
+    }
+    setCart(cartNext);
+    if (editOrder.customer_id) {
+      setCustomerId(editOrder.customer_id);
+      const c = customers.find((x) => x.id === editOrder.customer_id);
+      if (c) setCustomerQuery(c.name);
+    }
+    if (editOrder.note) setCustomerNote(editOrder.note);
+    setLastOrder(`${editOrder.code} (đang sửa)`);
+    setNotice(`Đang sửa hóa đơn ${editOrder.code} — thêm/bớt hàng rồi bấm THANH TOÁN để lưu.`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const results = useMemo(() => query.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [], [products, query]);
   const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
   const lines = Object.values(cart);
@@ -176,6 +198,17 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     if (isDelivery && !area) { setError("Vui lòng chọn khu vực (Tỉnh/TP) giao hàng."); return; }
     setSaving(true); setError(""); setNotice(""); setLastOrder("");
     const items = lines.map(l => ({ product_id: l.id, quantity: linePieces(l), unit_price: Number(l.price) }));
+    if (editingOrder) {
+      try {
+        const res = await fetch("/api/orders", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingOrder.id, customer_id: customerId || null, note: customerNote, items, discount: 0 }) });
+        const data = await res.json();
+        if (!res.ok) { setError(data.error || "Không thể cập nhật hóa đơn."); return; }
+        setCart({}); setCustomerNote(""); setEditingOrder(null); setNotice(`Đã cập nhật hóa đơn ${editingOrder.code}!`); setLastOrder(editingOrder.code);
+        window.history.replaceState(null, "", "/sales");
+        if (printAuto) window.open(`/invoice-template?code=${editingOrder.code}`, "_blank");
+        return;
+      } catch { setError("Không thể kết nối máy chủ."); return; } finally { setSaving(false); }
+    }
     try {
       const orderRes = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status: "paid", note: customerNote, items }) });
       const orderData = await orderRes.json();
@@ -224,7 +257,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       <div className="col-left">
         <div className="cart-container">
           <div className="pos-cart-list">
-            <div className="pos-cart-head"><span>{lines.length} hàng hóa</span><button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
+            <div className="pos-cart-head"><span>{lines.length} hàng hóa{editingOrder ? ` · đang sửa ${editingOrder.code}` : ""}</span>{editingOrder && <button onClick={() => { setCart({}); setEditingOrder(null); setLastOrder(""); setNotice(""); window.history.replaceState(null, "", "/sales"); }} style={{marginRight:8,color:"#d64545"}}>Thoát sửa</button>}<button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
             {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}{line.unitName ? ` · ${linePieces(line).toLocaleString("vi-VN")} ${line.base_unit || "cái"}` : ""}</small></div><div className="pos-cart-right"><b>{money(lineTotal(line))}</b><div className="pos-cart-unit"><select value={line.unitName} onChange={e => changeUnit(line, e.target.value)} aria-label="Đơn vị tính"><option value="">{line.base_unit || "Cái"}</option>{(line.units || []).map(u => <option key={u.name} value={u.name}>{u.name} ({money(unitPriceOf(line, u.name))})</option>)}</select></div><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>{isDelivery ? "Điền thông tin giao hàng bên phải." : "Bấm vào sản phẩm bên phải để thêm vào đơn."}</p></div>}
           </div>
         </div>
@@ -291,8 +324,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
               </div>
             </div>
             <div className="cart-actions">
-              {isDelivery ? <button className="btn btn-primary btn-xl btn-pay saveTransactionDelivery" onClick={pay} disabled={saving}>THANH TOÁN + VẬN ĐƠN</button>
-              : <><button className="btn btn-outline-primary btn-xl btn-select-ship-partner" onClick={() => setMode("delivery")}>GIAO HÀNG</button><button className="btn btn-primary btn-xl btn-pay saveTransactionDelivery" onClick={pay} disabled={saving}>THANH TOÁN</button></>}
+              {isDelivery ? <button className="btn btn-primary btn-xl btn-pay saveTransactionDelivery" onClick={pay} disabled={saving}>{editingOrder ? "LƯU THAY ĐỔI" : "THANH TOÁN + VẬN ĐƠN"}</button>
+              : <><button className="btn btn-outline-primary btn-xl btn-select-ship-partner" onClick={() => setMode("delivery")}>GIAO HÀNG</button><button className="btn btn-primary btn-xl btn-pay saveTransactionDelivery" onClick={pay} disabled={saving}>{editingOrder ? "LƯU THAY ĐỔI" : "THANH TOÁN"}</button></>}
             </div>
           </div>
         </div>

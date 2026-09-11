@@ -21,8 +21,12 @@ async function loadCustomers(supabase: Awaited<ReturnType<typeof requireProfile>
   return all;
 }
 
-export default async function SalesPage() {
+type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
+
+export default async function SalesPage({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
   const { supabase, profile } = await requireProfile();
+  const resolved = searchParams ? await searchParams : {};
+  const editId = (resolved as Record<string, string>).edit || "";
   const [productsResult, ordersResult, groupsResult] = await Promise.all([
     supabase
       .from("products")
@@ -34,10 +38,19 @@ export default async function SalesPage() {
   ]);
   const customers = await loadCustomers(supabase);
 
+  let editOrder: EditOrder | null = null;
+  if (editId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(editId)) {
+    const { data } = await supabase.from("orders").select("id,order_number,customer_id,note,order_items(product_id,quantity,unit_price)").eq("id", editId).eq("status", "paid").maybeSingle();
+    if (data) {
+      const items = (Array.isArray(data.order_items) ? data.order_items : []) as Array<{ product_id: string; quantity: number; unit_price: number }>;
+      editOrder = { id: data.id, code: "HD" + String(Number(data.order_number)).padStart(6, "0"), customer_id: data.customer_id || null, note: data.note || null, items };
+    }
+  }
+
   const pendingOrders = (ordersResult.data || []).map((o: Record<string, unknown>) => {
     const cust = o.customers as { name?: string } | { name?: string }[] | null;
     const customer = Array.isArray(cust) ? cust[0] : cust;
     return { id: String(o.id), order_number: Number(o.order_number), status: String(o.status), total: Number(o.total), created_at: String(o.created_at), customers: customer || null };
   });
-  return <SalesClient profile={profile} products={productsResult.data || []} customers={customers} pendingOrders={pendingOrders} customerGroups={groupsResult.data || []} />;
+  return <SalesClient profile={profile} products={productsResult.data || []} customers={customers} pendingOrders={pendingOrders} customerGroups={groupsResult.data || []} editOrder={editOrder} />;
 }

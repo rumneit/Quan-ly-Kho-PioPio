@@ -72,6 +72,42 @@ export async function POST(request: Request) {
   return NextResponse.json({ order: result.data }, { status: 201 });
 }
 
+export async function PUT(request: Request) {
+  const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
+  let body: Record<string, unknown>;
+  try {
+    const parsed: unknown = await request.json();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
+    body = parsed as Record<string, unknown>;
+  } catch {
+    return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
+  }
+  if (typeof body.id !== "string" || !uuidPattern.test(body.id)) return NextResponse.json({ error: "Hóa đơn không hợp lệ." }, { status: 400 });
+  if (body.customer_id != null && body.customer_id !== "" && (typeof body.customer_id !== "string" || !uuidPattern.test(body.customer_id))) return NextResponse.json({ error: "Khách hàng không hợp lệ." }, { status: 400 });
+  const items = Array.isArray(body.items) ? body.items : [];
+  const validItems = items.every((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const value = item as Record<string, unknown>;
+    const quantity = Number(value.quantity);
+    const unitPrice = Number(value.unit_price);
+    return typeof value.product_id === "string" && uuidPattern.test(value.product_id) && Number.isInteger(quantity) && quantity > 0 && quantity <= 1_000_000 && Number.isFinite(unitPrice) && unitPrice >= 0 && unitPrice <= 999_999_999_999.99;
+  });
+  if (!items.length || !validItems) return NextResponse.json({ error: "Chi tiết hàng hóa không hợp lệ." }, { status: 400 });
+  const discount = Number(body.discount ?? 0);
+  if (!Number.isFinite(discount) || discount < 0 || discount > 999_999_999_999.99) return NextResponse.json({ error: "Giảm giá không hợp lệ." }, { status: 400 });
+  const { data: orderId, error } = await supabase.rpc("edit_sales_order", {
+    p_order_id: body.id,
+    p_customer_id: body.customer_id || null,
+    p_note: String(body.note || ""),
+    p_items: items,
+    p_discount: discount,
+  });
+  if (error || !orderId) { console.error("[api:orders:PUT]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật hóa đơn." }, { status: 400 }); }
+  const result = await supabase.from("orders").select(orderSelect).eq("id", orderId).single();
+  if (result.error) return NextResponse.json({ error: "Hóa đơn đã cập nhật nhưng không thể tải lại dữ liệu." }, { status: 500 });
+  return NextResponse.json({ order: result.data });
+}
+
 export async function PATCH(request: Request) {
   const auth = await requireApiProfile(); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase } = auth;
   let body: Record<string, unknown>;
