@@ -31,6 +31,7 @@
 .inv-table tbody tr{height:auto;min-height:30px}
 .vat-row td,.total-row td{border:1px solid #333}
 .vat-row td,.total-row td{font-size:15px;font-weight:700}
+.total-row td{white-space:nowrap}
 .inv-words{margin:6px 0 0;font-size:13px}
 .inv-words .ph{letter-spacing:1px}
 .inv-date-footer{margin:8px 0 0;font-size:13px}

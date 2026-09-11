@@ -161,6 +161,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   }
 
   const lineTotals = rows.map((r) => parseNum(r.sl) * parseNum(r.dg));
+  const totalQty = rows.reduce((sum, r) => sum + (parseNum(r.sl) || 0), 0);
   const lineVats = rows.map((r, i) => (lineTotals[i] * Number(r.tax || 0)) / 100);
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
   const vat = Math.round(lineVats.reduce((a, b) => a + b, 0));
@@ -271,9 +272,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               <td />
             </tr>
             <tr className="total-row">
-              <td><b>Tổng cộng:</b></td>
-              <td colSpan={5} />
-              <td className="right"><b>{total ? moneyVnd(total) : ""}</b></td>
+              <td style={{whiteSpace:"nowrap"}}><b>Tổng cộng:</b></td>
+              <td colSpan={3} />
+              <td className="c"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td>
+              <td />
+              <td className="right"><b style={{whiteSpace:"nowrap"}}>{total ? moneyVnd(total) : ""}</b></td>
               <td />
             </tr>
           </tbody>
