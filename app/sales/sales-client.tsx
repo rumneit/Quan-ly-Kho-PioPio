@@ -129,8 +129,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       if (c) setCustomerQuery(c.name);
     }
     if (editOrder.note) setCustomerNote(editOrder.note);
-    setLastOrder(`${editOrder.code} (đang sửa)`);
-    setNotice(`Đang sửa hóa đơn ${editOrder.code} — thêm/bớt hàng rồi bấm THANH TOÁN để lưu.`);
+    setLastOrder(`Update ${editOrder.code}`);
+    setNotice(`Đang cập nhật hóa đơn ${editOrder.code} — thêm/bớt hàng rồi bấm LƯU THAY ĐỔI.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -257,7 +257,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       <div className="col-left">
         <div className="cart-container">
           <div className="pos-cart-list">
-            <div className="pos-cart-head"><span>{lines.length} hàng hóa{editingOrder ? ` · đang sửa ${editingOrder.code}` : ""}</span>{editingOrder && <button onClick={() => { setCart({}); setEditingOrder(null); setLastOrder(""); setNotice(""); window.history.replaceState(null, "", "/sales"); }} style={{marginRight:8,color:"#d64545"}}>Thoát sửa</button>}<button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
+            {editingOrder && <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "10px 12px 0", padding: "9px 12px", border: "1px solid #ffd591", background: "#fff7e6", borderRadius: 8, fontSize: 12.5, color: "#874d00" }}><b>Update {editingOrder.code}</b><span>thêm/bớt hàng rồi bấm LƯU THAY ĐỔI để lưu</span><span style={{ flex: 1 }} /><button type="button" onClick={() => { setCart({}); setEditingOrder(null); setLastOrder(""); setNotice(""); window.history.replaceState(null, "", "/sales"); }} style={{ height: 28, padding: "0 12px", border: "1px solid #ffd591", borderRadius: 6, background: "#fff", color: "#d64545", cursor: "pointer", fontSize: 12 }}>Thoát sửa</button></div>}
+            <div className="pos-cart-head"><span>{lines.length} hàng hóa{editingOrder ? ` · Update ${editingOrder.code}` : ""}</span><button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
             {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}{line.unitName ? ` · ${linePieces(line).toLocaleString("vi-VN")} ${line.base_unit || "cái"}` : ""}</small></div><div className="pos-cart-right"><b>{money(lineTotal(line))}</b><div className="pos-cart-unit"><select value={line.unitName} onChange={e => changeUnit(line, e.target.value)} aria-label="Đơn vị tính"><option value="">{line.base_unit || "Cái"}</option>{(line.units || []).map(u => <option key={u.name} value={u.name}>{u.name} ({money(unitPriceOf(line, u.name))})</option>)}</select></div><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>{isDelivery ? "Điền thông tin giao hàng bên phải." : "Bấm vào sản phẩm bên phải để thêm vào đơn."}</p></div>}
           </div>
         </div>
