@@ -40,8 +40,10 @@
 .inv-hint{margin-left:auto;font-size:12.5px;color:#5c6a78}
 .inv-hint b{color:#0b7cc1}
 @media print{
-  @page{size:A4 portrait;margin:8mm}
-  .no-print,.no-print-gap,.kv-help{display:none!important}
+  @page{size:A5 landscape;margin:5mm}
+  /* CHỈ ẩn toolbar/menu — KHÔNG ẩn .no-print-gap vì đó là khung hóa đơn (lỗi in trắng trước đây) */
+  .no-print,.kv-help,.inv-toolbar,.kv-shell>header,.management-header{display:none!important}
+  .inv-main{margin:0!important;padding:0!important;max-width:none!important;width:auto!important}
   body,.invoice-tpl-page{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .inv-sheet{width:auto;min-height:auto;margin:0;padding:0;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .inv-line,.inv-num,.inv-cell{border-bottom:0 solid transparent}

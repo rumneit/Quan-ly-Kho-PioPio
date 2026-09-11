@@ -74,6 +74,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [diaChi, setDiaChi] = useState("");
   const [focusKey, setFocusKey] = useState("");
   const [paper, setPaper] = useState("a5-l");
+  const [orderMissing, setOrderMissing] = useState("");
 
   // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
@@ -86,7 +87,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       } catch {}
     }
     const code = new URLSearchParams(window.location.search).get("code");
-    if (code) applyOrder(code);
+    if (code) {
+      const found = orders.some((o) => o.code.toUpperCase() === code.toUpperCase());
+      if (found) applyOrder(code);
+      else setOrderMissing(code);
+    }
   }, []);
   useEffect(() => {
     let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
@@ -170,6 +175,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
 
   return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""}`}>
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
+    {orderMissing && <div className="no-print" style={{ margin: "8px 16px 0", padding: "10px 14px", border: "1px solid #f0c3c3", borderRadius: 8, background: "#fff0f0", color: "#a33131", fontSize: 13 }}>Không tìm thấy hóa đơn <b>{orderMissing}</b> trong 200 hóa đơn đã thanh toán gần nhất. Hãy chọn lại mã ở ô "Đơn hàng" bên dưới rồi bấm In.</div>}
     <div className="inv-toolbar no-print">
       <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {moneyUS(o.total)}</option>)}</datalist>
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
