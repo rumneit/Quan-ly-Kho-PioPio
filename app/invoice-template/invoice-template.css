@@ -59,22 +59,25 @@
 .inv-paper-a5 .inv-table th,.inv-paper-a5 .inv-table td{padding:2px 3px!important}
 .inv-paper-a5 .inv-title{font-size:18px!important}
 .inv-paper-a5 .inv-sign-space{height:14mm!important}
-/* In ngang: sheet preview rong hon */
-.inv-landscape .inv-sheet{width:270mm}
+/* Preview theo chieu in */
 .inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
-.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:140mm}
-/* Ten san pham to va dam hon */
-.inv-table tbody td:nth-child(3) .inv-cell{font-size:15px!important;font-weight:600!important}
-.inv-table tbody td:nth-child(3){font-weight:600}
-/* Khong cot nao bi che: auto layout + cho phep nam generous */
+.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:130mm}
+/* Ten san pham to va dam hon (ca man hinh lan khi in) */
+.inv-table tbody td:nth-child(3){font-size:15px;font-weight:600}
+.inv-paper-a5 .inv-table tbody td:nth-child(3){font-size:12.5px}
+/* Khong cot nao bi che */
 .inv-table th,.inv-table td{overflow:visible;white-space:nowrap}
 .inv-table tbody tr{height:auto!important;min-height:25px}
+.print-value{display:none}
 @media print{
   thead{display:table-header-group}
   tfoot{display:table-footer-group}
   tr,.inv-signs>div{break-inside:avoid}
   .inv-sheet,html,body{height:auto!important;min-height:0!important;overflow:visible!important;width:auto!important;max-width:none!important}
-  .inv-landscape .inv-sheet,.inv-paper-a5.inv-landscape .inv-sheet,.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:100%!important;padding:0!important}
-  .inv-cell{border:0!important}
+  .inv-paper-a5.inv-landscape .inv-sheet,.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:100%!important;padding:0!important}
+  /* Khi in: thay o nhap bang text day du, tu xuong dong - khong bi che */
+  .inv-cell,.inv-line{display:none!important}
+  .print-value{display:inline!important;white-space:normal;word-break:break-word;font:inherit}
+  .inv-table th,.inv-table td{white-space:normal;overflow:visible}
   img,svg{max-width:100%!important}
 }
