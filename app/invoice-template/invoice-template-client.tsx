@@ -167,14 +167,8 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     return m;
   }, [rows]);
 
-  // Chỉ hiện dòng có hàng + 2 dòng trống để nhập thêm -> chữ ký dồn lên, 1 bill vừa 1 trang
-  const visibleRows = useMemo(() => {
-    const isFilled = (r: Row) => Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim());
-    const filledIdx: number[] = [];
-    const emptyIdx: number[] = [];
-    rows.forEach((r, i) => { if (isFilled(r)) filledIdx.push(i); else if (emptyIdx.length < 2) emptyIdx.push(i); });
-    return [...filledIdx, ...emptyIdx].sort((a, b) => a - b);
-  }, [rows]);
+  // Chỉ hiện dòng có hàng — hóa đơn đã chốt không có dòng trống
+  const visibleRows = useMemo(() => rows.map((r, i) => ({ r, i })).filter(({ r }) => Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim())).map(({ i }) => i), [rows]);
 
   function resetAll() {
     if (!window.confirm("Xóa trắng toàn bộ hóa đơn?")) return;
