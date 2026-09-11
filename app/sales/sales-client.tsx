@@ -17,8 +17,10 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [query, setQuery] = useState("");
   const [productPage, setProductPage] = useState(0);
   const productPageSize = 20;
-  const paginatedProducts = useMemo(() => products.slice(productPage * productPageSize, (productPage + 1) * productPageSize), [products, productPage]);
-  const totalProductPages = Math.max(1, Math.ceil(products.length / productPageSize));
+  const [gridQuery, setGridQuery] = useState("");
+  const filteredGridProducts = useMemo(() => gridQuery.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(gridQuery.toLowerCase())) : products, [products, gridQuery]);
+  const paginatedProducts = useMemo(() => filteredGridProducts.slice(productPage * productPageSize, (productPage + 1) * productPageSize), [filteredGridProducts, productPage]);
+  const totalProductPages = Math.max(1, Math.ceil(filteredGridProducts.length / productPageSize));
   const [searchOpen, setSearchOpen] = useState(false);
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [notice, setNotice] = useState("");
@@ -61,6 +63,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+
+  useEffect(() => { setProductPage(0); }, [gridQuery]);
 
   const results = useMemo(() => query.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [], [products, query]);
   const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
@@ -199,7 +203,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                   </div>
                 ) : (
                   <div className="pos-product-list">
-                    <div className="pos-product-list-head"><span>{products.length} hàng hóa</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <div className="pos-product-list-head"><span>{gridQuery.trim() ? `${filteredGridProducts.length}/${products.length} hàng hóa` : `${products.length} hàng hóa`}</span><small style={{marginLeft:8,color:"#6b7a8d"}}>— trang {productPage + 1}/{totalProductPages}{products.length>productPageSize ? " • F3 để lọc" : ""}</small></div>
+                    <label className="pos-grid-search"><Search aria-hidden="true" size={14} /><input value={gridQuery} onChange={e => setGridQuery(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && filteredGridProducts.length) addProduct(filteredGridProducts[productPage * productPageSize]); }} placeholder="Tìm nhanh trong danh sách (tên hoặc mã hàng)" /></label>
                     <div className="pos-normal-grid">
                       {paginatedProducts.map(product => {
                         const colors = ["#f8b4c8","#c9b3ff","#ffd166","#a8e6cf","#a0d8ef","#ffb347","#d4a5ff","#a0f0d0"];
@@ -212,13 +217,14 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                         );
                       })}
                     </div>
-                    {products.length > productPageSize && (
+                    {filteredGridProducts.length > productPageSize && (
                       <div className="pos-product-pagination" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",borderTop:"1px solid #e1e3e6",gap:8}}>
                         <button disabled={productPage===0} onClick={()=> setProductPage(p=> Math.max(0,p-1))} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: productPage===0?"#f5f6f7":"#fff",cursor: productPage===0?"not-allowed":"pointer"}}>← Trước</button>
-                        <span style={{fontSize:12,color:"#6b7a8d"}}>{paginatedProducts.length} / {products.length}</span>
-                        <button disabled={(productPage+1)*productPageSize >= products.length} onClick={()=> setProductPage(p=> p+1)} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: (productPage+1)*productPageSize >= products.length?"#f5f6f7":"#fff",cursor: (productPage+1)*productPageSize >= products.length?"not-allowed":"pointer"}}>Sau →</button>
+                        <span style={{fontSize:12,color:"#6b7a8d"}}>{paginatedProducts.length} / {filteredGridProducts.length}</span>
+                        <button disabled={(productPage+1)*productPageSize >= filteredGridProducts.length} onClick={()=> setProductPage(p=> p+1)} style={{padding:"6px 12px",border:"1px solid #d0d7de",borderRadius:"6px",background: (productPage+1)*productPageSize >= filteredGridProducts.length?"#f5f6f7":"#fff",cursor: (productPage+1)*productPageSize >= filteredGridProducts.length?"not-allowed":"pointer"}}>Sau →</button>
                       </div>
                     )}
+                    {!filteredGridProducts.length && gridQuery.trim() && <p className="pos-customer-empty">Không tìm thấy hàng hóa phù hợp</p>}
                     {!products.length && <p className="pos-customer-empty">Chưa có hàng hóa</p>}
                   </div>
                 )}

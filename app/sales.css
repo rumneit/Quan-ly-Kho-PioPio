@@ -287,6 +287,12 @@
 .pos-product-row b { flex: 0 0 auto !important; font-size: 12.544px !important; color: #0070f4 !important; font-weight: 600 !important; }
 .pos-product-list p.pos-customer-empty { padding: 14px !important; text-align: center !important; color: #8a96a7 !important; font-size: 12.544px !important; }
 
+/* ---------- QUICK SEARCH ON PRODUCT GRID ---------- */
+.pos-grid-search { display: flex !important; align-items: center !important; gap: 8px !important; margin: 8px 12px !important; padding: 0 10px !important; height: 29px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; color: #8a96a7 !important; transition: border-color .15s, box-shadow .15s !important; }
+.pos-grid-search:focus-within { border-color: #0070f4 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
+.pos-grid-search input { flex: 1 !important; min-width: 0 !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
+.pos-grid-search input::placeholder { color: #8a96a7 !important; }
+
 /* col-left flex column so cart-footer sits below list */
 .col-left { display: flex !important; flex-direction: column !important; }
 .cart-container { flex: 1 !important; min-height: 0 !important; overflow: hidden !important; }
