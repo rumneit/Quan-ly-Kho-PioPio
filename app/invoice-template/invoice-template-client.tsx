@@ -73,19 +73,21 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [nguoiMua, setNguoiMua] = useState(""); const [sdt, setSdt] = useState("");
   const [diaChi, setDiaChi] = useState("");
   const [focusKey, setFocusKey] = useState("");
-  const [paper, setPaper] = useState<"A4" | "A5">("A4");
+  const [paper, setPaper] = useState("a4-l");
 
-  // Khổ giấy: @page động theo lựa chọn, lưu lại cho lần sau
+  // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
     const saved = typeof window !== "undefined" ? window.localStorage.getItem("piopio-inv-paper") : null;
-    if (saved === "A5" || saved === "A4") setPaper(saved as "A4" | "A5");
+    if (saved === "a4-l" || saved === "a4-p" || saved === "a5-l" || saved === "a5-p") setPaper(saved);
+    else if (saved === "A4" || saved === "A5") setPaper(saved === "A5" ? "a5-l" : "a4-l");
     const code = new URLSearchParams(window.location.search).get("code");
     if (code) applyOrder(code);
   }, []);
   useEffect(() => {
     let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
     if (!tag) { tag = document.createElement("style"); tag.id = "inv-page-size"; document.head.appendChild(tag); }
-    tag.textContent = `@media print{ @page{ size:${paper === "A5" ? "A5 portrait; margin:6mm" : "A4 portrait; margin:8mm"} } }`;
+    const size = paper === "a5-l" ? "A5 landscape; margin:5mm" : paper === "a5-p" ? "A5 portrait; margin:6mm" : paper === "a4-p" ? "A4 portrait; margin:8mm" : "A4 landscape; margin:8mm";
+    tag.textContent = `@media print{ @page{ size:${size} } }`;
     window.localStorage.setItem("piopio-inv-paper", paper);
   }, [paper]);
 
@@ -161,14 +163,14 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
   }
 
-  return <div className={`kv-shell invoice-tpl-page ${paper === "A5" ? "inv-paper-a5" : ""}`}>
+  return <div className={`kv-shell invoice-tpl-page ${paper.startsWith("a5") ? "inv-paper-a5" : ""} ${paper.endsWith("-l") ? "inv-landscape" : ""}`}>
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
     <div className="inv-toolbar no-print">
       <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {moneyUS(o.total)}</option>)}</datalist>
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
       <datalist id="inv-customers">{customers.map((c) => <option key={c.name} value={c.name}>{c.phone}{c.taxCode ? ` · MST ${c.taxCode}` : ""}</option>)}</datalist>
       <label className="inv-order-pick">Đơn hàng: <input list="inv-orders" value={orderCode} onChange={(e) => applyOrder(e.target.value)} placeholder="HD000001..." /></label>
-      <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value as "A4" | "A5")} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="A4">A4</option><option value="A5">A5</option></select></label>
+      <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a4-l">A4 ngang</option><option value="a5-l">A5 ngang</option><option value="a4-p">A4 dọc</option><option value="a5-p">A5 dọc</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
       <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyUS(vat)}</b> · Tổng: <b>{moneyUS(total)}</b></span>
@@ -201,7 +203,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
         <table className="inv-table">
           <caption className="sr-only">Chi tiết hàng hóa 24 dòng - Mẫu số 02-VT</caption>
           <thead>
-            <tr><th scope="col" style={{ width: "5%" }}>STT</th><th scope="col" style={{ width: "11%" }}>Mã SP</th><th scope="col" style={{ width: "26%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "12%" }}>Số lượng</th><th scope="col" style={{ width: "12%" }}>Đơn giá</th><th scope="col" style={{ width: "14%" }}>Thành tiền</th><th scope="col" style={{ width: "12%" }}>Ghi chú</th></tr>
+            <tr><th scope="col" style={{ width: "4%" }}>STT</th><th scope="col" style={{ width: "9%" }}>Mã SP</th><th scope="col" style={{ width: "30%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "8%" }}>Số lượng</th><th scope="col" style={{ width: "12%" }}>Đơn giá</th><th scope="col" style={{ width: "15%" }}>Thành tiền</th><th scope="col" style={{ width: "14%" }}>Ghi chú</th></tr>
           </thead>
           <tbody>
             {rows.map((r, i) => {

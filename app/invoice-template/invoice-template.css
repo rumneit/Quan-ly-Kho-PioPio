@@ -59,11 +59,23 @@
 .inv-paper-a5 .inv-table th,.inv-paper-a5 .inv-table td{padding:2px 3px!important}
 .inv-paper-a5 .inv-title{font-size:18px!important}
 .inv-paper-a5 .inv-sign-space{height:14mm!important}
+/* In ngang: sheet preview rong hon */
+.inv-landscape .inv-sheet{width:270mm}
+.inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
+.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:140mm}
+/* Ten san pham to va dam hon */
+.inv-table tbody td:nth-child(3) .inv-cell{font-size:15px!important;font-weight:600!important}
+.inv-table tbody td:nth-child(3){font-weight:600}
+/* Dam bao khong cot nao bi an */
+.inv-table{table-layout:fixed;width:100%}
+.inv-table th,.inv-table td{overflow:visible;white-space:nowrap}
+.inv-table td:nth-child(4),.inv-table th:nth-child(4){min-width:12mm}
 @media print{
   thead{display:table-header-group}
   tfoot{display:table-footer-group}
   tr,.inv-signs>div{break-inside:avoid}
-  .inv-sheet,html,body{height:auto!important;min-height:0!important;overflow:visible!important}
+  .inv-sheet,html,body{height:auto!important;min-height:0!important;overflow:visible!important;width:auto!important;max-width:none!important}
+  .inv-landscape .inv-sheet,.inv-paper-a5.inv-landscape .inv-sheet,.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:100%!important;padding:0!important}
   .inv-cell{border:0!important}
   img,svg{max-width:100%!important}
 }
