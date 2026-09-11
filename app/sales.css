@@ -257,6 +257,20 @@
 }
 .pos-shortcuts span { font-size: 12.544px !important; color: #3e464f !important; }
 
+/* ---------- ADD CUSTOMER FORM (KiotViet style) ---------- */
+.pos-customer-modal { max-height: calc(100vh - 40px) !important; overflow: auto !important; }
+.pos-customer-form { display: grid !important; gap: 14px !important; margin-top: 12px !important; }
+.pos-cf-section { display: grid !important; gap: 8px !important; }
+.pos-cf-title { margin: 0 !important; font-size: 12.544px !important; font-weight: 700 !important; color: #15171a !important; }
+.pos-cf-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+.pos-cf-field { display: grid !important; gap: 4px !important; min-width: 0 !important; }
+.pos-cf-field span { font-size: 11px !important; font-weight: 600 !important; color: #3e464f !important; }
+.pos-cf-field input, .pos-cf-field select, .pos-cf-field textarea { width: 100% !important; min-width: 0 !important; height: 32px !important; padding: 0 10px !important; border: 1px solid #d0d7de !important; border-radius: 6px !important; background: #fff !important; font-size: 12.544px !important; color: #15171a !important; }
+.pos-cf-field textarea { height: auto !important; padding: 7px 10px !important; resize: vertical !important; font-family: inherit !important; }
+.pos-cf-field input:focus, .pos-cf-field select:focus, .pos-cf-field textarea:focus { border-color: #0070f4 !important; outline: 0 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.12) !important; }
+.pos-cf-field input:disabled, .pos-cf-field select:disabled { background: #f4f5f7 !important; color: #8a96a7 !important; cursor: not-allowed !important; }
+.pos-cf-full { grid-column: 1 / -1 !important; }
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 850px) {
   .page-content { height: auto !important; flex-direction: column !important; padding: 9px !important; }

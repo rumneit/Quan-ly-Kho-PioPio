@@ -8,12 +8,13 @@ import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
 type Customer = { id: string; name: string; phone?: string | null };
+type CustomerGroup = { id: string; name: string };
 type PendingOrder = { id: string; order_number: number; status: string; total: number; created_at: string; customers?: { name?: string } | null };
 type CartLine = Product & { quantity: number };
-type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[] };
+type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[]; customerGroups: CustomerGroup[] };
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
 
-export default function SalesClient({ profile, products, customers, pendingOrders }: Props) {
+export default function SalesClient({ profile, products, customers, pendingOrders, customerGroups }: Props) {
   const [query, setQuery] = useState("");
   const [productPage, setProductPage] = useState(0);
   const productPageSize = 20;
@@ -46,6 +47,14 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [newCustName, setNewCustName] = useState("");
   const [newCustPhone, setNewCustPhone] = useState("");
+  const [newCustGender, setNewCustGender] = useState<"" | "male" | "female">("");
+  const [newCustGroup, setNewCustGroup] = useState("");
+  const [newCustBirthday, setNewCustBirthday] = useState("");
+  const [newCustEmail, setNewCustEmail] = useState("");
+  const [newCustArea, setNewCustArea] = useState("");
+  const [newCustWard, setNewCustWard] = useState("");
+  const [newCustAddress, setNewCustAddress] = useState("");
+  const [newCustNote, setNewCustNote] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showOrderProcessing, setShowOrderProcessing] = useState(false);
@@ -103,10 +112,15 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   async function addCustomer(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setError("");
     try {
-      const res = await fetch("/api/customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newCustName, phone: newCustPhone }) });
+      const res = await fetch("/api/customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+        name: newCustName, phone: newCustPhone, gender: newCustGender || null, group_id: newCustGroup || null,
+        birthday: newCustBirthday || null, email: newCustEmail || null, area: newCustArea || null, ward: newCustWard || null,
+        address: newCustAddress || null, note: newCustNote || null,
+      }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Không thể thêm khách hàng."); return; }
-      setCustomerId(data.customer.id); setCustomerQuery(newCustName); setShowAddCustomer(false); setNewCustName(""); setNewCustPhone("");
+      setCustomerId(data.customer.id); setCustomerQuery(data.customer.name); setShowAddCustomer(false);
+      setNewCustName(""); setNewCustPhone(""); setNewCustGender(""); setNewCustGroup(""); setNewCustBirthday(""); setNewCustEmail(""); setNewCustArea(""); setNewCustWard(""); setNewCustAddress(""); setNewCustNote("");
     } catch { setError("Không thể kết nối máy chủ."); } finally { setSaving(false); }
   }
 
@@ -256,7 +270,24 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       </div>
     </footer>
 
-    {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowAddCustomer(false)}><section role="dialog" aria-modal="true" aria-labelledby="add-cust-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="add-cust-title">Thêm khách hàng</h3><form className="settings-form" onSubmit={addCustomer}><div className="settings-form-row"><label>Tên khách hàng</label><input value={newCustName} onChange={e => setNewCustName(e.target.value)} required /></div><div className="settings-form-row"><label>Số điện thoại</label><input value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></div>{error && <p className="pos-error">{error}</p>}<div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Hủy</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div></form></section></div>}
+    {showAddCustomer && <div className="modal-backdrop" onClick={() => setShowAddCustomer(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowAddCustomer(false)}><section role="dialog" aria-modal="true" aria-labelledby="add-cust-title" className="pos-qty-modal pos-customer-modal" style={{width:"min(560px,calc(100vw - 28px))"}} onClick={e => e.stopPropagation()}><h3 id="add-cust-title">Thêm khách hàng</h3><form className="pos-customer-form" onSubmit={addCustomer}>
+      <div className="pos-cf-section"><p className="pos-cf-title">Thông tin khách hàng</p><div className="pos-cf-grid">
+        <label className="pos-cf-field"><span>Tên khách hàng *</span><input autoFocus required placeholder="Nhập tên khách hàng" value={newCustName} onChange={e => setNewCustName(e.target.value)} /></label>
+        <label className="pos-cf-field"><span>Số điện thoại</span><input placeholder="Nhập số điện thoại" value={newCustPhone} onChange={e => setNewCustPhone(e.target.value)} /></label>
+        <label className="pos-cf-field"><span>Giới tính</span><select value={newCustGender} onChange={e => setNewCustGender(e.target.value as "" | "male" | "female")}><option value="">Chọn giới tính</option><option value="male">Nam</option><option value="female">Nữ</option></select></label>
+        <label className="pos-cf-field"><span>Nhóm khách hàng</span><select value={newCustGroup} onChange={e => setNewCustGroup(e.target.value)}><option value="">Chọn nhóm</option>{customerGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
+        <label className="pos-cf-field"><span>Ngày sinh</span><input type="date" value={newCustBirthday} onChange={e => setNewCustBirthday(e.target.value)} /></label>
+        <label className="pos-cf-field"><span>Email</span><input type="email" placeholder="email@gmail.com" value={newCustEmail} onChange={e => setNewCustEmail(e.target.value)} /></label>
+      </div></div>
+      <div className="pos-cf-section"><p className="pos-cf-title">Địa chỉ</p><div className="pos-cf-grid">
+        <label className="pos-cf-field"><span>Tỉnh/Thành phố</span><select value={newCustArea} onChange={e => { setNewCustArea(e.target.value); setNewCustWard(""); }}><option value="">Chọn Tỉnh/TP</option>{VN_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}</select></label>
+        <label className="pos-cf-field"><span>Phường/Xã</span><select value={newCustWard} onChange={e => setNewCustWard(e.target.value)} disabled={!newCustArea}><option value="">{newCustArea ? "Chọn Phường/Xã" : "Chọn Tỉnh/TP trước"}</option>{getWardsForProvince(newCustArea).map(w => <option key={w} value={w}>{w}</option>)}{newCustWard && !getWardsForProvince(newCustArea).includes(newCustWard) && <option value={newCustWard}>{newCustWard}</option>}</select></label>
+        <label className="pos-cf-field pos-cf-full"><span>Địa chỉ chi tiết</span><input placeholder="Số nhà, đường, thôn/xóm..." value={newCustAddress} onChange={e => setNewCustAddress(e.target.value)} /></label>
+      </div></div>
+      <label className="pos-cf-field"><span>Ghi chú</span><textarea rows={2} placeholder="Ghi chú thêm về khách hàng" value={newCustNote} onChange={e => setNewCustNote(e.target.value)} /></label>
+      {error && <p className="pos-error">{error}</p>}
+      <div className="settings-form-actions"><button type="button" onClick={() => setShowAddCustomer(false)}>Bỏ qua</button><button type="submit" className="settings-btn-primary" disabled={saving}>{saving ? "Đang lưu..." : "Lưu"}</button></div>
+    </form></section></div>}
 
     {showShortcuts && <div className="modal-backdrop" onClick={() => setShowShortcuts(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowShortcuts(false)}><section role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="pos-qty-modal" onClick={e => e.stopPropagation()}><h3 id="shortcuts-title">Phím tắt</h3><div className="pos-shortcuts"><div><kbd>F3</kbd><span>Tìm hàng hóa</span></div><div><kbd>F4</kbd><span>Tìm khách hàng</span></div><div><kbd>Esc</kbd><span>Đóng cửa sổ</span></div></div><div className="settings-form-actions"><button className="settings-btn-primary" onClick={() => setShowShortcuts(false)}>Đã hiểu</button></div></section></div>}
 
