@@ -21,7 +21,7 @@ async function loadCustomers(supabase: Awaited<ReturnType<typeof requireProfile>
   return all;
 }
 
-type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
+type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; discount_percent: number; vat_percent: number; vat_amount: number; ship_fee: number; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
 
 export default async function SalesPage({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
   const { supabase, profile } = await requireProfile();
@@ -40,16 +40,15 @@ export default async function SalesPage({ searchParams }: { searchParams?: Promi
 
   let editOrder: EditOrder | null = null;
   if (editId) {
-    const select = "id,order_number,customer_id,note,order_items(product_id,quantity,unit_price)";
     const isCode = /^HD\d+$/i.test(editId);
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(editId);
     if (isCode || isUuid) {
-      const base = supabase.from("orders").select(select).eq("status", "paid");
+      const base = supabase.from("orders").select("id,order_number,customer_id,note,discount_percent,vat_percent,vat_amount,ship_fee,order_items(product_id,quantity,unit_price)").eq("status", "paid");
       const query = isCode ? base.eq("order_number", Number(editId.slice(2))) : base.eq("id", editId);
       const { data } = await query.maybeSingle();
       if (data) {
         const items = (Array.isArray(data.order_items) ? data.order_items : []) as Array<{ product_id: string; quantity: number; unit_price: number }>;
-        editOrder = { id: data.id, code: "HD" + String(Number(data.order_number)).padStart(6, "0"), customer_id: data.customer_id || null, note: data.note || null, items };
+        editOrder = { id: data.id, code: "HD" + String(Number(data.order_number)).padStart(6, "0"), customer_id: data.customer_id || null, note: data.note || null, discount_percent: Number(data.discount_percent || 0), vat_percent: Number(data.vat_percent || 0), vat_amount: Number(data.vat_amount || 0), ship_fee: Number(data.ship_fee || 0), items };
       }
     }
   }

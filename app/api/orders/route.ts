@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiProfile } from "@/lib/auth";
 import { isRaisedException } from "@/lib/api-utils";
 
-const orderSelect = "id,order_number,customer_id,branch_id,status,subtotal,discount,total,note,channel,payment_method,created_at,updated_at,customers(id,customer_number,name,phone),creator:profiles!orders_created_by_fkey(full_name),store_branches(name),order_items(id,product_id,quantity,unit_price,line_total,products(sku,name)),shipments(id,shipment_number,status,partner_id,area,cod_amount,collected_cod,shipping_fee,partner_fee,delivery_at,delivery_partners(name)),sales_returns(id,return_number)";
+const orderSelect = "id,order_number,customer_id,branch_id,status,subtotal,discount,discount_percent,vat_percent,vat_amount,ship_fee,total,note,channel,payment_method,created_at,updated_at,customers(id,customer_number,name,phone),creator:profiles!orders_created_by_fkey(full_name),store_branches(name),order_items(id,product_id,quantity,unit_price,line_total,products(sku,name)),shipments(id,shipment_number,status,partner_id,area,cod_amount,collected_cod,shipping_fee,partner_fee,delivery_at,delivery_partners(name)),sales_returns(id,return_number)";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function GET(request: Request) {
@@ -58,6 +58,12 @@ export async function POST(request: Request) {
     return sum + Number(v.quantity) * Number(v.unit_price);
   }, 0);
   if (discount > subtotal) return NextResponse.json({ error: "Giảm giá vượt quá tổng tiền hàng." }, { status: 400 });
+  const discountPercent = Number(body.discount_percent ?? 0);
+  const vatPercent = Number(body.vat_percent ?? 0);
+  const shipFee = Number(body.ship_fee ?? 0);
+  if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) return NextResponse.json({ error: "Chiết khấu không hợp lệ." }, { status: 400 });
+  if (!Number.isFinite(vatPercent) || vatPercent < 0 || vatPercent > 100) return NextResponse.json({ error: "VAT không hợp lệ." }, { status: 400 });
+  if (!Number.isFinite(shipFee) || shipFee < 0 || shipFee > 999_999_999_999.99) return NextResponse.json({ error: "Phí ship không hợp lệ." }, { status: 400 });
   const status = body.status;
   const { data: orderId, error } = await supabase.rpc("create_sales_order", {
     p_customer_id: body.customer_id || null,
@@ -65,6 +71,9 @@ export async function POST(request: Request) {
     p_note: String(body.note || ""),
     p_items: items,
     p_discount: discount,
+    p_discount_percent: discountPercent,
+    p_vat_percent: vatPercent,
+    p_ship_fee: shipFee,
   });
   if (error || !orderId) { console.error("[api:orders:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể lưu đơn hàng." }, { status: 400 }); }
   const result = await supabase.from("orders").select(orderSelect).eq("id", orderId).single();
@@ -95,12 +104,21 @@ export async function PUT(request: Request) {
   if (!items.length || !validItems) return NextResponse.json({ error: "Chi tiết hàng hóa không hợp lệ." }, { status: 400 });
   const discount = Number(body.discount ?? 0);
   if (!Number.isFinite(discount) || discount < 0 || discount > 999_999_999_999.99) return NextResponse.json({ error: "Giảm giá không hợp lệ." }, { status: 400 });
+  const discountPercent = Number(body.discount_percent ?? 0);
+  const vatPercent = Number(body.vat_percent ?? 0);
+  const shipFee = Number(body.ship_fee ?? 0);
+  if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) return NextResponse.json({ error: "Chiết khấu không hợp lệ." }, { status: 400 });
+  if (!Number.isFinite(vatPercent) || vatPercent < 0 || vatPercent > 100) return NextResponse.json({ error: "VAT không hợp lệ." }, { status: 400 });
+  if (!Number.isFinite(shipFee) || shipFee < 0 || shipFee > 999_999_999_999.99) return NextResponse.json({ error: "Phí ship không hợp lệ." }, { status: 400 });
   const { data: orderId, error } = await supabase.rpc("edit_sales_order", {
     p_order_id: body.id,
     p_customer_id: body.customer_id || null,
     p_note: String(body.note || ""),
     p_items: items,
     p_discount: discount,
+    p_discount_percent: discountPercent,
+    p_vat_percent: vatPercent,
+    p_ship_fee: shipFee,
   });
   if (error || !orderId) { console.error("[api:orders:PUT]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật hóa đơn." }, { status: 400 }); }
   const result = await supabase.from("orders").select(orderSelect).eq("id", orderId).single();

@@ -7,7 +7,7 @@ export default async function InvoiceTemplatePage() {
   const { supabase, profile } = await requireProfile();
   const [productsRes, ordersRes, customersRes] = await Promise.all([
     supabase.from("products").select("sku,name,base_unit,price,tax_percent").eq("active", true).order("sku"),
-    supabase.from("orders").select("id,order_number,created_at,total,customers(name,phone,address),order_items(quantity,unit_price,products(sku,name,base_unit,tax_percent))").eq("status", "paid").order("created_at", { ascending: false }).limit(200),
+    supabase.from("orders").select("id,order_number,created_at,total,discount,vat_percent,vat_amount,ship_fee,customers(name,phone,address),order_items(quantity,unit_price,products(sku,name,base_unit,tax_percent))").eq("status", "paid").order("created_at", { ascending: false }).limit(200),
     supabase.from("customers").select("name,phone,tax_code").eq("active", true).order("name"),
   ]);
   const products = (productsRes.data || []).map((p) => ({ sku: String(p.sku || ""), name: String(p.name || ""), dvt: String(p.base_unit || "Cái"), price: Number(p.price || 0), tax: Number(p.tax_percent || 0) }));
@@ -18,6 +18,10 @@ export default async function InvoiceTemplatePage() {
       code: `HD${String(Number(o.order_number)).padStart(6, "0")}`,
       createdAt: String(o.created_at || ""),
       total: Number(o.total || 0),
+      discount: Number(o.discount || 0),
+      vatPercent: Number(o.vat_percent || 0),
+      vatAmount: Number(o.vat_amount || 0),
+      shipFee: Number(o.ship_fee || 0),
       customer: cust?.name || "Khách lẻ",
       phone: cust?.phone || "",
       address: cust?.address || "",

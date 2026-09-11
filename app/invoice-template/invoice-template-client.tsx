@@ -7,7 +7,7 @@ import type { Profile } from "@/lib/auth";
 import "./invoice-template.css";
 
 type ProductRef = { sku: string; name: string; dvt: string; price: number; tax: number };
-type OrderRef = { code: string; createdAt: string; total: number; customer: string; phone: string; address: string; items: Array<{ sku: string; name: string; dvt: string; tax: number; qty: number; price: number }> };
+type OrderRef = { code: string; createdAt: string; total: number; discount: number; vatPercent: number; vatAmount: number; shipFee: number; customer: string; phone: string; address: string; items: Array<{ sku: string; name: string; dvt: string; tax: number; qty: number; price: number }> };
 type CustomerRef = { name: string; phone: string; taxCode: string };
 type Row = { ma: string; ten: string; dvt: string; sl: string; dg: string; ghichu: string; tax: number };
 const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu: "", tax: 0 });
@@ -77,6 +77,10 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [nguoiMua, setNguoiMua] = useState(""); const [sdt, setSdt] = useState("");
   const [diaChi, setDiaChi] = useState("");
   const [focusKey, setFocusKey] = useState("");
+  const [feeDiscount, setFeeDiscount] = useState(0);
+  const [feeVatPercent, setFeeVatPercent] = useState(0);
+  const [feeVatAmount, setFeeVatAmount] = useState(0);
+  const [feeShip, setFeeShip] = useState(0);
   const [paper, setPaper] = useState("a5-l");
   const [orderMissing, setOrderMissing] = useState("");
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -139,6 +143,10 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setMst(customerMap.get(order.customer.trim().toUpperCase())?.taxCode || "");
     setSdt(order.phone);
     setDiaChi(order.address);
+    setFeeDiscount(order.discount || 0);
+    setFeeVatPercent(order.vatPercent || 0);
+    setFeeVatAmount(order.vatAmount || 0);
+    setFeeShip(order.shipFee || 0);
     setNgay(String(d.getDate())); setThang(String(d.getMonth() + 1)); setNam(String(d.getFullYear()));
   }
 
@@ -162,17 +170,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
 
   const lineTotals = rows.map((r) => parseNum(r.sl) * parseNum(r.dg));
   const totalQty = rows.reduce((sum, r) => sum + (parseNum(r.sl) || 0), 0);
-  const lineVats = rows.map((r, i) => (lineTotals[i] * Number(r.tax || 0)) / 100);
   const subtotal = lineTotals.reduce((a, b) => a + b, 0);
-  const vat = Math.round(lineVats.reduce((a, b) => a + b, 0));
-  const total = Math.round(subtotal) + vat;
+  const total = Math.max(0, Math.round(subtotal - feeDiscount + feeVatAmount + feeShip));
   const totalWords = docSo(total) + " đồng";
-  const vatBreakdown = useMemo(() => {
-    const m = new Map<number, number>();
-    rows.forEach((r, i) => { const t = Number(r.tax || 0); if (t && lineTotals[i]) m.set(t, (m.get(t) || 0) + lineVats[i]); });
-    return Array.from(m.entries()).sort((a, b) => b[0] - a[0]).map(([t, v]) => `VAT ${t}%: ${moneyUS(Math.round(v))}`).join("  ·  ");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rows, lineTotals.join("|")]);
 
   // STT chỉ đánh cho dòng có nội dung (y chang file)
   const sttMap = useMemo(() => {
@@ -193,6 +193,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setNoiDung("Bán Hàng");
     setNgay(String(todayD.getDate())); setThang(todayMM); setNam(String(todayD.getFullYear()));
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
+    setFeeDiscount(0); setFeeVatPercent(0); setFeeVatAmount(0); setFeeShip(0);
   }
 
   return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""} ${filledCount > 10 ? "inv-dense" : ""}`}>
@@ -206,7 +207,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a5-l">A5 ngang</option><option value="a5-p">A5 dọc</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
-      <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyVnd(vat)}</b> · Tổng: <b>{moneyVnd(total)}</b></span>
+      <span className="inv-hint">{feeDiscount > 0 && <span>Chiết khấu: <b>{moneyVnd(feeDiscount)}</b> · </span>}{feeVatAmount > 0 && <span>VAT: <b>{moneyVnd(feeVatAmount)}</b> · </span>}{feeShip > 0 && <span>Ship: <b>{moneyVnd(feeShip)}</b> · </span>}Tổng: <b>{moneyVnd(total)}</b></span>
     </div>
     <main className="inv-main no-print-gap">
       <div className="inv-sheet" ref={sheetRef}>
@@ -251,7 +252,6 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                   <td className={slRaw ? "right" : "c"}>
                     <input className="inv-cell" inputMode="decimal" aria-label={`Số lượng dòng ${i + 1}`}
                       style={{ textAlign: slRaw ? "right" : "center", color: slRaw ? undefined : "#9aa4b0" }}
-                      title={Number(r.tax) ? `VAT ${r.tax}%: ${moneyVnd(Math.round(lineVats[i]))}` : undefined}
                       value={focusKey === `sl${i}` ? r.sl : (slRaw ? fmtQty(parseNum(r.sl)) : "")}
                       onFocus={() => { setFocusKey(`sl${i}`); if (!slRaw) setRow(i, { sl: "" }); }}
                       onBlur={() => { setFocusKey(""); if (!parseNum(r.sl)) setRow(i, { sl: "" }); }}
@@ -259,18 +259,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                     <span className="print-value">{slRaw ? fmtQty(parseNum(r.sl)) : ""}</span>
                   </td>
                   <td className="right"><input className="inv-cell right" inputMode="decimal" aria-label={`Đơn giá dòng ${i + 1}`} value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /><span className="print-value">{r.dg ? moneyVnd(parseNum(r.dg)) : ""}</span></td>
-                  <td className="right" title={Number(r.tax) ? `VAT ${r.tax}%` : undefined}>{lineTotals[i] ? moneyVnd(lineTotals[i]) : ""}</td>
+                  <td className="right">{lineTotals[i] ? moneyVnd(lineTotals[i]) : ""}</td>
                   <td><input className="inv-cell" aria-label={`Ghi chú dòng ${i + 1}`} value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /><span className="print-value">{r.ghichu}</span></td>
                 </tr>
               );
             })}
-            <tr className="vat-row">
-              <td colSpan={3} />
-              <td className="c"><b>VAT</b></td>
-              <td colSpan={2} />
-              <td className="right" title={vatBreakdown}>{vat ? moneyVnd(vat) : ""}</td>
-              <td />
-            </tr>
             <tr className="total-row">
               <td colSpan={4} style={{whiteSpace:"nowrap",textAlign:"left"}}><b>Tổng cộng:</b></td>
               <td className="right"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td>
@@ -280,6 +273,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
             </tr>
           </tbody>
         </table>
+        {(feeDiscount > 0 || feeVatAmount > 0 || feeShip > 0) && <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, margin: "4px 0", fontSize: "inherit" }}>
+          {feeDiscount > 0 && <span>Chiết khấu: <b>{moneyVnd(feeDiscount)}</b></span>}
+          {feeVatAmount > 0 && <span>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: <b>{moneyVnd(feeVatAmount)}</b></span>}
+          {feeShip > 0 && <span>Phí ship: <b>{moneyVnd(feeShip)}</b></span>}
+        </div>}
         <p className="inv-words"><b>Tổng số tiền viết bằng chữ:</b> {total ? <i>{totalWords}</i> : <span className="ph">.......................................................................................</span>}</p>
         <div className="inv-date inv-date-footer">
           <span>Ngày</span> <input className="inv-num" value={ngay} onChange={(e) => setNgay(e.target.value)} />

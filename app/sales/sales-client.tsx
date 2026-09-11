@@ -8,7 +8,7 @@ import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
 type ProductUnit = { name: string; conversion: number; price?: number };
 type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean; base_unit?: string; units?: ProductUnit[] };
-type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
+type EditOrder = { id: string; code: string; customer_id: string | null; note: string | null; discount_percent: number; vat_percent: number; vat_amount: number; ship_fee: number; items: Array<{ product_id: string; quantity: number; unit_price: number }> };
 type Customer = { id: string; name: string; phone?: string | null };
 type CustomerGroup = { id: string; name: string };
 type PendingOrder = { id: string; order_number: number; status: string; total: number; created_at: string; customers?: { name?: string } | null };
@@ -70,6 +70,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [showOrderProcessing, setShowOrderProcessing] = useState(false);
   const [showReturn, setShowReturn] = useState(false);
   const [showPrintSettings, setShowPrintSettings] = useState(false);
+  const [vatPercent, setVatPercent] = useState("0");
+  const [discountPercent, setDiscountPercent] = useState("0");
+  const [shipFee, setShipFee] = useState("0");
   const [printPaper, setPrintPaper] = useState("80mm");
   const [printAuto, setPrintAuto] = useState(true);
   const [printLogo, setPrintLogo] = useState(false);
@@ -129,6 +132,9 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         if (c) setCustomerQuery(c.name);
       }
       if (eo.note) setCustomerNote(eo.note);
+      setDiscountPercent(String(eo.discount_percent || 0));
+      setVatPercent(String(eo.vat_percent || 0));
+      setShipFee(String(eo.ship_fee || 0));
       setEditingOrder(eo);
       setLastOrder(`Update ${eo.code}`);
       setNotice(`Đang cập nhật hóa đơn ${eo.code} — thêm/bớt hàng rồi bấm LƯU THAY ĐỔI.`);
@@ -142,7 +148,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         const data = await res.json();
         const o = (data.orders || [])[0];
         if (!res.ok || !o || o.status !== "paid") { setNotice("Không tìm thấy hóa đơn để sửa."); return; }
-        applyEdit({ id: o.id, code: "HD" + String(o.order_number).padStart(6, "0"), customer_id: o.customer_id || null, note: o.note || null, items: (o.order_items || []).map((it: { product_id: string; quantity: number; unit_price: number }) => ({ product_id: it.product_id, quantity: it.quantity, unit_price: it.unit_price })) });
+        applyEdit({ id: o.id, code: "HD" + String(o.order_number).padStart(6, "0"), customer_id: o.customer_id || null, note: o.note || null, discount_percent: Number(o.discount_percent || 0), vat_percent: Number(o.vat_percent || 0), vat_amount: Number(o.vat_amount || 0), ship_fee: Number(o.ship_fee || 0), items: (o.order_items || []).map((it: { product_id: string; quantity: number; unit_price: number }) => ({ product_id: it.product_id, quantity: it.quantity, unit_price: it.unit_price })) });
       } catch { setNotice("Không tải được hóa đơn để sửa."); }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,9 +157,13 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const results = useMemo(() => query.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [], [products, query]);
   const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
   const lines = Object.values(cart);
-  const total = lines.reduce((sum, line) => sum + lineTotal(line), 0);
-  const selectedCustomer = customers.find(c => c.id === customerId);
   const isDelivery = mode === "delivery";
+  const total = lines.reduce((sum, line) => sum + lineTotal(line), 0);
+  const discountAmount = Math.round(total * (Number(discountPercent) || 0) / 100);
+  const vatAmount = Math.round((total - discountAmount) * (Number(vatPercent) || 0) / 100);
+  const shipAmount = isDelivery ? (Number(shipFee) || 0) : 0;
+  const grandTotal = total - discountAmount + vatAmount + shipAmount;
+  const selectedCustomer = customers.find(c => c.id === customerId);
 
   function addProduct(product: Product) {
     setError(""); setNotice(""); setLastOrder(""); setSearchOpen(false); setQuery("");
@@ -214,7 +224,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     const items = lines.map(l => ({ product_id: l.id, quantity: linePieces(l), unit_price: Number(l.price) }));
     if (editingOrder) {
       try {
-        const res = await fetch("/api/orders", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingOrder.id, customer_id: customerId || null, note: customerNote, items, discount: 0 }) });
+        const res = await fetch("/api/orders", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingOrder.id, customer_id: customerId || null, note: customerNote, items, discount: discountAmount, discount_percent: Number(discountPercent) || 0, vat_percent: Number(vatPercent) || 0, ship_fee: shipAmount }) });
         const data = await res.json();
         if (!res.ok) { setError(data.error || "Không thể cập nhật hóa đơn."); return; }
         setCart({}); setCustomerNote(""); setEditingOrder(null); setNotice(`Đã cập nhật hóa đơn ${editingOrder.code}!`); setLastOrder(editingOrder.code);
@@ -224,7 +234,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       } catch { setError("Không thể kết nối máy chủ."); return; } finally { setSaving(false); }
     }
     try {
-      const orderRes = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status: "paid", note: customerNote, items }) });
+      const orderRes = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status: "paid", note: customerNote, items, discount: discountAmount, discount_percent: Number(discountPercent) || 0, vat_percent: Number(vatPercent) || 0, ship_fee: shipAmount }) });
       const orderData = await orderRes.json();
       if (!orderRes.ok) { setError(orderData.error || "Không thể lưu đơn hàng."); return; }
       const orderId = orderData.order?.id; const orderNum = orderData.order?.order_number;
@@ -278,8 +288,10 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         </div>
         <div className="cart-footer">
           <p><span>Tổng tiền hàng</span><b>{money(total)}</b></p>
-          <p><span>Giảm giá</span><b>0</b></p>
-          <p className="strong"><span>Khách cần trả</span><b>{money(total)}</b></p>
+          <p><span>Chiết khấu (%)</span><input className="pos-pct" inputMode="decimal" value={discountPercent} onChange={e => setDiscountPercent(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{discountAmount ? `-${money(discountAmount)}` : "0"}</b></p>
+          <p><span>VAT (%)</span><input className="pos-pct" inputMode="decimal" value={vatPercent} onChange={e => setVatPercent(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{vatAmount ? `+${money(vatAmount)}` : "0"}</b></p>
+          {isDelivery && <p><span>Phí ship</span><input className="pos-pct" inputMode="decimal" value={shipFee} onChange={e => setShipFee(e.target.value.replace(/[^\d.]/g, ""))} placeholder="0" /><b>{shipAmount ? `+${money(shipAmount)}` : "0"}</b></p>}
+          <p className="strong"><span>Khách cần trả</span><b>{money(grandTotal)}</b></p>
         </div>
       </div>
       <div className="col-right">
