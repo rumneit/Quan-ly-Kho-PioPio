@@ -293,6 +293,17 @@
 .pos-grid-search input { flex: 1 !important; min-width: 0 !important; height: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; color: #34414d !important; }
 .pos-grid-search input::placeholder { color: #8a96a7 !important; }
 
+/* ---------- PRODUCT GRID (KiotViet style) ---------- */
+.pos-normal-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)) !important; gap: 8px !important; padding: 8px 12px !important; overflow: auto !important; }
+.pos-normal-card { display: flex !important; flex-direction: column !important; gap: 6px !important; padding: 8px !important; border: 1px solid #e3e7ec !important; border-radius: 8px !important; background: #fff !important; text-align: left !important; cursor: pointer !important; min-width: 0 !important; transition: border-color .15s, box-shadow .15s, transform .1s !important; }
+.pos-normal-card:hover { border-color: #0070f4 !important; box-shadow: 0 0 0 2px rgba(0,112,244,.08) !important; }
+.pos-normal-card:active { transform: scale(.98) !important; }
+.pos-normal-img { display: flex !important; align-items: center !important; justify-content: center !important; aspect-ratio: 1 / 1 !important; width: 100% !important; border-radius: 6px !important; color: rgba(255,255,255,.85) !important; flex: 0 0 auto !important; }
+.pos-normal-info { display: flex !important; flex-direction: column !important; gap: 2px !important; min-width: 0 !important; }
+.pos-normal-name { display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; font-size: 12.544px !important; font-weight: 500 !important; color: #2e3541 !important; line-height: 1.3 !important; min-height: 2.6em !important; }
+.pos-normal-info small { font-size: 11px !important; color: #8a96a7 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+.pos-normal-info b { font-size: 12.544px !important; font-weight: 600 !important; color: #0070f4 !important; }
+
 /* col-left flex column so cart-footer sits below list */
 .col-left { display: flex !important; flex-direction: column !important; }
 .cart-container { flex: 1 !important; min-height: 0 !important; overflow: hidden !important; }

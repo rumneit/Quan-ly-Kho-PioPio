@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeftRight, ClipboardList, Clock, Menu, Minus, Phone, Plus, Printer, RefreshCw, RotateCcw, Search, ShoppingCart, Star, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
+import { ArrowLeftRight, ClipboardList, Clock, Image as ImageIcon, Menu, Minus, Phone, Plus, Printer, RefreshCw, RotateCcw, Search, ShoppingCart, Star, Trash2, Truck, Undo2, X, Zap } from "lucide-react";
 import type { Profile } from "@/lib/auth";
 import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
@@ -211,8 +211,8 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                         const bg = colors[product.id.charCodeAt(0) % colors.length];
                         return (
                           <button key={product.id} className="pos-normal-card" onClick={() => addProduct(product)}>
-                            <span className="pos-normal-img" style={{background:bg}}><span style={{fontSize:18}}>🖼️</span></span>
-                            <span className="pos-normal-info"><span className="pos-normal-name">{product.name}</span><small>{product.sku} • Tồn {product.stock_quantity}</small><b>{money(Number(product.price))}</b></span>
+                            <span className="pos-normal-img" style={{background:bg}}><ImageIcon size={22} aria-hidden="true" /></span>
+                            <span className="pos-normal-info"><span className="pos-normal-name">{product.name}</span><small>{product.sku} · Tồn {product.stock_quantity}</small><b>{money(Number(product.price))}</b></span>
                           </button>
                         );
                       })}
