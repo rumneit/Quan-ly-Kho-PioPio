@@ -39,11 +39,18 @@ export default async function SalesPage({ searchParams }: { searchParams?: Promi
   const customers = await loadCustomers(supabase);
 
   let editOrder: EditOrder | null = null;
-  if (editId && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(editId)) {
-    const { data } = await supabase.from("orders").select("id,order_number,customer_id,note,order_items(product_id,quantity,unit_price)").eq("id", editId).eq("status", "paid").maybeSingle();
-    if (data) {
-      const items = (Array.isArray(data.order_items) ? data.order_items : []) as Array<{ product_id: string; quantity: number; unit_price: number }>;
-      editOrder = { id: data.id, code: "HD" + String(Number(data.order_number)).padStart(6, "0"), customer_id: data.customer_id || null, note: data.note || null, items };
+  if (editId) {
+    const select = "id,order_number,customer_id,note,order_items(product_id,quantity,unit_price)";
+    const isCode = /^HD\d+$/i.test(editId);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(editId);
+    if (isCode || isUuid) {
+      const base = supabase.from("orders").select(select).eq("status", "paid");
+      const query = isCode ? base.eq("order_number", Number(editId.slice(2))) : base.eq("id", editId);
+      const { data } = await query.maybeSingle();
+      if (data) {
+        const items = (Array.isArray(data.order_items) ? data.order_items : []) as Array<{ product_id: string; quantity: number; unit_price: number }>;
+        editOrder = { id: data.id, code: "HD" + String(Number(data.order_number)).padStart(6, "0"), customer_id: data.customer_id || null, note: data.note || null, items };
+      }
     }
   }
 

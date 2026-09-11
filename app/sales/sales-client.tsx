@@ -114,23 +114,37 @@ export default function SalesClient({ profile, products, customers, pendingOrder
 
   useEffect(() => { setProductPage(0); }, [gridQuery]);
 
-  // Nạp hóa đơn cần sửa vào giỏ (từ /sales?edit=<id>)
+  // Nạp hóa đơn cần sửa vào giỏ: ưu tiên prop từ server, fallback tự fetch theo ?edit=HDxxx
   useEffect(() => {
-    if (!editOrder) return;
-    const cartNext: Record<string, CartLine> = {};
-    for (const item of editOrder.items) {
-      const product = products.find((p) => p.id === item.product_id);
-      if (product) cartNext[product.id] = { ...product, quantity: item.quantity, unitName: "" };
-    }
-    setCart(cartNext);
-    if (editOrder.customer_id) {
-      setCustomerId(editOrder.customer_id);
-      const c = customers.find((x) => x.id === editOrder.customer_id);
-      if (c) setCustomerQuery(c.name);
-    }
-    if (editOrder.note) setCustomerNote(editOrder.note);
-    setLastOrder(`Update ${editOrder.code}`);
-    setNotice(`Đang cập nhật hóa đơn ${editOrder.code} — thêm/bớt hàng rồi bấm LƯU THAY ĐỔI.`);
+    const applyEdit = (eo: EditOrder) => {
+      const cartNext: Record<string, CartLine> = {};
+      for (const item of eo.items) {
+        const product = products.find((p) => p.id === item.product_id);
+        if (product) cartNext[product.id] = { ...product, quantity: item.quantity, unitName: "" };
+      }
+      setCart(cartNext);
+      if (eo.customer_id) {
+        setCustomerId(eo.customer_id);
+        const c = customers.find((x) => x.id === eo.customer_id);
+        if (c) setCustomerQuery(c.name);
+      }
+      if (eo.note) setCustomerNote(eo.note);
+      setEditingOrder(eo);
+      setLastOrder(`Update ${eo.code}`);
+      setNotice(`Đang cập nhật hóa đơn ${eo.code} — thêm/bớt hàng rồi bấm LƯU THAY ĐỔI.`);
+    };
+    if (editOrder) { applyEdit(editOrder); return; }
+    const param = new URLSearchParams(window.location.search).get("edit");
+    if (!param) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/orders?q=${encodeURIComponent(param)}&pageSize=1`);
+        const data = await res.json();
+        const o = (data.orders || [])[0];
+        if (!res.ok || !o || o.status !== "paid") { setNotice("Không tìm thấy hóa đơn để sửa."); return; }
+        applyEdit({ id: o.id, code: "HD" + String(o.order_number).padStart(6, "0"), customer_id: o.customer_id || null, note: o.note || null, items: (o.order_items || []).map((it: { product_id: string; quantity: number; unit_price: number }) => ({ product_id: it.product_id, quantity: it.quantity, unit_price: it.unit_price })) });
+      } catch { setNotice("Không tải được hóa đơn để sửa."); }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
