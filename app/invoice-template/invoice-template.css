@@ -78,8 +78,11 @@
 /* Preview theo chieu in */
 .inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
 .inv-paper-a5:not(.inv-landscape) .inv-sheet{width:130mm}
-/* Khong cot nao bi che */
-.inv-table th,.inv-table td{overflow:visible;white-space:nowrap}
+/* Khong tran ra ngoai khung khi doi Ngang/Doc: cot theo dung % + cho phep xuong dong */
+.inv-table{table-layout:fixed;width:100%}
+.inv-table th,.inv-table td{overflow:hidden;word-break:break-word}
+.inv-paper-a5:not(.inv-landscape) .inv-header-left p{white-space:normal;line-height:1.3}
+.inv-paper-a5:not(.inv-landscape) .inv-info p{white-space:normal}
 .inv-table tbody tr{height:auto!important;min-height:25px}
 .print-value{display:none}
 /* Dong trong: khong ke o, khong chia o - de trang sach se */
