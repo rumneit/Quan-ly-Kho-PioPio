@@ -386,6 +386,7 @@ export default function OrderListClient({
   const [visible, setVisible] = useState<Record<string, boolean>>(() => Object.fromEntries(config.columns.map((column) => [column.key, config.visible.includes(column.key)])));
   const [selected, setSelected] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [invoiceDetailId, setInvoiceDetailId] = useState<string | null>(null);
   const [sort, setSort] = useState<{ key: string; direction: "asc" | "desc" }>({ key: mode === "delivery-partners" ? "partner" : "time", direction: "desc" });
   const [showColumns, setShowColumns] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -578,7 +579,7 @@ export default function OrderListClient({
   }
 
   function renderCell(row: GridRow, key: string) {
-    if (["code", "invoice", "waybill", "returnCode"].includes(key)) return <button type="button" className="order-link" aria-expanded={expanded === row.id} onClick={() => setExpanded((current) => current === row.id ? null : row.id)}>{row.values[key] ?? "---"}</button>;
+    if (["code", "invoice", "waybill", "returnCode"].includes(key)) return <button type="button" className="order-link" aria-expanded={mode === "invoices" ? undefined : expanded === row.id} onClick={() => { if (mode === "invoices") setInvoiceDetailId(row.id); else setExpanded((current) => current === row.id ? null : row.id); }}>{row.values[key] ?? "---"}</button>;
     if (dateKeys.has(key)) return dateTime(row.values[key]);
     if (moneyKeys.has(key)) return money(Number(row.values[key] || 0));
     if (key === "status" || key === "deliveryStatus") {
@@ -648,6 +649,7 @@ export default function OrderListClient({
     {showCreate && <CreateDialog mode={mode} products={modalProducts} customers={customers} paidOrders={paidOrders} shippableOrders={shippableOrders} partners={initialPartners} customerId={customerId} note={note} discount={discountInput} productQuery={productQuery} quantities={quantities} prices={prices} selectedCount={selectedCount} returnOrderId={returnOrderId} partnerForm={partnerForm} shipmentForm={shipmentForm} saving={saving} error={error} onClose={() => setShowCreate(false)} onCustomer={setCustomerId} onNote={setNote} onDiscount={setDiscountInput} onProductQuery={setProductQuery} onQuantity={(id, value) => setQuantities((current) => ({ ...current, [id]: Math.max(0, Math.trunc(value)) }))} onPrice={(id, value) => setPrices((current) => ({ ...current, [id]: Math.max(0, value) }))} onReturnOrder={setReturnOrderId} onPartnerForm={setPartnerForm} onShipmentForm={setShipmentForm} onSaveDraft={() => saveOrder("draft")} onSavePaid={() => saveOrder("paid")} onSaveReturn={saveReturn} onSavePartner={savePartner} onSaveShipment={saveShipment} />}
     {showSettings && <SimpleDialog title="Thiết lập danh sách" onClose={() => setShowSettings(false)}><label className="dialog-field">Số dòng mỗi trang<select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}><option value="15">15 dòng</option><option value="30">30 dòng</option><option value="50">50 dòng</option></select></label></SimpleDialog>}
     {showHelp && <SimpleDialog title={`Hướng dẫn ${config.title}`} onClose={() => setShowHelp(false)}><p>Tìm kiếm theo mã hoặc thông tin hiển thị, dùng bộ lọc bên trái và bấm mã chứng từ để xem chi tiết. Các thao tác lưu, trả hàng và vận đơn đều được kiểm tra lại ở máy chủ.</p></SimpleDialog>}
+    {invoiceDetailId && (() => { const row = rows.find((item) => item.id === invoiceDetailId); if (!row || !("order_items" in row.raw)) return null; return <InvoiceDetailModal order={row.raw as SourceOrder} code={String(row.values.code || documentCode("HD", (row.raw as SourceOrder).order_number))} onClose={() => setInvoiceDetailId(null)} />; })()}
   </div>;
 }
 
@@ -666,6 +668,73 @@ function Notice({ text, onClose }: { text: string; onClose: () => void }) {
 
 function SimpleDialog({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return <div className="modal-backdrop order-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="small-modal order-small-dialog" role="dialog" aria-modal="true" aria-label={title}><header><h3>{title}</h3><button type="button" aria-label="Đóng" onClick={onClose}><X /></button></header><div>{children}</div><footer><button type="button" className="primary" onClick={onClose}>Đóng</button></footer></section></div>;
+}
+
+const invSubHead: React.CSSProperties = { margin: "0 0 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: ".4px", color: "#8a96a7", fontWeight: 700 };
+const invInfo = (label: string, value?: string | null) => <p style={{ margin: "0 0 6px", fontSize: 13, color: "#263545", display: "flex", gap: 8 }}><span style={{ width: 110, flex: "0 0 auto", color: "#6b7a8d" }}>{label}</span><b style={{ fontWeight: 600 }}>{value || "---"}</b></p>;
+const invTd = (index: number, align?: "left" | "right" | "center"): React.CSSProperties => ({ border: "1px solid #e5eaf0", padding: "6px 8px", fontSize: 13, color: "#263545", background: index % 2 ? "#fbfcfd" : "#fff", textAlign: align || "left" });
+
+function InvoiceDetailModal({ order, code, onClose }: { order: SourceOrder; code: string; onClose: () => void }) {
+  const items = order.order_items || [];
+  const customer = order.customers;
+  const returned = Boolean(order.sales_returns?.length);
+  const statusLabel = order.status === "paid" ? "Hoàn thành" : order.status === "refunded" ? "Đã trả hàng" : order.status;
+  return <div className="modal-backdrop order-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+    <section role="dialog" aria-modal="true" aria-label="Thông tin hóa đơn" style={{ width: "min(780px,96vw)", maxHeight: "92vh", overflow: "auto", borderRadius: 14, background: "#fff", boxShadow: "0 20px 55px rgba(0,0,0,.25)" }}>
+      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 22px", borderBottom: "1px solid #e5eaf0" }}>
+        <h2 style={{ margin: 0, fontSize: 18, color: "#1d2939" }}>Thông tin hóa đơn</h2>
+        <button type="button" aria-label="Đóng" onClick={onClose} style={{ width: 34, height: 34, border: 0, borderRadius: 8, background: "#f1f4f7", color: "#6d7b8b", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><X /></button>
+      </header>
+      <div style={{ padding: "14px 22px 4px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <b style={{ fontSize: 15, color: "#0b7cc1" }}>{code}</b>
+        <span style={{ padding: "3px 10px", borderRadius: 12, background: order.status === "paid" ? "#e7f7ed" : "#f0f1f3", color: order.status === "paid" ? "#188448" : "#687380", fontSize: 12, fontWeight: 600 }}>{statusLabel}</span>
+        <span style={{ flex: 1 }} />
+        <button type="button" onClick={() => window.open(`/invoice-template?code=${code}`, "_blank")} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 14px", border: "1px solid #0070f4", borderRadius: 7, background: "#0070f4", color: "#fff", cursor: "pointer", fontSize: 13 }}>In hóa đơn</button>
+        {!returned && <button type="button" onClick={() => { window.location.href = `/returns?invoice=${order.id}`; }} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 34, padding: "0 14px", border: "1px solid #f0c3c3", borderRadius: 7, background: "#fff", color: "#d64545", cursor: "pointer", fontSize: 13 }}>Trả hàng</button>}
+      </div>
+      <div style={{ padding: "6px 22px 8px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 28px" }}>
+        <div>
+          <h3 style={invSubHead}>Thông tin chung</h3>
+          {invInfo("Kênh bán", !order.channel || order.channel === "pos" ? "Bán tại quầy" : order.channel)}
+          {invInfo("Chi nhánh", order.store_branches?.name || "Chi nhánh trung tâm")}
+          {invInfo("Thời gian", dateTime(order.created_at))}
+          {invInfo("Người tạo", order.creator?.full_name || "---")}
+        </div>
+        <div>
+          <h3 style={invSubHead}>Khách hàng &amp; Thanh toán</h3>
+          {invInfo("Khách hàng", customer?.name || "Khách lẻ")}
+          {invInfo("Điện thoại", customer?.phone || "")}
+          {invInfo("Mã khách", customer?.customer_number ? "KH" + String(customer.customer_number).padStart(5, "0") : "")}
+          {invInfo("Thanh toán", order.status === "paid" ? "Đã thanh toán" : order.status === "refunded" ? "Đã trả hàng" : "---")}
+          {invInfo("Trả hàng", returned ? `Đã tạo ${order.sales_returns?.length} phiếu trả` : "Chưa có")}
+        </div>
+      </div>
+      <div style={{ padding: "6px 22px 20px" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead><tr>{["STT", "Mã hàng", "Tên hàng", "SL", "Đơn giá", "Thành tiền"].map((h, i) => <th key={h} style={{ background: "#f0f4f8", border: "1px solid #e5eaf0", padding: "7px 8px", fontSize: 12, color: "#263545", textAlign: i >= 3 ? "right" : i === 0 ? "center" : "left" }}>{h}</th>)}</tr></thead>
+          <tbody>
+            {items.map((item, index) => <tr key={item.id}>
+              <td style={invTd(index, "center")}>{index + 1}</td>
+              <td style={invTd(index)}>{item.products?.sku || "---"}</td>
+              <td style={invTd(index)}>{item.products?.name || "---"}</td>
+              <td style={{ ...invTd(index), textAlign: "right" }}>{item.quantity}</td>
+              <td style={{ ...invTd(index), textAlign: "right" }}>{money(Number(item.unit_price))}</td>
+              <td style={{ ...invTd(index), textAlign: "right", fontWeight: 600 }}>{money(Number(item.line_total))}</td>
+            </tr>)}
+          </tbody>
+        </table>
+        <div style={{ marginTop: 10, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, fontSize: 13, color: "#263545" }}>
+          <span>Tổng tiền hàng: <b>{money(Number(order.subtotal || 0))}</b></span>
+          <span>Giảm giá: <b>{money(Number(order.discount || 0))}</b></span>
+          <span style={{ fontSize: 16, color: "#0b7cc1" }}>Tổng tiền thanh toán: <b>{money(Number(order.total || 0))}</b></span>
+        </div>
+        {order.note && <p style={{ margin: "10px 0 0", fontSize: 13, color: "#5c6a78" }}><b>Ghi chú:</b> {order.note}</p>}
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end" }}>
+          <button type="button" onClick={onClose} style={{ height: 36, padding: "0 18px", border: "1px solid #d0d7de", borderRadius: 7, background: "#fff", color: "#2e3541", cursor: "pointer", fontSize: 13 }}>Thoát</button>
+        </div>
+      </div>
+    </section>
+  </div>;
 }
 
 function CreateDialog(props: {
