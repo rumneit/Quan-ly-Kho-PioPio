@@ -48,8 +48,8 @@
    Surface: #ffffff (muted) · #e6f1fe (raised) · Border: #e8eaed/#d1d5da
    Radius: 4/6/7/8/12px · Shadow 1 & 2 · Motion: 100/150/200/300ms
    WCAG 2.2 AA — focus-visible bắt buộc
+   (Font Inter được load qua <link> trong app/layout.tsx)
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .pricebook-page{
   /* Ghi đè token cũ của trang bằng token KiotViet */

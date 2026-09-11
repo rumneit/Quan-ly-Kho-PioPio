@@ -498,8 +498,8 @@
    Surface: #ffffff (raised) · #e6f1fe (muted) · Border: #e8eaed
    Radius: 6/8/12/50px · Shadow: -8px 8px 24px rgba(0,0,0,.04)
    Motion: 100ms instant · 200ms fast · 300ms normal — WCAG 2.2 AA
+   (Font Inter được load qua <link> trong app/layout.tsx)
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .product-page{
   --kv-font:Inter,Roboto,Helvetica,Arial,sans-serif;
