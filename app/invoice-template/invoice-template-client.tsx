@@ -243,7 +243,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                   <td><input className="inv-cell" aria-label={`ĐVT dòng ${i + 1}`} value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /><span className="print-value">{r.dvt}</span></td>
                   <td className={slRaw ? "right" : "c"}>
                     <input className="inv-cell" inputMode="decimal" aria-label={`Số lượng dòng ${i + 1}`}
-                      style={{ textAlign: slRaw ? "right" : "center", color: slRaw ? undefined : "#9aa4b0" }}
+                      style={{ textAlign: "center", color: slRaw ? undefined : "#9aa4b0" }}
                       value={focusKey === `sl${i}` ? r.sl : (slRaw ? fmtQty(parseNum(r.sl)) : "")}
                       onFocus={() => { setFocusKey(`sl${i}`); if (!slRaw) setRow(i, { sl: "" }); }}
                       onBlur={() => { setFocusKey(""); if (!parseNum(r.sl)) setRow(i, { sl: "" }); }}
@@ -255,22 +255,17 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                 </tr>
               );
             })}
-            {feeVatAmount > 0 && <tr className="fee-row">
-              <td colSpan={2} style={{ textAlign: "right" }}><b>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}:</b></td>
-              <td /><td className="c"><b>+</b></td><td /><td className="right"><b>+{moneyVnd(feeVatAmount)}</b></td>
-            </tr>}
-            {feeShip > 0 && <tr className="fee-row">
-              <td colSpan={2} style={{ textAlign: "right" }}><b>Phí ship:</b></td>
-              <td /><td className="c"><b>+</b></td><td /><td className="right"><b>+{moneyVnd(feeShip)}</b></td>
-            </tr>}
-            {feeDiscount > 0 && <tr className="fee-row">
-              <td colSpan={2} style={{ textAlign: "right" }}><b>Chiết khấu:</b></td>
-              <td /><td className="c"><b>-</b></td><td /><td className="right"><b>-{moneyVnd(feeDiscount)}</b></td>
+            {(feeVatAmount > 0 || feeShip > 0 || feeDiscount > 0) && <tr className="fee-row">
+              <td colSpan={6}>
+                {feeVatAmount > 0 && <b style={{ marginRight: 16 }}>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: +{moneyVnd(feeVatAmount)}</b>}
+                {feeShip > 0 && <b style={{ marginRight: 16 }}>Phí ship: +{moneyVnd(feeShip)}</b>}
+                {feeDiscount > 0 && <b>Chiết khấu: -{moneyVnd(feeDiscount)}</b>}
+              </td>
             </tr>}
             <tr className="total-row">
-              <td colSpan={2} style={{ whiteSpace: "nowrap", textAlign: "left" }}><b>Tổng cộng:</b></td>
-              <td /><td className="right"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td><td />
-              <td className="right"><b style={{ whiteSpace: "nowrap" }}>{total ? moneyVnd(total) : ""}</b></td>
+              <td colSpan={2} style={{ whiteSpace: "nowrap" }}><b>Tổng cộng:</b></td>
+              <td /><td><b>{totalQty ? fmtQty(totalQty) : ""}</b></td><td />
+              <td><b style={{ whiteSpace: "nowrap" }}>{total ? moneyVnd(total) : ""}</b></td>
             </tr>
           </tbody>
         </table>
