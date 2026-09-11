@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Printer, RotateCcw } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
@@ -79,6 +79,19 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [focusKey, setFocusKey] = useState("");
   const [paper, setPaper] = useState("a5-l");
   const [orderMissing, setOrderMissing] = useState("");
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [fitScale, setFitScale] = useState(1);
+
+  // Tự co tỷ lệ để TOÀN BỘ bill luôn gọn trong 1 mặt giấy
+  useLayoutEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const printableMm = paper === "a5-p" ? 198 : 138; // A5 dọc 210-12 / A5 ngang 148-10
+    const availPx = (printableMm / 25.4) * 96;
+    const scale = Math.min(1, availPx / Math.max(1, el.scrollHeight));
+    const rounded = Math.max(0.4, Math.floor(scale * 100) / 100);
+    setFitScale((prev) => (Math.abs(prev - rounded) > 0.01 ? rounded : prev));
+  });
 
   // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
@@ -101,9 +114,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
     if (!tag) { tag = document.createElement("style"); tag.id = "inv-page-size"; document.head.appendChild(tag); }
     const size = paper === "a5-p" ? "A5 portrait; margin:6mm" : "A5 landscape; margin:5mm";
-    tag.textContent = `@media print{ @page{ size:${size} } }`;
+    tag.textContent = `@media print{ @page{ size:${size} } .inv-sheet{ zoom:${fitScale} !important } }`;
     window.localStorage.setItem("piopio-inv-paper", paper);
-  }, [paper]);
+  }, [paper, fitScale]);
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.sku.toUpperCase(), p])), [products]);
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
@@ -194,7 +207,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyVnd(vat)}</b> · Tổng: <b>{moneyVnd(total)}</b></span>
     </div>
     <main className="inv-main no-print-gap">
-      <div className="inv-sheet">
+      <div className="inv-sheet" ref={sheetRef}>
         <div className="inv-header">
           <div className="inv-header-left">
             <p><b>Tên đơn vị:</b> CTY TNHH SẢN XUẤT THƯƠNG MẠI DỊCH VỤ PIOPIO</p>
