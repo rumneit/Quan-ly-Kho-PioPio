@@ -60,11 +60,14 @@
 .icon-list.header-nav { display: flex !important; align-items: center !important; gap: 2px !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }
 .icon-list.header-nav li { display: flex !important; align-items: center !important; }
 .icon-list.header-nav button {
-  display: inline-flex !important; align-items: center !important; justify-content: center !important;
-  width: 28px !important; height: 28px !important; padding: 0 !important; border: 0 !important; border-radius: 4px !important; background: transparent !important; color: #fff !important; cursor: pointer !important;
+  display: inline-flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 2px !important;
+  width: 48px !important; height: 41px !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; color: #fff !important; cursor: pointer !important;
 }
 .icon-list.header-nav button:hover { background: rgba(255,255,255,.18) !important; }
-.icon-list.header-nav svg { width: 14px !important; height: 14px !important; }
+.icon-list.header-nav svg { width: 18px !important; height: 18px !important; }
+.icon-list.header-nav .icon-label { font-size: 10px !important; line-height: 1 !important; color: #fff !important; white-space: nowrap !important; opacity: .95 !important; }
+@keyframes pos-spin { to { transform: rotate(360deg) !important; } }
+.icon-list.header-nav svg.spin { animation: pos-spin 1s linear infinite !important; }
 .pos-user-menu-wrap { display: flex !important; align-items: center !important; }
 .pos-user {
   display: inline-flex !important; align-items: center !important; gap: 4px !important; height: 29px !important;
