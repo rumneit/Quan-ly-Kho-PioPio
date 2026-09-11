@@ -12,7 +12,7 @@
   height: 41px !important; padding-left: 5px !important; background: #0070f4 !important; color: #fff !important;
 }
 .header-left { display: flex !important; align-items: center !important; flex: 1 !important; min-width: 0 !important; }
-.col-left-control { display: flex !important; align-items: center !important; flex: 0 0 401px !important; }
+.col-left-control { position: relative !important; display: flex !important; align-items: center !important; flex: 0 0 401px !important; }
 .pos-global-search {
   display: flex !important; align-items: center !important; gap: 6px !important; width: 352px !important; height: 29px !important;
   padding: 0 10px !important; border-radius: 4px !important; background: #fff !important; color: #7e8b96 !important;
@@ -147,7 +147,7 @@
 .col-wrap { padding: 12px 0 8px !important; }
 
 .pos-customer-search {
-  display: flex !important; align-items: center !important; gap: 6px !important; height: 29px !important;
+  position: relative !important; display: flex !important; align-items: center !important; gap: 6px !important; height: 29px !important;
   padding: 0 8px !important; border: 0 !important; border-radius: 4px !important; background: #f0f1f3 !important; margin-bottom: 8px !important;
 }
 .pos-customer-search input { width: 100% !important; border: 0 !important; outline: 0 !important; background: transparent !important; font-size: 12.544px !important; }
