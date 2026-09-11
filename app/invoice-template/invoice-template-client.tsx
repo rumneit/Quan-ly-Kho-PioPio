@@ -123,7 +123,6 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     window.localStorage.setItem("piopio-inv-paper", paper);
   }, [paper, fitScale]);
 
-  const productMap = useMemo(() => new Map(products.map((p) => [p.sku.toUpperCase(), p])), [products]);
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
   const customerMap = useMemo(() => new Map(customers.map((c) => [c.name.trim().toUpperCase(), c])), [customers]);
 
@@ -135,7 +134,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     const order = orderMap.get(code);
     if (!order) return;
     const d = new Date(order.createdAt);
-    const items = order.items.map((it) => ({ ma: it.sku, ten: it.name, dvt: it.dvt, sl: String(it.qty), dg: String(it.price), ghichu: "", tax: it.tax || productMap.get(it.sku.toUpperCase())?.tax || 0 }));
+    const items = order.items.map((it) => ({ ma: it.sku, ten: it.name, dvt: it.dvt, sl: String(it.qty), dg: String(it.price), ghichu: "", tax: it.tax || 0 }));
     const next = [...items, ...Array.from({ length: Math.max(0, 24 - items.length) }, emptyRow)].slice(0, Math.max(24, items.length));
     setRows(next);
     setSoHD(code);
@@ -160,12 +159,6 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setNguoiMua(v);
     const c = customerMap.get(v.trim().toUpperCase());
     if (c?.phone) setSdt(c.phone);
-  }
-
-  function applyProduct(i: number, skuRaw: string) {
-    const p = productMap.get(skuRaw.trim().toUpperCase());
-    if (p) setRow(i, { ma: p.sku, ten: p.name, dvt: p.dvt, dg: p.price ? String(p.price) : "", tax: p.tax });
-    else setRow(i, { ma: skuRaw, tax: 0 });
   }
 
   const lineTotals = rows.map((r) => parseNum(r.sl) * parseNum(r.dg));
@@ -237,7 +230,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
         <table className="inv-table">
           <caption className="sr-only">Chi tiết hàng hóa 24 dòng - Mẫu số 02-VT</caption>
           <thead>
-            <tr><th scope="col" style={{ width: "4%" }}>STT</th><th scope="col" style={{ width: "11%" }}>Mã SP</th><th scope="col" style={{ width: "32%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "7%" }}>Số lượng</th><th scope="col" style={{ width: "11%" }}>Đơn giá</th><th scope="col" style={{ width: "15%" }}>Thành tiền</th><th scope="col" style={{ width: "12%" }}>Ghi chú</th></tr>
+            <tr><th scope="col" style={{ width: "5%" }}>STT</th><th scope="col" style={{ width: "40%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "11%" }}>ĐVT</th><th scope="col" style={{ width: "9%" }}>Số lượng</th><th scope="col" style={{ width: "15%" }}>Đơn giá</th><th scope="col" style={{ width: "20%" }}>Thành tiền</th></tr>
           </thead>
           <tbody>
             {visibleRows.map((i) => {
@@ -246,7 +239,6 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               return (
                 <tr key={i}>
                   <td className="c">{sttMap.get(i) ?? ""}</td>
-                  <td><input className="inv-cell" list="inv-products" aria-label={`Mã SP dòng ${i + 1}`} value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /><span className="print-value">{r.ma}</span></td>
                   <td><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /><span className="print-value">{r.ten}</span></td>
                   <td><input className="inv-cell" aria-label={`ĐVT dòng ${i + 1}`} value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /><span className="print-value">{r.dvt}</span></td>
                   <td className={slRaw ? "right" : "c"}>
@@ -260,24 +252,28 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                   </td>
                   <td className="right"><input className="inv-cell right" inputMode="decimal" aria-label={`Đơn giá dòng ${i + 1}`} value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /><span className="print-value">{r.dg ? moneyVnd(parseNum(r.dg)) : ""}</span></td>
                   <td className="right">{lineTotals[i] ? moneyVnd(lineTotals[i]) : ""}</td>
-                  <td><input className="inv-cell" aria-label={`Ghi chú dòng ${i + 1}`} value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /><span className="print-value">{r.ghichu}</span></td>
                 </tr>
               );
             })}
+            {feeVatAmount > 0 && <tr className="fee-row">
+              <td colSpan={2} style={{ textAlign: "right" }}><b>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}:</b></td>
+              <td /><td className="c"><b>+</b></td><td /><td className="right"><b>+{moneyVnd(feeVatAmount)}</b></td>
+            </tr>}
+            {feeShip > 0 && <tr className="fee-row">
+              <td colSpan={2} style={{ textAlign: "right" }}><b>Phí ship:</b></td>
+              <td /><td className="c"><b>+</b></td><td /><td className="right"><b>+{moneyVnd(feeShip)}</b></td>
+            </tr>}
+            {feeDiscount > 0 && <tr className="fee-row">
+              <td colSpan={2} style={{ textAlign: "right" }}><b>Chiết khấu:</b></td>
+              <td /><td className="c"><b>-</b></td><td /><td className="right"><b>-{moneyVnd(feeDiscount)}</b></td>
+            </tr>}
             <tr className="total-row">
-              <td colSpan={4} style={{whiteSpace:"nowrap",textAlign:"left"}}><b>Tổng cộng:</b></td>
-              <td className="right"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td>
-              <td />
-              <td className="right"><b style={{whiteSpace:"nowrap"}}>{total ? moneyVnd(total) : ""}</b></td>
-              <td />
+              <td colSpan={2} style={{ whiteSpace: "nowrap", textAlign: "left" }}><b>Tổng cộng:</b></td>
+              <td /><td className="right"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td><td />
+              <td className="right"><b style={{ whiteSpace: "nowrap" }}>{total ? moneyVnd(total) : ""}</b></td>
             </tr>
           </tbody>
         </table>
-        {(feeDiscount > 0 || feeVatAmount > 0 || feeShip > 0) && <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, margin: "4px 0", fontSize: "inherit" }}>
-          {feeVatAmount > 0 && <span>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}: <b>+{moneyVnd(feeVatAmount)}</b></span>}
-          {feeShip > 0 && <span>Phí ship: <b>+{moneyVnd(feeShip)}</b></span>}
-          {feeDiscount > 0 && <span>Chiết khấu: <b>-{moneyVnd(feeDiscount)}</b></span>}
-        </div>}
         <p className="inv-words"><b>Tổng số tiền viết bằng chữ:</b> {total ? <i>{totalWords}</i> : <span className="ph">.......................................................................................</span>}</p>
         <div className="inv-date inv-date-footer">
           <span>Ngày</span> <input className="inv-num" value={ngay} onChange={(e) => setNgay(e.target.value)} />
