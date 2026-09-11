@@ -40,3 +40,80 @@
 .pb-file label{display:grid;gap:6px;place-items:center;font-size:13px;font-weight:600;color:#374450;cursor:pointer}
 .pb-file input{font-size:12px}
 .pricebook-import-modal footer .primary{min-width:110px}
+
+/* ============================================================
+   KIOTVIET DESIGN SYSTEM — TRANG THIẾT LẬP GIÁ (PRICEBOOK)
+   Font: Inter 14px/20px w400 · Scale: 12/13/14/16/20
+   Text: #15171a (primary) · #3e464f (tertiary) · #0070f4 (inverse)
+   Surface: #ffffff (muted) · #e6f1fe (raised) · Border: #e8eaed/#d1d5da
+   Radius: 4/6/7/8/12px · Shadow 1 & 2 · Motion: 100/150/200/300ms
+   WCAG 2.2 AA — focus-visible bắt buộc
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.pricebook-page{
+  /* Ghi đè token cũ của trang bằng token KiotViet */
+  --pb-blue:#0070f4;
+  --pb-border:#e8eaed;
+  --pb-text:#15171a;
+  --pb-muted:#3e464f;
+  --pb-font:Inter,Roboto,Helvetica,Arial,sans-serif;
+  --pb-fs-xs:12px; --pb-fs-sm:13px; --pb-fs-md:14px; --pb-fs-lg:16px; --pb-fs-xl:20px;
+  --pb-surface:#ffffff;
+  --pb-surface-raised:#e6f1fe;
+  --pb-surface-hover:rgba(0,112,244,.06);
+  --pb-border-strong:#d1d5da;
+  --pb-radius-xs:4px; --pb-radius-sm:6px; --pb-radius-md:7px; --pb-radius-lg:8px; --pb-radius-xl:12px;
+  --pb-shadow-1:-8px 8px 24px rgba(0,0,0,.04);
+  --pb-shadow-2:0 24px 48px 8px rgba(75,85,99,.25), 0 0 1px 0 rgba(75,85,99,.7);
+  --pb-instant:100ms; --pb-fast:150ms; --pb-normal:200ms; --pb-slow:300ms;
+  font-family:var(--pb-font)!important;
+  font-size:var(--pb-fs-md)!important;
+  line-height:20px!important;
+  color:var(--pb-text)!important;
+}
+
+/* Focus-visible WCAG 2.2 AA trên mọi phần tử tương tác */
+.pricebook-page :is(button,a,input,select,textarea,[tabindex]):focus-visible{ outline:2px solid var(--pb-blue)!important; outline-offset:2px!important; border-radius:var(--pb-radius-xs)!important; }
+
+/* ---- Toolbar: search + tool buttons (radius-sm, states) ---- */
+.pricebook-page .pricebook-search .product-query{ border:1px solid var(--pb-border)!important; border-radius:var(--pb-radius-lg)!important; background:var(--pb-surface)!important; transition:border-color var(--pb-fast),box-shadow var(--pb-fast)!important; }
+.pricebook-page .pricebook-search .product-query:hover{ border-color:var(--pb-border-strong)!important; }
+.pricebook-page .pricebook-search .product-query:focus-within{ border-color:var(--pb-blue)!important; box-shadow:0 0 0 3px rgba(0,112,244,.15)!important; }
+.pricebook-page .pricebook-search .product-query input::placeholder{ color:#98a2b3!important; }
+.pricebook-page .pricebook-toolbar .pricebook-tool,.pricebook-page .pricebook-toolbar .column-control>.pricebook-tool{ border:1px solid var(--pb-border)!important; border-radius:var(--pb-radius-sm)!important; background:var(--pb-surface)!important; color:var(--pb-text)!important; transition:background var(--pb-fast),color var(--pb-fast),border-color var(--pb-fast)!important; }
+.pricebook-page .pricebook-toolbar .pricebook-tool:hover{ border-color:var(--pb-blue)!important; color:var(--pb-blue)!important; background:var(--pb-surface-raised)!important; }
+.pricebook-page .pricebook-toolbar .pricebook-tool:active{ transform:translateY(1px); }
+.pricebook-page .pricebook-toolbar .pricebook-tool.primary{ border-color:var(--pb-blue)!important; background:var(--pb-blue)!important; color:#fff!important; }
+.pricebook-page .pricebook-toolbar .pricebook-tool.primary:hover{ filter:brightness(1.08)!important; background:var(--pb-blue)!important; color:#fff!important; }
+
+/* ---- Bảng giá: header raised, divider default, hover hàng ---- */
+.pricebook-page .pricebook-table th{ background:var(--pb-surface-raised)!important; color:var(--pb-text)!important; font-size:var(--pb-fs-xs)!important; font-weight:600!important; border-bottom:1px solid var(--pb-border-strong)!important; }
+.pricebook-page .pricebook-table td{ border-bottom:1px solid var(--pb-border)!important; color:var(--pb-text)!important; font-size:var(--pb-fs-md)!important; }
+.pricebook-page .product-row{ transition:background var(--pb-fast)!important; }
+.pricebook-page .product-row:hover td{ background:var(--pb-surface-hover)!important; }
+.pricebook-page .pricebook-product-name{ color:var(--pb-text)!important; font-weight:600!important; }
+.pricebook-page .pricebook-sku{ color:var(--pb-muted)!important; }
+.pricebook-page .pricebook-filter-row input{ border:1px solid var(--pb-border)!important; border-radius:var(--pb-radius-xs)!important; background:var(--pb-surface)!important; font-size:var(--pb-fs-xs)!important; transition:border-color var(--pb-fast),box-shadow var(--pb-fast)!important; }
+.pricebook-page .pricebook-filter-row input:focus{ border-color:var(--pb-blue)!important; box-shadow:0 0 0 2px rgba(0,112,244,.12)!important; outline:0!important; }
+.pricebook-page .price-input-cell input{ border:1px solid var(--pb-border)!important; border-radius:var(--pb-radius-xs)!important; background:var(--pb-surface)!important; font-weight:600!important; color:var(--pb-text)!important; transition:border-color var(--pb-fast),box-shadow var(--pb-fast)!important; }
+.pricebook-page .price-input-cell input:hover{ border-color:var(--pb-border-strong)!important; }
+.pricebook-page .price-input-cell input:focus{ border-color:var(--pb-blue)!important; box-shadow:0 0 0 3px rgba(0,112,244,.15)!important; outline:0!important; }
+
+/* ---- Sidebar danh sách bảng giá ---- */
+.pricebook-page .pricebook-sidebar{ background:var(--pb-surface)!important; }
+.pricebook-page .pricebook-sidebar button{ transition:background var(--pb-fast),color var(--pb-fast)!important; }
+.pricebook-page .pricebook-sidebar button:hover{ background:var(--pb-surface-hover)!important; }
+
+/* ---- Modal: radius-xl + shadow.2 ---- */
+.pricebook-page .pricebook-modal{ border-radius:var(--pb-radius-xl)!important; box-shadow:var(--pb-shadow-2)!important; }
+.pricebook-page .pricebook-modal footer button{ border-radius:var(--pb-radius-xs)!important; font-weight:500!important; transition:background var(--pb-fast),border-color var(--pb-fast),color var(--pb-fast)!important; }
+.pricebook-page .pricebook-modal footer button:hover:not(:disabled):not(.primary){ border-color:var(--pb-blue)!important; color:var(--pb-blue)!important; }
+.pricebook-page .pricebook-modal footer button:disabled{ opacity:.45!important; cursor:not-allowed!important; }
+.pricebook-page .pricebook-modal footer .primary{ border-color:var(--pb-blue)!important; background:var(--pb-blue)!important; color:#fff!important; }
+.pricebook-page .pricebook-modal footer .primary:hover:not(:disabled){ filter:brightness(1.08)!important; color:#fff!important; }
+.pricebook-page .pb-link{ color:var(--pb-blue)!important; }
+
+/* ---- Nút Lưu thay đổi (summary) ---- */
+.pricebook-page .pricebook-summary>button{ border-radius:var(--pb-radius-xs)!important; font-weight:600!important; transition:filter var(--pb-fast)!important; }
+.pricebook-page .pricebook-summary>button:disabled{ opacity:.45!important; cursor:not-allowed!important; }
