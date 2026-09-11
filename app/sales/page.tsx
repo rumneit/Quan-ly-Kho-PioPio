@@ -11,7 +11,7 @@ export default async function SalesPage() {
       .select("id,name,sku,price,stock_quantity,active")
       .eq("active", true)
       .order("name"),
-    supabase.from("customers").select("id,name,phone").order("name").limit(200),
+    supabase.from("customers").select("id,name,phone").order("name").limit(5000),
     supabase.from("orders").select("id,order_number,status,total,created_at,customers(name)").in("status", ["draft", "pending"]).order("created_at", { ascending: false }).limit(20),
     supabase.from("customer_groups").select("id,name").order("name"),
   ]);

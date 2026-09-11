@@ -76,24 +76,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   useEffect(() => { setProductPage(0); }, [gridQuery]);
 
   const results = useMemo(() => query.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [], [products, query]);
-  const [customerResults, setCustomerResults] = useState<Customer[]>([]);
-  const [customerSearching, setCustomerSearching] = useState(false);
-  const displayedCustomers = customerQuery.trim() ? customerResults : customers.slice(0, 20);
-
-  useEffect(() => {
-    const q = customerQuery.trim();
-    if (!q) { setCustomerResults([]); setCustomerSearching(false); return; }
-    setCustomerSearching(true);
-    const t = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/customers/search?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        setCustomerResults(res.ok ? (data.customers || []) : []);
-      } catch { setCustomerResults([]); }
-      finally { setCustomerSearching(false); }
-    }, 300);
-    return () => clearTimeout(t);
-  }, [customerQuery]);
+  const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
   const lines = Object.values(cart);
   const total = lines.reduce((sum, line) => sum + Number(line.price) * line.quantity, 0);
   const selectedCustomer = customers.find(c => c.id === customerId);
@@ -220,7 +203,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
               <div className="col-wrap">
                 <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={searchOpen} aria-controls="pos-search-listbox" aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
                 {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
-                {customerListOpen && <div className="pos-customer-list">{displayedCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!displayedCustomers.length && <p className="pos-customer-empty">{customerSearching ? "Đang tìm kiếm..." : customerQuery.trim() ? "Không tìm thấy khách hàng" : "Chưa có khách hàng"}</p>}</div>}
+                {customerListOpen && <div className="pos-customer-list">{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">{customerQuery.trim() ? "Không tìm thấy khách hàng" : "Chưa có khách hàng"}</p>}</div>}
 
                 {isDelivery ? (
                   <div className="pos-delivery-form">
