@@ -71,6 +71,18 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [syncing, setSyncing] = useState(false);
   const productSearchRef = useRef<HTMLInputElement>(null);
   const customerSearchRef = useRef<HTMLInputElement>(null);
+  const customerSearchWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!customerListOpen) return;
+    const onPointer = (e: PointerEvent) => {
+      if (customerSearchWrapRef.current && !customerSearchWrapRef.current.contains(e.target as Node)) setCustomerListOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setCustomerListOpen(false); };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onPointer); document.removeEventListener("keydown", onKey); };
+  }, [customerListOpen]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -235,9 +247,11 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                 <div className="pos-staff-row"><span>{profile.full_name}</span><b>⌄</b><time>{new Intl.DateTimeFormat("vi-VN").format(new Date())}</time></div>
               </div>
               <div className="col-wrap">
-                <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={searchOpen} aria-controls="pos-search-listbox" aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
-                {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
-                {customerListOpen && <div className="pos-customer-list"><div style={{padding:"6px 12px",borderBottom:"1px solid #eef1f4",fontSize:10.5,color:"#8a96a7"}}>{filteredCustomers.length} khách hàng{customerQuery.trim() ? ` · lọc theo "${customerQuery.trim()}"` : ""}</div>{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">{customerQuery.trim() ? "Không tìm thấy khách hàng" : "Chưa có khách hàng"}</p>}</div>}
+                <div ref={customerSearchWrapRef}>
+                  <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={customerListOpen} aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button type="button" onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
+                  {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
+                  {customerListOpen && <div className="pos-customer-list"><div style={{padding:"6px 12px",borderBottom:"1px solid #eef1f4",fontSize:10.5,color:"#8a96a7"}}>{filteredCustomers.length} khách hàng{customerQuery.trim() ? ` · lọc theo "${customerQuery.trim()}"` : ""}</div>{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">{customerQuery.trim() ? "Không tìm thấy khách hàng" : "Chưa có khách hàng"}</p>}</div>}
+                </div>
 
                 {isDelivery ? (
                   <div className="pos-delivery-form">

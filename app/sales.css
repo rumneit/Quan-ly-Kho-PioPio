@@ -161,7 +161,7 @@
 }
 .pos-customer-selected button { margin-left: auto !important; border: 0 !important; background: transparent !important; color: #8a96a7 !important; cursor: pointer !important; }
 .pos-customer-list {
-  position: absolute !important; z-index: 50 !important; top: calc(100% + 4px) !important; left: 0 !important; right: 0 !important;
+  display: block !important; margin: 0 0 8px !important;
   max-height: 220px !important; overflow: auto !important; border: 1px solid #dfe4ea !important; border-radius: 8px !important;
   background: #fff !important; box-shadow: 0 8px 24px rgba(16,30,54,.14) !important;
 }
