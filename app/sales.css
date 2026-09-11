@@ -320,6 +320,9 @@
 .pos-normal-name { display: -webkit-box !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; overflow: hidden !important; font-size: 12.544px !important; font-weight: 500 !important; color: #2e3541 !important; line-height: 1.3 !important; min-height: 2.6em !important; }
 .pos-normal-info small { font-size: 11px !important; color: #8a96a7 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
 .pos-normal-info b { font-size: 12.544px !important; font-weight: 600 !important; color: #0070f4 !important; }
+.pos-card-box { margin-top: 2px !important; width: fit-content !important; padding: 3px 6px !important; border: 1px solid #cfe0f5 !important; border-radius: 5px !important; background: #eef5ff !important; color: #0070f4 !important; font-size: 10.5px !important; font-weight: 600 !important; line-height: 1.4 !important; cursor: pointer !important; transition: background .15s, color .15s !important; }
+.pos-card-box:hover { background: #0070f4 !important; color: #fff !important; }
+.pos-cart-unit select { height: 22px !important; max-width: 120px !important; padding: 0 4px !important; border: 1px solid #d0d7de !important; border-radius: 4px !important; background: #fff !important; font-size: 10.5px !important; color: #3e464f !important; cursor: pointer !important; }
 
 /* col-left flex column so cart-footer sits below list */
 .col-left { display: flex !important; flex-direction: column !important; }

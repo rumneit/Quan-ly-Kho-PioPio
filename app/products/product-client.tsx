@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckSquare, ChevronDown, ChevronUp, Columns3, Download, FileUp, HelpCircle, ImageIcon, Info, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
+import { CheckSquare, ChevronDown, ChevronUp, Columns3, Download, FileUp, HelpCircle, ImageIcon, Info, Pencil, Plus, Search, Settings, SlidersHorizontal, Tag, X } from "lucide-react";
 import { getXLSX } from "@/lib/xlsx";
 import type { Profile } from "@/lib/auth";
 import ManagementHeader from "@/app/management-header";
@@ -108,6 +108,8 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   const [showColumns, setShowColumns] = useState(false);
   const columnsRef = useRef<HTMLDivElement>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
+  const closeProductModal = () => { setShowCreate(false); setEditing(null); };
   const [createTab, setCreateTab] = useState<"info" | "desc">("info");
   const [priceOpen, setPriceOpen] = useState(true);
   const [stockOpen, setStockOpen] = useState(true);
@@ -159,7 +161,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   useEffect(() => {
     if (!showCreate && !showImportChooser && !showImportExcel && !showSuggested) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setShowCreate(false); setShowImportChooser(false); setShowImportExcel(false); setShowSuggested(false); }
+      if (e.key === "Escape") { setShowCreate(false); setShowImportChooser(false); setShowImportExcel(false); setShowSuggested(false); setEditing(null); }
     };
     document.addEventListener("keydown", onKey);
     // lock body scroll when any modal open to avoid background scroll lech
@@ -238,6 +240,17 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     };
     if (!payload.name) { setSaving(false); setNotice("Tên hàng là bắt buộc (giống KiotViet)."); return; }
     if (!payload.category_id) { setSaving(false); setNotice("Vui lòng chọn nhóm hàng (Bắt buộc) — giống KiotViet."); return; }
+    if (editing) {
+      const response = await fetch("/api/products", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editing.id, ...payload }) });
+      const result = await response.json(); setSaving(false);
+      if (!response.ok) { setNotice(result.error || "Không thể lưu hàng hóa."); return; }
+      const enriched = result.product as Product;
+      const cat = categoryOptions.find((c) => c.id === newProduct.category_id)?.name || null;
+      const sup = supplierOptions.find((s) => s.id === newProduct.supplier_id)?.name || null;
+      setProducts((current) => current.map((p) => p.id === editing.id ? { ...p, ...enriched, category_name: cat, supplier_name: sup } as Product : p));
+      closeProductModal(); setPage(1); setNotice("Đã cập nhật hàng hóa.");
+      return;
+    }
     const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const result = await response.json(); setSaving(false);
     if (!response.ok) { setNotice(result.error || "Không thể lưu hàng hóa."); return; }
@@ -256,6 +269,23 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     setNewProduct({ ...EMPTY_PRODUCT, branch_id: branchOptions[0]?.id || "" });
     setCreateImages([]);
     setProductUnits([]); setProductAttributes([]); setProductPriceLists([]); setProductComponents([]);
+  }
+
+  function openEdit(product: Product) {
+    setEditing(product);
+    setNewProduct({
+      name: product.name, sku: product.sku, barcode: product.barcode || "", price: String(product.price ?? ""), cost: String(product.cost ?? ""), stock: String(product.stock_quantity ?? "0"),
+      category_id: product.category_id || "", supplier_id: product.supplier_id || "", brand_id: product.brand_id || "", branch_id: "", product_type: product.product_type || "product",
+      description: product.description || "", note: product.note || "", base_unit: product.base_unit || "Cái", sold_by: product.sold_by || "quantity", weight: product.weight != null ? String(product.weight) : "", warranty_months: String(product.warranty_months ?? 0), tax_percent: String(product.tax_percent ?? 0), min_stock: product.min_stock != null ? String(product.min_stock) : "", max_stock: product.max_stock != null ? String(product.max_stock) : "", location: product.location || "",
+    });
+    setProductUnits((product.units || []).map((u) => ({ name: u.name, conversion: String(u.conversion ?? 1), price: String(u.price ?? 0) })));
+    setProductAttributes(Object.entries(product.attributes || {}).map(([name, values]) => ({ name, values: values.join(", ") })));
+    setProductPriceLists((product.price_lists || []).map((l) => ({ name: l.name, price: String(l.price ?? 0) })));
+    setCreateImages(product.images || []);
+    setDirectSale(product.direct_sale ?? true);
+    setProductComponents([]);
+    setCreateTab("info");
+    setShowCreate(true);
   }
 
   async function createCategory(name: string, parentId?: string, description?: string) {
@@ -515,7 +545,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
         {notice && <div className="product-notice" role="status">{notice}<button type="button" onClick={() => setNotice("")}>×</button></div>}
         {selected.length > 0 && <div className="bulk-bar"><CheckSquare size={19} /><b>{selected.length} hàng đã chọn</b><button type="button" onClick={() => bulkStatus(true)}>Đang kinh doanh</button><button type="button" onClick={() => bulkStatus(false)}>Ngừng kinh doanh</button><button type="button" onClick={() => setSelected([])}>Bỏ chọn</button></div>}
         <div className="product-table"><table><thead><tr><th><input aria-label="Chọn tất cả hàng trên trang" type="checkbox" checked={checkedAll} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...rows.map((item) => item.id)])) : selected.filter((id) => !rows.some((item) => item.id === id)))} /></th>{visible.image && <th>Hình ảnh</th>}{visible.sku && <th><button onClick={() => sortBy("sku")}>Mã hàng{sortMark("sku")}</button></th>}{visible.name && <th><button onClick={() => sortBy("name")}>Tên hàng{sortMark("name")}</button></th>}{visible.category && <th>Nhóm hàng</th>}{visible.type && <th>Loại hàng</th>}{visible.linked && <th>Liên kết kênh bán</th>}{visible.price && <th><button onClick={() => sortBy("price")}>Giá bán{sortMark("price")}</button></th>}{visible.cost && <th>Giá vốn</th>}{visible.brand && <th>Thương hiệu</th>}{visible.stock && <th><button onClick={() => sortBy("stock_quantity")}>Tồn kho{sortMark("stock_quantity")}</button></th>}{visible.location && <th>Vị trí</th>}{visible.reserved && <th>Khách đặt</th>}{visible.created && <th>Thời gian tạo</th>}{visible.expected && <th>Dự kiến hết hàng</th>}{visible.minStock && <th>Định mức tồn ít nhất</th>}{visible.maxStock && <th>Định mức tồn nhiều nhất</th>}{visible.status && <th>Trạng thái</th>}</tr></thead><tbody>
-          {rows.map((product) => <ProductRow key={product.id} product={product} visible={visible} selected={selected.includes(product.id)} expanded={expanded === product.id} onSelect={() => setSelected((current) => current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id])} onExpand={() => setExpanded(expanded === product.id ? null : product.id)} />)}
+          {rows.map((product) => <ProductRow key={product.id} product={product} visible={visible} selected={selected.includes(product.id)} expanded={expanded === product.id} onSelect={() => setSelected((current) => current.includes(product.id) ? current.filter((id) => id !== product.id) : [...current, product.id])} onExpand={() => setExpanded(expanded === product.id ? null : product.id)} onEdit={() => openEdit(product)} />)}
           {!rows.length && <tr><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><div className="product-empty"><ImageIcon size={48} /><strong>Không có hàng hóa phù hợp bộ lọc</strong><p>Thử thay đổi điều kiện tìm kiếm hoặc đặt lại bộ lọc.</p><button type="button" onClick={() => updateFilters(DEFAULT_FILTERS)}>Xóa bộ lọc</button></div></td></tr>}
         </tbody></table></div>
         <footer className="product-pager"><span>Hiển thị {filtered.length ? (safePage - 1) * PAGE_SIZE + 1 : 0}–{Math.min(safePage * PAGE_SIZE, filtered.length)} / {filtered.length} hàng hóa</span><div><button disabled={safePage === 1} onClick={() => setPage(safePage - 1)}>‹</button>{Array.from({ length: totalPages }, (_, index) => index + 1).slice(Math.max(0, safePage - 3), safePage + 2).map((number) => <button key={number} className={safePage === number ? "current" : ""} onClick={() => setPage(number)}>{number}</button>)}<button disabled={safePage === totalPages} onClick={() => setPage(safePage + 1)}>›</button></div></footer>
@@ -524,10 +554,10 @@ export default function ProductClient({ profile, initialProducts, initialCategor
     <a className="kv-help" href="tel:0704040044">💬 <span>0704 04 0044</span></a>
 
     {/* ===== Tạo hàng hóa - 100% KiotViet ảnh 1 ===== */}
-    {showCreate && <div className="modal-backdrop kv-backdrop" onClick={() => setShowCreate(false)}><form className="kv-modal-large" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}>
+    {showCreate && <div className="modal-backdrop kv-backdrop" onClick={closeProductModal}><form className="kv-modal-large" onClick={(e) => e.stopPropagation()} onSubmit={createProduct}>
       <header className="kv-modal-header">
-        <h2>{newProduct.product_type === "service" ? "Tạo dịch vụ" : newProduct.product_type === "combo" ? "Tạo combo - đóng gói" : "Tạo hàng hóa"}</h2>
-        <button type="button" className="kv-modal-close" onClick={() => setShowCreate(false)} aria-label="Đóng"><X size={18} /></button>
+        <h2>{editing ? (newProduct.product_type === "service" ? "Sửa dịch vụ" : newProduct.product_type === "combo" ? "Sửa combo - đóng gói" : "Sửa hàng hóa") : (newProduct.product_type === "service" ? "Tạo dịch vụ" : newProduct.product_type === "combo" ? "Tạo combo - đóng gói" : "Tạo hàng hóa")}</h2>
+        <button type="button" className="kv-modal-close" onClick={closeProductModal} aria-label="Đóng"><X size={18} /></button>
       </header>
       <div className="kv-modal-tabs">
         <button type="button" className={createTab === "info" ? "active" : ""} onClick={() => setCreateTab("info")}>Thông tin</button>
@@ -683,12 +713,12 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       <footer className="kv-modal-footer">
         <label className="kv-check"><input type="checkbox" checked={directSale} onChange={(e) => setDirectSale(e.target.checked)} /><span>Bán trực tiếp</span><Info size={14} color="#8a96a7" /></label>
         <div className="kv-footer-actions">
-          <button type="button" className="kv-btn kv-btn-file" onClick={() => setShowCreate(false)}>Bỏ qua</button>
-          <div className="kv-split-btn">
+          <button type="button" className="kv-btn kv-btn-file" onClick={closeProductModal}>Bỏ qua</button>
+          {!editing && <div className="kv-split-btn">
             <button type="button" className="kv-btn kv-btn-file" disabled={saving} onClick={createProductAndAddMore}>Lưu &amp; Tạo thêm hàng</button>
             <button type="button" className="kv-btn kv-btn-file" style={{ padding: "0 8px", borderLeft: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}><ChevronDown size={14} /></button>
-          </div>
-          <button className="kv-btn kv-btn-primary" disabled={saving} style={{ minWidth: 72 }}>{saving ? "Đang lưu..." : "Lưu"}</button>
+          </div>}
+          <button className="kv-btn kv-btn-primary" disabled={saving} style={{ minWidth: 72 }}>{saving ? "Đang lưu..." : editing ? "Lưu thay đổi" : "Lưu"}</button>
         </div>
       </footer>
     </form></div>}
@@ -783,7 +813,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
   </div>;
 }
 
-function ProductRow({ product, visible, selected, expanded, onSelect, onExpand }: { product: Product; visible: Record<ColumnKey, boolean>; selected: boolean; expanded: boolean; onSelect: () => void; onExpand: () => void }) {
+function ProductRow({ product, visible, selected, expanded, onSelect, onExpand, onEdit }: { product: Product; visible: Record<ColumnKey, boolean>; selected: boolean; expanded: boolean; onSelect: () => void; onExpand: () => void; onEdit: () => void }) {
   const typeName = product.product_type === "service" ? "Dịch vụ" : product.product_type === "combo" ? "Combo - đóng gói" : "Hàng hóa";
-  return <><tr className="product-row"><td><input type="checkbox" aria-label={`Chọn ${product.name}`} checked={selected} onChange={onSelect} /></td>{visible.image && <td><span className="product-thumb"><ImageIcon size={20} /></span></td>}{visible.sku && <td>{product.sku}</td>}{visible.name && <td><button className="product-name" onClick={onExpand}>{product.name}</button></td>}{visible.category && <td>{product.category_name || "—"}</td>}{visible.type && <td>{typeName}</td>}{visible.linked && <td>{product.linked_sale_channel ? "Có" : "Không"}</td>}{visible.price && <td>{money(Number(product.price))}</td>}{visible.cost && <td>{money(Number(product.cost || 0))}</td>}{visible.brand && <td>{product.brand || "—"}</td>}{visible.stock && <td>{product.stock_quantity}</td>}{visible.location && <td>{product.location || "—"}</td>}{visible.reserved && <td>0</td>}{visible.created && <td>{dateTime(product.created_at)}</td>}{visible.expected && <td>{dateTime(product.expected_out_of_stock_at)}</td>}{visible.minStock && <td>{product.min_stock ?? 0}</td>}{visible.maxStock && <td>{product.max_stock ?? 0}</td>}{visible.status && <td><span className={product.active ? "status-active" : "status-inactive"}>{product.active ? "Đang kinh doanh" : "Ngừng kinh doanh"}</span></td>}</tr>{expanded && <tr className="product-detail"><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><nav><button className="active">Thông tin</button><button>Mô tả, ghi chú</button><button>Thẻ kho</button><button>Tồn kho</button></nav><div><p><b>Mã hàng:</b> {product.sku}</p><p><b>Giá bán:</b> {money(Number(product.price))}</p><p><b>Giá vốn:</b> {money(Number(product.cost || 0))}</p><p><b>Tồn kho:</b> {product.stock_quantity}</p>{product.description && <p><b>Mô tả:</b> {product.description}</p>}</div></td></tr>}</>;
+  return <><tr className="product-row"><td><input type="checkbox" aria-label={`Chọn ${product.name}`} checked={selected} onChange={onSelect} /></td>{visible.image && <td><span className="product-thumb"><ImageIcon size={20} /></span></td>}{visible.sku && <td>{product.sku}</td>}{visible.name && <td><span className="product-name-cell"><button className="product-name" onClick={onExpand}>{product.name}</button><button type="button" className="product-edit-btn" title="Sửa hàng hóa" onClick={onEdit}><Pencil size={13} /></button></span></td>}{visible.category && <td>{product.category_name || "—"}</td>}{visible.type && <td>{typeName}</td>}{visible.linked && <td>{product.linked_sale_channel ? "Có" : "Không"}</td>}{visible.price && <td>{money(Number(product.price))}</td>}{visible.cost && <td>{money(Number(product.cost || 0))}</td>}{visible.brand && <td>{product.brand || "—"}</td>}{visible.stock && <td>{product.stock_quantity}</td>}{visible.location && <td>{product.location || "—"}</td>}{visible.reserved && <td>0</td>}{visible.created && <td>{dateTime(product.created_at)}</td>}{visible.expected && <td>{dateTime(product.expected_out_of_stock_at)}</td>}{visible.minStock && <td>{product.min_stock ?? 0}</td>}{visible.maxStock && <td>{product.max_stock ?? 0}</td>}{visible.status && <td><span className={product.active ? "status-active" : "status-inactive"}>{product.active ? "Đang kinh doanh" : "Ngừng kinh doanh"}</span></td>}</tr>{expanded && <tr className="product-detail"><td colSpan={COLUMNS.filter((column) => visible[column.key]).length + 1}><nav><button className="active">Thông tin</button><button>Mô tả, ghi chú</button><button>Thẻ kho</button><button>Tồn kho</button></nav><div><p><b>Mã hàng:</b> {product.sku}</p><p><b>Giá bán:</b> {money(Number(product.price))}</p><p><b>Giá vốn:</b> {money(Number(product.cost || 0))}</p><p><b>Tồn kho:</b> {product.stock_quantity}</p>{product.description && <p><b>Mô tả:</b> {product.description}</p>}</div></td></tr>}</>;
 }

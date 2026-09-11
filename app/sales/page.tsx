@@ -8,7 +8,7 @@ export default async function SalesPage() {
   const [productsResult, customersResult, ordersResult, groupsResult] = await Promise.all([
     supabase
       .from("products")
-      .select("id,name,sku,price,stock_quantity,active")
+      .select("id,name,sku,price,stock_quantity,active,base_unit,units")
       .eq("active", true)
       .order("name"),
     supabase.from("customers").select("id,name,phone").order("name").limit(5000),

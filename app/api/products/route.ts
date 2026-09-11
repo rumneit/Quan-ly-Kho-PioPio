@@ -182,3 +182,26 @@ export async function PATCH(request: Request) {
   if (error) { console.error("[api:products:PATCH]", error); return NextResponse.json({ error: "Không thể cập nhật hàng hóa." }, { status: 400 }); }
   return NextResponse.json({ updated: ids.length });
 }
+
+export async function PUT(request: Request) {
+  const auth = await requireApiProfile("manager"); if ("error" in auth) return NextResponse.json({ error: auth.error }, { status: auth.status }); const { supabase, profile } = auth;
+  const body = await readJsonBody(request);
+  if (!body || typeof body.id !== "string" || !body.id) return NextResponse.json({ error: "Hàng hóa không hợp lệ." }, { status: 400 });
+  const name = String(body.name || "").trim();
+  const sku = String(body.sku || "").trim().toUpperCase();
+  const price = Number(body.price);
+  const cost = Number(body.cost ?? 0);
+  if (!name || !sku || !Number.isFinite(price) || price < 0 || !Number.isFinite(cost) || cost < 0) return NextResponse.json({ error: "Dữ liệu hàng hóa không hợp lệ." }, { status: 400 });
+  const basePayload: Record<string, unknown> = {
+    name, sku, price, cost,
+    category_id: body.category_id ? String(body.category_id) : null,
+    supplier_id: body.supplier_id ? String(body.supplier_id) : null,
+    product_type: ["product","service","combo"].includes(String(body.product_type)) ? body.product_type : "product",
+    direct_sale: body.direct_sale !== false, linked_sale_channel: Boolean(body.linked_sale_channel),
+    description: body.description || body.note || null,
+    ...catalogFields(body),
+  };
+  const { data, error } = await supabase.from("products").update(basePayload).eq("id", body.id).eq("store_id", profile.store_id).select().single();
+  if (error) { console.error("[api:products:PUT]", error); return NextResponse.json({ error: isUniqueViolation(error) ? "Mã hàng đã tồn tại." : "Không thể cập nhật hàng hóa." }, { status: 400 }); }
+  return NextResponse.json({ product: data });
+}

@@ -487,3 +487,6 @@
   .kv-modal-footer{ flex-direction:column!important; align-items:stretch!important; }
   .kv-footer-actions{ width:100%!important; justify-content:flex-end!important; }
 }
+.product-name-cell{ display:inline-flex!important; align-items:center!important; gap:6px!important; }
+.product-edit-btn{ display:inline-flex!important; align-items:center!important; justify-content:center!important; width:24px!important; height:24px!important; padding:0!important; border:0!important; border-radius:5px!important; background:transparent!important; color:#8fa0b1!important; cursor:pointer!important; }
+.product-edit-btn:hover{ background:#eef4fa!important; color:#0878f9!important; }

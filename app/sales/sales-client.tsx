@@ -6,13 +6,21 @@ import { ArrowLeftRight, ClipboardList, Clock, Image as ImageIcon, Menu, Minus, 
 import type { Profile } from "@/lib/auth";
 import { VN_PROVINCES, getWardsForProvince } from "@/app/lib/vietnam-data";
 
-type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean };
+type ProductUnit = { name: string; conversion: number; price?: number };
+type Product = { id: string; name: string; sku: string; price: number; stock_quantity: number; active: boolean; base_unit?: string; units?: ProductUnit[] };
 type Customer = { id: string; name: string; phone?: string | null };
 type CustomerGroup = { id: string; name: string };
 type PendingOrder = { id: string; order_number: number; status: string; total: number; created_at: string; customers?: { name?: string } | null };
-type CartLine = Product & { quantity: number };
+type CartLine = Product & { quantity: number; unitName: string };
 type Props = { profile: Profile; products: Product[]; customers: Customer[]; pendingOrders: PendingOrder[]; customerGroups: CustomerGroup[] };
 const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+
+const unitOf = (p: Product, unitName: string) => unitName ? (p.units || []).find(u => u.name === unitName) || null : null;
+const piecesPer = (p: Product, unitName: string) => { const u = unitOf(p, unitName); return u ? (Number(u.conversion) || 1) : 1; };
+const unitPriceOf = (p: Product, unitName: string) => { const u = unitOf(p, unitName); return u ? (u.price != null && Number(u.price) ? Number(u.price) : Number(p.price) * piecesPer(p, unitName)) : Number(p.price); };
+const boxUnit = (p: Product) => p.units && p.units.length ? [...p.units].sort((a, b) => (Number(b.conversion) || 1) - (Number(a.conversion) || 1))[0] : null;
+const linePieces = (l: CartLine) => l.quantity * piecesPer(l, l.unitName);
+const lineTotal = (l: CartLine) => l.quantity * unitPriceOf(l, l.unitName);
 
 export default function SalesClient({ profile, products, customers, pendingOrders, customerGroups }: Props) {
   const [query, setQuery] = useState("");
@@ -78,7 +86,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const results = useMemo(() => query.trim() ? products.filter(p => `${p.name} ${p.sku}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [], [products, query]);
   const filteredCustomers = useMemo(() => customers.filter(c => `${c.name} ${c.phone || ""}`.toLowerCase().includes(customerQuery.toLowerCase())).slice(0, 20), [customers, customerQuery]);
   const lines = Object.values(cart);
-  const total = lines.reduce((sum, line) => sum + Number(line.price) * line.quantity, 0);
+  const total = lines.reduce((sum, line) => sum + lineTotal(line), 0);
   const selectedCustomer = customers.find(c => c.id === customerId);
   const isDelivery = mode === "delivery";
 
@@ -87,10 +95,24 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     setCart(c => {
       const e = c[product.id];
       const nextQty = (e?.quantity || 0) + 1;
-      if (nextQty > product.stock_quantity) {
+      const unitName = e?.unitName || "";
+      if (nextQty * piecesPer(product, unitName) > product.stock_quantity) {
         setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}. Server sẽ chặn khi thanh toán.`);
       }
-      return { ...c, [product.id]: { ...product, quantity: nextQty } };
+      return { ...c, [product.id]: { ...product, quantity: nextQty, unitName } };
+    });
+  }
+  function addBoxProduct(product: Product) {
+    const box = boxUnit(product); if (!box) return;
+    setError(""); setNotice(""); setLastOrder(""); setSearchOpen(false); setQuery("");
+    setCart(c => {
+      const e = c[product.id];
+      const nextQty = (e?.quantity || 0) + 1;
+      const pieces = nextQty * piecesPer(product, box.name);
+      if (pieces > product.stock_quantity) {
+        setError(`Tồn kho không đủ cho ${product.name}: cần ${pieces}, còn ${product.stock_quantity}. Server sẽ chặn khi thanh toán.`);
+      }
+      return { ...c, [product.id]: { ...product, quantity: nextQty, unitName: box.name } };
     });
   }
   function changeQuantity(product: Product, amount: number) {
@@ -99,12 +121,24 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       if (!e) return c;
       const q = e.quantity + amount;
       if (q <= 0) { const n = { ...c }; delete n[product.id]; return n; }
-      if (q > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}.`);
+      if (q * piecesPer(e, e.unitName) > product.stock_quantity) {
+        setError(`Tồn kho không đủ cho ${product.name}: cần ${q * piecesPer(e, e.unitName)}, còn ${product.stock_quantity}.`);
       } else {
         setError("");
       }
       return { ...c, [product.id]: { ...e, quantity: q } };
+    });
+  }
+  function changeUnit(product: Product, unitName: string) {
+    setCart(c => {
+      const e = c[product.id];
+      if (!e) return c;
+      if (e.quantity * piecesPer(e, unitName) > product.stock_quantity) {
+        setError(`Tồn kho không đủ cho ${product.name} khi bán theo ${unitName || "cái"}: cần ${e.quantity * piecesPer(e, unitName)}, còn ${product.stock_quantity}.`);
+      } else {
+        setError("");
+      }
+      return { ...c, [product.id]: { ...e, unitName } };
     });
   }
   function removeLine(id: string) { setCart(c => { const n = { ...c }; delete n[id]; return n; }); }
@@ -127,15 +161,15 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   async function pay() {
     if (!lines.length || saving) return;
     // P0: client stock check before pay (server cũng check, nhưng báo sớm ở UI)
-    const outOfStock = lines.find(l => l.quantity > l.stock_quantity);
+    const outOfStock = lines.find(l => linePieces(l) > l.stock_quantity);
     if (outOfStock) {
-      setError(`Tồn kho không đủ cho ${outOfStock.name}: yêu cầu ${outOfStock.quantity}, còn ${outOfStock.stock_quantity}. Vui lòng giảm số lượng.`);
+      setError(`Tồn kho không đủ cho ${outOfStock.name}: yêu cầu ${linePieces(outOfStock)}, còn ${outOfStock.stock_quantity}. Vui lòng giảm số lượng.`);
       return;
     }
     if (isDelivery && (!receiverName || !receiverPhone)) { setError("Vui lòng nhập tên và số điện thoại người nhận."); return; }
     if (isDelivery && !area) { setError("Vui lòng chọn khu vực (Tỉnh/TP) giao hàng."); return; }
     setSaving(true); setError(""); setNotice(""); setLastOrder("");
-    const items = lines.map(l => ({ product_id: l.id, quantity: l.quantity, unit_price: Number(l.price) }));
+    const items = lines.map(l => ({ product_id: l.id, quantity: linePieces(l), unit_price: Number(l.price) }));
     try {
       const orderRes = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer_id: customerId || null, status: "paid", note: customerNote, items }) });
       const orderData = await orderRes.json();
@@ -159,7 +193,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         <div className="col-left-control">
           <label className="pos-global-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={searchOpen} aria-controls="pos-search-listbox" aria-autocomplete="list" ref={productSearchRef} value={query} onChange={e => { setQuery(e.target.value); setSearchOpen(true); }} onFocus={() => setSearchOpen(true)} placeholder="Tìm hàng hóa (F3)" autoFocus /></label>
           {searchOpen && query.trim() && <div id="pos-search-listbox" role="listbox" className="pos-search-results">
-            {results.map(p => <button key={p.id} onClick={() => addProduct(p)}><span className="pos-search-name">{p.name}<small>{p.sku} · Tồn {p.stock_quantity}</small></span><b>{money(Number(p.price))}</b></button>)}
+            {results.map(p => { const box = boxUnit(p); return <button key={p.id} onClick={() => addProduct(p)}><span className="pos-search-name">{p.name}<small>{p.sku} · Tồn {p.stock_quantity}{box ? ` · ${money(unitPriceOf(p, box.name))}/${box.name}` : ""}</small></span><b>{money(Number(p.price))}</b></button>; })}
             {!results.length && <p className="pos-customer-empty">Không tìm thấy hàng hóa</p>}
           </div>}
         </div>
@@ -184,7 +218,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         <div className="cart-container">
           <div className="pos-cart-list">
             <div className="pos-cart-head"><span>{lines.length} hàng hóa</span><button onClick={() => setCart({})} disabled={!lines.length}><Trash2 size={13} /> Xóa chọn tất cả</button></div>
-            {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}</small></div><div className="pos-cart-right"><b>{money(Number(line.price) * line.quantity)}</b><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>{isDelivery ? "Điền thông tin giao hàng bên phải." : "Bấm vào sản phẩm bên phải để thêm vào đơn."}</p></div>}
+            {lines.length ? lines.map(line => <article key={line.id}><div className="pos-cart-info"><strong>{line.name}</strong><small>{line.sku} · Tồn {line.stock_quantity}{line.unitName ? ` · ${linePieces(line).toLocaleString("vi-VN")} ${line.base_unit || "cái"}` : ""}</small></div><div className="pos-cart-right"><b>{money(lineTotal(line))}</b><div className="pos-cart-unit"><select value={line.unitName} onChange={e => changeUnit(line, e.target.value)} aria-label="Đơn vị tính"><option value="">{line.base_unit || "Cái"}</option>{(line.units || []).map(u => <option key={u.name} value={u.name}>{u.name} ({money(unitPriceOf(line, u.name))})</option>)}</select></div><div className="pos-quantity"><button onClick={() => changeQuantity(line, -1)}><Minus size={12} /></button><span>{line.quantity}</span><button onClick={() => changeQuantity(line, 1)}><Plus size={12} /></button></div><button className="pos-line-remove" onClick={() => removeLine(line.id)}><X size={12} /></button></div></article>) : <div className="pos-empty-cart"><ShoppingCart size={40} /><strong>Hóa đơn chưa có hàng hóa</strong><p>{isDelivery ? "Điền thông tin giao hàng bên phải." : "Bấm vào sản phẩm bên phải để thêm vào đơn."}</p></div>}
           </div>
         </div>
         <div className="cart-footer">
@@ -223,11 +257,12 @@ export default function SalesClient({ profile, products, customers, pendingOrder
                       {paginatedProducts.map(product => {
                         const colors = ["#f8b4c8","#c9b3ff","#ffd166","#a8e6cf","#a0d8ef","#ffb347","#d4a5ff","#a0f0d0"];
                         const bg = colors[product.id.charCodeAt(0) % colors.length];
+                        const box = boxUnit(product);
                         return (
-                          <button key={product.id} className="pos-normal-card" onClick={() => addProduct(product)}>
+                          <div key={product.id} role="button" tabIndex={0} className="pos-normal-card" onClick={() => addProduct(product)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addProduct(product); } }}>
                             <span className="pos-normal-img" style={{background:bg}}><ImageIcon size={22} aria-hidden="true" /></span>
-                            <span className="pos-normal-info"><span className="pos-normal-name">{product.name}</span><small>{product.sku} · Tồn {product.stock_quantity}</small><b>{money(Number(product.price))}</b></span>
-                          </button>
+                            <span className="pos-normal-info"><span className="pos-normal-name">{product.name}</span><small>{product.sku} • Tồn {product.stock_quantity}</small><b>{money(Number(product.price))}</b>{box && <button type="button" className="pos-card-box" onClick={e => { e.stopPropagation(); addBoxProduct(product); }}>+ 1 {box.name} {money(unitPriceOf(product, box.name))}</button>}</span>
+                          </div>
                         );
                       })}
                     </div>
