@@ -82,9 +82,9 @@
 /* Preview theo chieu in */
 .inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
 .inv-paper-a5:not(.inv-landscape) .inv-sheet{width:130mm}
-/* Khong tran ra ngoai khung khi doi Ngang/Doc: cot theo dung % + xuong dong theo tu */
+/* Khong xuong dong trong bang: chu luon 1 line, neu dai thi thu nho bang font-size dong */
 .inv-table{table-layout:fixed;width:100%}
-.inv-table th,.inv-table td{overflow:hidden;overflow-wrap:break-word}
+.inv-table th,.inv-table td{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .inv-paper-a5:not(.inv-landscape) .inv-header-left p{white-space:normal;line-height:1.3}
 .inv-paper-a5:not(.inv-landscape) .inv-info p{white-space:normal}
 
@@ -118,8 +118,8 @@
   .inv-paper-a5.inv-landscape .inv-sheet,.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:100%!important;padding:0!important}
   /* Khi in: thay o nhap bang text day du, tu xuong dong - khong bi che */
   .inv-cell,.inv-line{display:none!important}
-  .print-value{display:inline!important;white-space:normal;word-break:break-word;font:inherit}
-  .inv-table th,.inv-table td{white-space:normal;overflow:visible}
+  .print-value{display:inline!important;white-space:nowrap;font:inherit}
+  .inv-table th,.inv-table td{overflow:hidden}
   img,svg{max-width:100%!important}
   /* Nhieu hang: nen bang co chu dinh — van dep, khong dua thZoom lam mo chu */
   .inv-dense .inv-table th,.inv-dense .inv-table td{padding:1px 2px!important}

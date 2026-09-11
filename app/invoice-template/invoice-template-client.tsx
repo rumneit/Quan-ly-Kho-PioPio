@@ -20,6 +20,12 @@ const qtyUS = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDig
 const fmtQty = (n: number) => Number.isInteger(n) ? moneyUS(n) : qtyUS(n);
 // Tiền luôn có chữ đ sau để khách dễ nhận diện
 const moneyVnd = (n: number) => `${moneyUS(n)}đ`;
+// Tên SP: càng ngắn càng to, càng dài càng nhỏ — luôn 1 dòng
+const nameFontPx = (ten: string, paper: string) => {
+  const len = ten.trim().length;
+  const base = len <= 14 ? 20 : len <= 22 ? 18 : len <= 32 ? 16 : len <= 45 ? 14 : 12.5;
+  return `${(paper === "a5-p" ? base * 0.72 : base).toFixed(1)}px`;
+};
 // Nhận cả kiểu VN "1.000.000" lẫn kiểu US "1,000,000" — không âm thầm thành 1
 const parseNum = (v: string) => {
   let s = String(v).replace(/\s/g, "");
@@ -239,7 +245,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               return (
                 <tr key={i}>
                   <td className="c">{sttMap.get(i) ?? ""}</td>
-                  <td><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /><span className="print-value">{r.ten}</span></td>
+                  <td style={{ fontSize: nameFontPx(r.ten, paper) }}><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /><span className="print-value">{r.ten}</span></td>
                   <td><input className="inv-cell" aria-label={`ĐVT dòng ${i + 1}`} value={r.dvt} onChange={(e) => setRow(i, { dvt: e.target.value })} /><span className="print-value">{r.dvt}</span></td>
                   <td className={slRaw ? "right" : "c"}>
                     <input className="inv-cell" inputMode="decimal" aria-label={`Số lượng dòng ${i + 1}`}
