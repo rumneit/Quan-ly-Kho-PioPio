@@ -68,6 +68,23 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   const [showOrderProcessing, setShowOrderProcessing] = useState(false);
   const [showReturn, setShowReturn] = useState(false);
   const [showPrintSettings, setShowPrintSettings] = useState(false);
+  const [printPaper, setPrintPaper] = useState("80mm");
+  const [printAuto, setPrintAuto] = useState(true);
+  const [printLogo, setPrintLogo] = useState(false);
+
+  useEffect(() => {
+    try {
+      const s = JSON.parse(window.localStorage.getItem("piopio-print-settings") || "{}");
+      if (s.paper) setPrintPaper(s.paper);
+      if (typeof s.auto === "boolean") setPrintAuto(s.auto);
+      if (typeof s.logo === "boolean") setPrintLogo(s.logo);
+    } catch {}
+  }, []);
+  function savePrintSettings(patch: { paper?: string; auto?: boolean; logo?: boolean }) {
+    const next = { paper: patch.paper ?? printPaper, auto: patch.auto ?? printAuto, logo: patch.logo ?? printLogo };
+    setPrintPaper(next.paper); setPrintAuto(next.auto); setPrintLogo(next.logo);
+    window.localStorage.setItem("piopio-print-settings", JSON.stringify(next));
+  }
   const [syncing, setSyncing] = useState(false);
   const productSearchRef = useRef<HTMLInputElement>(null);
   const customerSearchRef = useRef<HTMLInputElement>(null);
@@ -169,9 +186,10 @@ export default function SalesClient({ profile, products, customers, pendingOrder
         const shipRes = await fetch("/api/waybills", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: orderId, receiver_name: receiverName, receiver_phone: receiverPhone, address: fullAddress, area, cod_amount: total, shipping_fee: 0, partner_fee: 0, note: deliveryNote }) });
         const shipData = await shipRes.json();
         setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1);
+        if (printAuto && orderNum) window.open(`/invoice-template?code=HD${String(orderNum).padStart(6, "0")}`, "_blank");
         if (!shipRes.ok) { setError(`Đã lưu hóa đơn HD${String(orderNum).padStart(6, "0")} nhưng CHƯA tạo được vận đơn: ${shipData.error || ""}. Đừng thanh toán lại — hãy tạo vận đơn ở mục Đặt hàng cho hóa đơn này.`); return; }
         setNotice("Đã tạo đơn hàng và vận đơn!");
-      } else { setNotice("Thanh toán thành công!"); setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1); }
+      } else { setNotice("Thanh toán thành công!"); setLastOrder("HD" + String(orderNum).padStart(6, "0")); setCart({}); setCustomerNote(""); setReceiverName(""); setReceiverPhone(""); setAddress(""); setArea(""); setWard(""); setPackCount(1); if (printAuto && orderNum) window.open(`/invoice-template?code=HD${String(orderNum).padStart(6, "0")}`, "_blank"); }
     } catch { setError("Không thể kết nối máy chủ."); } finally { setSaving(false); }
   }
 
@@ -321,6 +339,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
 
     {showReturn && <div className="modal-backdrop" onClick={() => setShowReturn(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowReturn(false)}><section role="dialog" aria-modal="true" aria-labelledby="return-title" className="pos-qty-modal" style={{width:"min(480px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="return-title">Trả hàng</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Chọn hóa đơn để trả hàng — y chang KiotViet</p><div style={{display:"grid",gap:8}}><Link href="/returns" onClick={()=> setShowReturn(false)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px",border:"1px solid #e1e3e6",borderRadius:8,textDecoration:"none",color:"#0F172A"}}><RotateCcw size={18} color="#0070f4"/><div><div style={{fontWeight:600}}>Chọn hóa đơn trả hàng</div><small style={{color:"#6b7a8d"}}>Tìm theo mã HD, khách hàng</small></div></Link><Link href="/invoices" onClick={()=> setShowReturn(false)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px",border:"1px solid #e1e3e6",borderRadius:8,textDecoration:"none",color:"#0F172A"}}><ClipboardList size={18} color="#0070f4"/><div><div style={{fontWeight:600}}>Xem hóa đơn</div><small style={{color:"#6b7a8d"}}>Danh sách hóa đơn đã thanh toán</small></div></Link></div><div className="settings-form-actions" style={{marginTop:12}}><button className="settings-btn-primary" onClick={() => setShowReturn(false)}>Đóng</button></div></section></div>}
 
-    {showPrintSettings && <div className="modal-backdrop" onClick={() => setShowPrintSettings(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowPrintSettings(false)}><section role="dialog" aria-modal="true" aria-labelledby="print-settings-title" className="pos-qty-modal" style={{width:"min(420px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="print-settings-title">Thiết lập in</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Cấu hình máy in — y chang KiotViet</p><div style={{display:"grid",gap:12}}><label style={{display:"flex",flexDirection:"column",gap:6,fontSize:12,fontWeight:600}}>Khổ giấy<select defaultValue="80mm" style={{height:36,border:"1px solid #d0d7de",borderRadius:6,padding:"0 8px"}}><option>80mm</option><option>58mm</option><option>A4</option></select></label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" defaultChecked /> In sau khi thanh toán</label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" /> Hiển thị logo trên hóa đơn</label><div style={{display:"flex",gap:8}}><button onClick={()=> window.print()} style={{flex:1,height:36,border:"1px solid #0070f4",borderRadius:6,background:"#0070f4",color:"#fff"}}>In thử</button><button onClick={()=> setShowPrintSettings(false)} style={{flex:1,height:36,border:"1px solid #d0d7de",borderRadius:6,background:"#fff"}}>Đóng</button></div></div></section></div>}
+    {showPrintSettings && <div className="modal-backdrop" onClick={() => setShowPrintSettings(false)} onKeyDown={(e)=> e.key==="Escape"&&setShowPrintSettings(false)}><section role="dialog" aria-modal="true" aria-labelledby="print-settings-title" className="pos-qty-modal" style={{width:"min(420px,calc(100vw - 24px))"}} onClick={e => e.stopPropagation()}><h3 id="print-settings-title">Thiết lập in</h3><p style={{fontSize:12,color:"#6b7a8d",margin:"4px 0 12px"}}>Cấu hình được lưu lại trên máy này</p><div style={{display:"grid",gap:12}}><label style={{display:"flex",flexDirection:"column",gap:6,fontSize:12,fontWeight:600}}>Khổ giấy<select value={printPaper} onChange={e => savePrintSettings({ paper: e.target.value })} style={{height:36,border:"1px solid #d0d7de",borderRadius:6,padding:"0 8px"}}><option value="58mm">58mm (máy in tem mini)</option><option value="80mm">80mm (máy in bill nhiệt)</option><option value="A5">A5 (148×210mm)</option><option value="A4">A4 (210×297mm)</option></select></label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" checked={printAuto} onChange={e => savePrintSettings({ auto: e.target.checked })} /> In sau khi thanh toán</label><label style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}><input type="checkbox" checked={printLogo} onChange={e => savePrintSettings({ logo: e.target.checked })} /> Hiển thị logo trên hóa đơn</label><div style={{display:"flex",gap:8}}><button onClick={()=> window.open("/invoice-template", "_blank")} style={{flex:1,height:36,border:"1px solid #0070f4",borderRadius:6,background:"#0070f4",color:"#fff"}}>In thử</button><button onClick={()=> setShowPrintSettings(false)} style={{flex:1,height:36,border:"1px solid #d0d7de",borderRadius:6,background:"#fff"}}>Đóng</button></div></div></section></div>}
   </main>;
 }

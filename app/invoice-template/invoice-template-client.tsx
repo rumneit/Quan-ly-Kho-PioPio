@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Printer, RotateCcw } from "lucide-react";
 import ManagementHeader from "@/app/management-header";
 import type { Profile } from "@/lib/auth";
@@ -73,6 +73,21 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [nguoiMua, setNguoiMua] = useState(""); const [sdt, setSdt] = useState("");
   const [diaChi, setDiaChi] = useState("");
   const [focusKey, setFocusKey] = useState("");
+  const [paper, setPaper] = useState<"A4" | "A5">("A4");
+
+  // Khổ giấy: @page động theo lựa chọn, lưu lại cho lần sau
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? window.localStorage.getItem("piopio-inv-paper") : null;
+    if (saved === "A5" || saved === "A4") setPaper(saved as "A4" | "A5");
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (code) applyOrder(code);
+  }, []);
+  useEffect(() => {
+    let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
+    if (!tag) { tag = document.createElement("style"); tag.id = "inv-page-size"; document.head.appendChild(tag); }
+    tag.textContent = `@media print{ @page{ size:${paper === "A5" ? "A5 portrait; margin:6mm" : "A4 portrait; margin:8mm"} } }`;
+    window.localStorage.setItem("piopio-inv-paper", paper);
+  }, [paper]);
 
   const productMap = useMemo(() => new Map(products.map((p) => [p.sku.toUpperCase(), p])), [products]);
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
@@ -146,13 +161,14 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
   }
 
-  return <div className="kv-shell invoice-tpl-page">
+  return <div className={`kv-shell invoice-tpl-page ${paper === "A5" ? "inv-paper-a5" : ""}`}>
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
     <div className="inv-toolbar no-print">
       <datalist id="inv-orders">{orders.map((o) => <option key={o.code} value={o.code}>{o.customer} · {moneyUS(o.total)}</option>)}</datalist>
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
       <datalist id="inv-customers">{customers.map((c) => <option key={c.name} value={c.name}>{c.phone}{c.taxCode ? ` · MST ${c.taxCode}` : ""}</option>)}</datalist>
       <label className="inv-order-pick">Đơn hàng: <input list="inv-orders" value={orderCode} onChange={(e) => applyOrder(e.target.value)} placeholder="HD000001..." /></label>
+      <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value as "A4" | "A5")} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="A4">A4</option><option value="A5">A5</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
       <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyUS(vat)}</b> · Tổng: <b>{moneyUS(total)}</b></span>

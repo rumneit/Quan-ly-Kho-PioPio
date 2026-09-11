@@ -53,3 +53,17 @@
   .inv-sheet{width:100%;padding:6mm}
   .inv-signs>div{width:32%}
 }
+
+/* ---------- A5 + tuong thich moi may in ---------- */
+.inv-paper-a5 .inv-sheet{font-size:10.5px;line-height:1.35}
+.inv-paper-a5 .inv-table th,.inv-paper-a5 .inv-table td{padding:2px 3px!important}
+.inv-paper-a5 .inv-title{font-size:18px!important}
+.inv-paper-a5 .inv-sign-space{height:14mm!important}
+@media print{
+  thead{display:table-header-group}
+  tfoot{display:table-footer-group}
+  tr,.inv-signs>div{break-inside:avoid}
+  .inv-sheet,html,body{height:auto!important;min-height:0!important;overflow:visible!important}
+  .inv-cell{border:0!important}
+  img,svg{max-width:100%!important}
+}
