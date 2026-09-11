@@ -167,6 +167,15 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     return m;
   }, [rows]);
 
+  // Chỉ hiện dòng có hàng + 2 dòng trống để nhập thêm -> chữ ký dồn lên, 1 bill vừa 1 trang
+  const visibleRows = useMemo(() => {
+    const isFilled = (r: Row) => Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim());
+    const filledIdx: number[] = [];
+    const emptyIdx: number[] = [];
+    rows.forEach((r, i) => { if (isFilled(r)) filledIdx.push(i); else if (emptyIdx.length < 2) emptyIdx.push(i); });
+    return [...filledIdx, ...emptyIdx].sort((a, b) => a - b);
+  }, [rows]);
+
   function resetAll() {
     if (!window.confirm("Xóa trắng toàn bộ hóa đơn?")) return;
     setRows(Array.from({ length: 24 }, emptyRow));
@@ -221,11 +230,11 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
             <tr><th scope="col" style={{ width: "4%" }}>STT</th><th scope="col" style={{ width: "11%" }}>Mã SP</th><th scope="col" style={{ width: "32%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "7%" }}>Số lượng</th><th scope="col" style={{ width: "11%" }}>Đơn giá</th><th scope="col" style={{ width: "15%" }}>Thành tiền</th><th scope="col" style={{ width: "12%" }}>Ghi chú</th></tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => {
-              const filled = Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim());
+            {visibleRows.map((i) => {
+              const r = rows[i];
               const slRaw = r.sl.trim();
               return (
-                <tr key={i} className={filled ? undefined : "empty-row"}>
+                <tr key={i}>
                   <td className="c">{sttMap.get(i) ?? ""}</td>
                   <td><input className="inv-cell" list="inv-products" aria-label={`Mã SP dòng ${i + 1}`} value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /><span className="print-value">{r.ma}</span></td>
                   <td><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /><span className="print-value">{r.ten}</span></td>

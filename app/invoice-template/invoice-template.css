@@ -78,6 +78,7 @@
   thead{display:table-header-group}
   tfoot{display:table-footer-group}
   tr,.inv-signs>div{break-inside:avoid}
+  .inv-signs{break-inside:avoid;margin-top:10mm}
   .inv-sheet,html,body{height:auto!important;min-height:0!important;overflow:visible!important;width:auto!important;max-width:none!important}
   .inv-paper-a5.inv-landscape .inv-sheet,.inv-paper-a5:not(.inv-landscape) .inv-sheet{width:100%!important;padding:0!important}
   /* Khi in: thay o nhap bang text day du, tu xuong dong - khong bi che */
