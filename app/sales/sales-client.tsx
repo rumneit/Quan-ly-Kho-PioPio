@@ -87,7 +87,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "F3") { e.preventDefault(); productSearchRef.current?.focus(); setSearchOpen(true); }
-      else if (e.key === "F4") { e.preventDefault(); customerSearchRef.current?.focus(); setCustomerListOpen(true); }
+      else if (e.key === "F4") { e.preventDefault(); customerSearchRef.current?.focus(); }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -248,7 +248,7 @@ export default function SalesClient({ profile, products, customers, pendingOrder
               </div>
               <div className="col-wrap">
                 <div ref={customerSearchWrapRef}>
-                  <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={customerListOpen} aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} onFocus={() => setCustomerListOpen(true)} /><button type="button" onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
+                  <label className="pos-customer-search"><Search aria-hidden="true" size={14} /><input role="combobox" aria-expanded={customerListOpen} aria-autocomplete="list" ref={customerSearchRef} placeholder="Tìm khách hàng (F4)" value={customerQuery} onChange={e => { setCustomerQuery(e.target.value); setCustomerListOpen(true); }} /><button type="button" onClick={() => setShowAddCustomer(true)} title="Thêm khách hàng"><Plus size={13} /></button></label>
                   {selectedCustomer && <div className="pos-customer-selected">{selectedCustomer.name}{selectedCustomer.phone ? ` · ${selectedCustomer.phone}` : ""}<button onClick={() => setCustomerId("")}><X size={13} /></button></div>}
                   {customerListOpen && <div className="pos-customer-list"><div style={{padding:"6px 12px",borderBottom:"1px solid #eef1f4",fontSize:10.5,color:"#8a96a7"}}>{filteredCustomers.length} khách hàng{customerQuery.trim() ? ` · lọc theo "${customerQuery.trim()}"` : ""}</div>{filteredCustomers.map(c => <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerListOpen(false); }}><strong>{c.name}</strong>{c.phone && <small>{c.phone}</small>}</button>)}{!filteredCustomers.length && <p className="pos-customer-empty">{customerQuery.trim() ? "Không tìm thấy khách hàng" : "Chưa có khách hàng"}</p>}</div>}
                 </div>
