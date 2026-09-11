@@ -272,8 +272,8 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               <td />
             </tr>
             <tr className="total-row">
-              <td colSpan={4} style={{whiteSpace:"nowrap",textAlign:"right"}}><b>Tổng cộng:</b></td>
-              <td className="c"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td>
+              <td colSpan={4} style={{whiteSpace:"nowrap",textAlign:"left"}}><b>Tổng cộng:</b></td>
+              <td className="right"><b>{totalQty ? fmtQty(totalQty) : ""}</b></td>
               <td />
               <td className="right"><b style={{whiteSpace:"nowrap"}}>{total ? moneyVnd(total) : ""}</b></td>
               <td />
