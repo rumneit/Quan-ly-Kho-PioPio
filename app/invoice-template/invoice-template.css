@@ -78,11 +78,29 @@
 /* Preview theo chieu in */
 .inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
 .inv-paper-a5:not(.inv-landscape) .inv-sheet{width:130mm}
-/* Khong tran ra ngoai khung khi doi Ngang/Doc: cot theo dung % + cho phep xuong dong */
+/* Khong tran ra ngoai khung khi doi Ngang/Doc: cot theo dung % + xuong dong theo tu */
 .inv-table{table-layout:fixed;width:100%}
-.inv-table th,.inv-table td{overflow:hidden;word-break:break-word}
+.inv-table th,.inv-table td{overflow:hidden;overflow-wrap:break-word}
 .inv-paper-a5:not(.inv-landscape) .inv-header-left p{white-space:normal;line-height:1.3}
 .inv-paper-a5:not(.inv-landscape) .inv-info p{white-space:normal}
+
+/* ---------- A5 DOC: can chinh rieng cho khung hep ---------- */
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(1){width:5%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(2){width:12%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(3){width:29%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(4){width:9%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(5){width:8%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(6){width:12%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(7){width:15%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(8){width:10%!important}
+.inv-paper-a5:not(.inv-landscape) .inv-table tbody td{font-size:11px;line-height:1.3}
+.inv-paper-a5:not(.inv-landscape) .inv-table tbody td:nth-child(3){font-size:12.5px}
+.inv-paper-a5:not(.inv-landscape) .inv-table td.right{font-size:11px}
+.inv-paper-a5:not(.inv-landscape) .vat-row td,.inv-paper-a5:not(.inv-landscape) .total-row td{font-size:11.5px}
+.inv-paper-a5:not(.inv-landscape) .inv-table thead th{font-size:9.5px;padding:3px 2px!important}
+.inv-paper-a5:not(.inv-landscape) .inv-header-left{line-height:1.3}
+.inv-paper-a5:not(.inv-landscape) .w-kh{min-width:150px}
+.inv-paper-a5:not(.inv-landscape) .w-code{width:100px}
 .inv-table tbody tr{height:auto!important;min-height:25px}
 .print-value{display:none}
 /* Dong trong: khong ke o, khong chia o - de trang sach se */
