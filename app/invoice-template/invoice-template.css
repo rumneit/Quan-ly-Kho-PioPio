@@ -71,6 +71,9 @@
 .inv-table th,.inv-table td{overflow:visible;white-space:nowrap}
 .inv-table tbody tr{height:auto!important;min-height:25px}
 .print-value{display:none}
+/* Dong trong: khong ke o, khong chia o - de trang sach se */
+.inv-table tr.empty-row td{border:0!important;background:transparent!important;height:20px}
+.inv-table tr.empty-row td .inv-cell{background:transparent}
 @media print{
   thead{display:table-header-group}
   tfoot{display:table-footer-group}

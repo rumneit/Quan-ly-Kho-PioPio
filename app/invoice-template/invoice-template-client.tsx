@@ -16,6 +16,10 @@ const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu:
 // GIỮ en-US theo mẫu 02-VT — không đổi sang vi-VN
 const moneyUS = (n: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 const qtyUS = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+// Số lượng: số nguyên thì không hiện .00
+const fmtQty = (n: number) => Number.isInteger(n) ? moneyUS(n) : qtyUS(n);
+// Tiền luôn có chữ đ sau để khách dễ nhận diện
+const moneyVnd = (n: number) => `${moneyUS(n)}đ`;
 // Nhận cả kiểu VN "1.000.000" lẫn kiểu US "1,000,000" — không âm thầm thành 1
 const parseNum = (v: string) => {
   let s = String(v).replace(/\s/g, "");
@@ -184,7 +188,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a5-l">A5 ngang</option><option value="a5-p">A5 dọc</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
-      <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyUS(vat)}</b> · Tổng: <b>{moneyUS(total)}</b></span>
+      <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyVnd(vat)}</b> · Tổng: <b>{moneyVnd(total)}</b></span>
     </div>
     <main className="inv-main no-print-gap">
       <div className="inv-sheet">
@@ -221,7 +225,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               const filled = Boolean(r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim());
               const slRaw = r.sl.trim();
               return (
-                <tr key={i}>
+                <tr key={i} className={filled ? undefined : "empty-row"}>
                   <td className="c">{sttMap.get(i) ?? ""}</td>
                   <td><input className="inv-cell" list="inv-products" aria-label={`Mã SP dòng ${i + 1}`} value={r.ma} onChange={(e) => applyProduct(i, e.target.value)} /><span className="print-value">{r.ma}</span></td>
                   <td><input className="inv-cell" aria-label={`Tên SP dòng ${i + 1}`} value={r.ten} onChange={(e) => setRow(i, { ten: e.target.value })} /><span className="print-value">{r.ten}</span></td>
@@ -229,15 +233,15 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
                   <td className={slRaw ? "right" : "c"}>
                     <input className="inv-cell" inputMode="decimal" aria-label={`Số lượng dòng ${i + 1}`}
                       style={{ textAlign: slRaw ? "right" : "center", color: slRaw ? undefined : "#9aa4b0" }}
-                      title={Number(r.tax) ? `VAT ${r.tax}%: ${moneyUS(Math.round(lineVats[i]))}` : undefined}
-                      value={focusKey === `sl${i}` ? r.sl : (slRaw ? qtyUS(parseNum(r.sl)) : "-")}
+                      title={Number(r.tax) ? `VAT ${r.tax}%: ${moneyVnd(Math.round(lineVats[i]))}` : undefined}
+                      value={focusKey === `sl${i}` ? r.sl : (slRaw ? fmtQty(parseNum(r.sl)) : "")}
                       onFocus={() => { setFocusKey(`sl${i}`); if (!slRaw) setRow(i, { sl: "" }); }}
                       onBlur={() => { setFocusKey(""); if (!parseNum(r.sl)) setRow(i, { sl: "" }); }}
                       onChange={(e) => setRow(i, { sl: e.target.value.replace(/[^\d.,]/g, "") })} />
-                    <span className="print-value">{slRaw ? qtyUS(parseNum(r.sl)) : ""}</span>
+                    <span className="print-value">{slRaw ? fmtQty(parseNum(r.sl)) : ""}</span>
                   </td>
-                  <td className="right"><input className="inv-cell right" inputMode="decimal" aria-label={`Đơn giá dòng ${i + 1}`} value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /><span className="print-value">{r.dg ? moneyUS(parseNum(r.dg)) : ""}</span></td>
-                  <td className="right" title={Number(r.tax) ? `VAT ${r.tax}%` : undefined}>{lineTotals[i] ? moneyUS(lineTotals[i]) : ""}</td>
+                  <td className="right"><input className="inv-cell right" inputMode="decimal" aria-label={`Đơn giá dòng ${i + 1}`} value={r.dg} onChange={(e) => setRow(i, { dg: e.target.value.replace(/[^\d.,]/g, "") })} /><span className="print-value">{r.dg ? moneyVnd(parseNum(r.dg)) : ""}</span></td>
+                  <td className="right" title={Number(r.tax) ? `VAT ${r.tax}%` : undefined}>{lineTotals[i] ? moneyVnd(lineTotals[i]) : ""}</td>
                   <td><input className="inv-cell" aria-label={`Ghi chú dòng ${i + 1}`} value={r.ghichu} onChange={(e) => setRow(i, { ghichu: e.target.value })} /><span className="print-value">{r.ghichu}</span></td>
                 </tr>
               );
@@ -246,13 +250,13 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               <td colSpan={3} />
               <td className="c"><b>VAT</b></td>
               <td colSpan={2} />
-              <td className="right" title={vatBreakdown}>{vat ? moneyUS(vat) : ""}</td>
+              <td className="right" title={vatBreakdown}>{vat ? moneyVnd(vat) : ""}</td>
               <td />
             </tr>
             <tr className="total-row">
               <td><b>Tổng cộng:</b></td>
               <td colSpan={5} />
-              <td className="right"><b>{total ? moneyUS(total) : ""}</b></td>
+              <td className="right"><b>{total ? moneyVnd(total) : ""}</b></td>
               <td />
             </tr>
           </tbody>
