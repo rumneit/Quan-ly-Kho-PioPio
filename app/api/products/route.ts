@@ -192,16 +192,29 @@ export async function PUT(request: Request) {
   const price = Number(body.price);
   const cost = Number(body.cost ?? 0);
   if (!name || !sku || !Number.isFinite(price) || price < 0 || !Number.isFinite(cost) || cost < 0) return NextResponse.json({ error: "Dữ liệu hàng hóa không hợp lệ." }, { status: 400 });
-  const basePayload: Record<string, unknown> = {
+  const existing = await supabase.from("products").select("id").eq("id", body.id).eq("store_id", profile.store_id).maybeSingle();
+  if (!existing.data) return NextResponse.json({ error: "Không tìm thấy hàng hóa trong cửa hàng." }, { status: 404 });
+  const corePayload: Record<string, unknown> = {
     name, sku, price, cost,
     category_id: body.category_id ? String(body.category_id) : null,
     supplier_id: body.supplier_id ? String(body.supplier_id) : null,
     product_type: ["product","service","combo"].includes(String(body.product_type)) ? body.product_type : "product",
     direct_sale: body.direct_sale !== false, linked_sale_channel: Boolean(body.linked_sale_channel),
     description: body.description || body.note || null,
-    ...catalogFields(body),
   };
-  const { data, error } = await supabase.from("products").update(basePayload).eq("id", body.id).eq("store_id", profile.store_id).select().single();
-  if (error) { console.error("[api:products:PUT]", error); return NextResponse.json({ error: isUniqueViolation(error) ? "Mã hàng đã tồn tại." : "Không thể cập nhật hàng hóa." }, { status: 400 }); }
-  return NextResponse.json({ product: data });
+  const catalog = catalogFields(body);
+  const full = await supabase.from("products").update({ ...corePayload, ...catalog }).eq("id", body.id).select().maybeSingle();
+  if (full.error && (full.error as { code?: string }).code === "42703") {
+    // DB thiếu cột catalog — lưu phần lõi, thử riêng phần đơn vị quy đổi
+    const core = await supabase.from("products").update(corePayload).eq("id", body.id).select().maybeSingle();
+    if (core.error) { console.error("[api:products:PUT:core]", core.error); return NextResponse.json({ error: `Không thể cập nhật hàng hóa. (mã ${core.error.code || "?"}: ${core.error.message || ""})` }, { status: 400 }); }
+    const unitsOnly = await supabase.from("products").update({ units: catalog.units }).eq("id", body.id).select().maybeSingle();
+    if (unitsOnly.error) {
+      console.error("[api:products:PUT:units]", unitsOnly.error);
+      return NextResponse.json({ product: core.data, warning: "Đã lưu thông tin cơ bản NHƯNG chưa lưu được Đơn vị quy đổi vì DB thiếu cột units — hãy chạy migration 019_ensure_product_units.sql trong Supabase SQL Editor." });
+    }
+    return NextResponse.json({ product: unitsOnly.data, warning: "Một số cột mở rộng thiếu trong DB nên chỉ lưu được thông tin cơ bản + Đơn vị quy đổi. Hãy chạy migration 019 để đầy đủ." });
+  }
+  if (full.error) { console.error("[api:products:PUT]", full.error); return NextResponse.json({ error: isUniqueViolation(full.error) ? "Mã hàng đã tồn tại." : `Không thể cập nhật hàng hóa. (mã ${(full.error as { code?: string }).code || "?"})` }, { status: 400 }); }
+  return NextResponse.json({ product: full.data });
 }

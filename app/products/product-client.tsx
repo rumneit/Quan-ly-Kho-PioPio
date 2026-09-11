@@ -248,7 +248,7 @@ export default function ProductClient({ profile, initialProducts, initialCategor
       const cat = categoryOptions.find((c) => c.id === newProduct.category_id)?.name || null;
       const sup = supplierOptions.find((s) => s.id === newProduct.supplier_id)?.name || null;
       setProducts((current) => current.map((p) => p.id === editing.id ? { ...p, ...enriched, category_name: cat, supplier_name: sup } as Product : p));
-      closeProductModal(); setPage(1); setNotice("Đã cập nhật hàng hóa.");
+      closeProductModal(); setPage(1); setNotice(result.warning || "Đã cập nhật hàng hóa.");
       return;
     }
     const response = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
