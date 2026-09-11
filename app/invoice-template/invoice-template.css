@@ -66,10 +66,9 @@
 /* Ten san pham to va dam hon */
 .inv-table tbody td:nth-child(3) .inv-cell{font-size:15px!important;font-weight:600!important}
 .inv-table tbody td:nth-child(3){font-weight:600}
-/* Dam bao khong cot nao bi an */
-.inv-table{table-layout:fixed;width:100%}
+/* Khong cot nao bi che: auto layout + cho phep nam generous */
 .inv-table th,.inv-table td{overflow:visible;white-space:nowrap}
-.inv-table td:nth-child(4),.inv-table th:nth-child(4){min-width:12mm}
+.inv-table tbody tr{height:auto!important;min-height:25px}
 @media print{
   thead{display:table-header-group}
   tfoot{display:table-footer-group}

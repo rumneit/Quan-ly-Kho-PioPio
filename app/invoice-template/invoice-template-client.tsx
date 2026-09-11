@@ -78,8 +78,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
     const saved = typeof window !== "undefined" ? window.localStorage.getItem("piopio-inv-paper") : null;
-    if (saved === "a4-l" || saved === "a4-p" || saved === "a5-l" || saved === "a5-p") setPaper(saved);
-    else if (saved === "A4" || saved === "A5") setPaper(saved === "A5" ? "a5-l" : "a4-l");
+    if (saved === "a4-l" || saved === "a5-l") setPaper(saved);
+    else if (saved === "A4" || saved === "a4-p") setPaper("a4-l");
+    else if (saved === "A5" || saved === "a5-p") setPaper("a5-l");
     const code = new URLSearchParams(window.location.search).get("code");
     if (code) applyOrder(code);
   }, []);
@@ -170,7 +171,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
       <datalist id="inv-products">{products.map((p) => <option key={p.sku} value={p.sku}>{p.name}</option>)}</datalist>
       <datalist id="inv-customers">{customers.map((c) => <option key={c.name} value={c.name}>{c.phone}{c.taxCode ? ` · MST ${c.taxCode}` : ""}</option>)}</datalist>
       <label className="inv-order-pick">Đơn hàng: <input list="inv-orders" value={orderCode} onChange={(e) => applyOrder(e.target.value)} placeholder="HD000001..." /></label>
-      <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a4-l">A4 ngang</option><option value="a5-l">A5 ngang</option><option value="a4-p">A4 dọc</option><option value="a5-p">A5 dọc</option></select></label>
+      <label className="inv-order-pick">Khổ giấy: <select value={paper} onChange={(e) => setPaper(e.target.value)} style={{ height: 34, border: "1px solid #cfd6de", borderRadius: 6, background: "#fff", padding: "0 6px" }}><option value="a4-l">A4 ngang</option><option value="a5-l">A5 ngang</option></select></label>
       <button type="button" className="inv-btn primary" onClick={() => window.print()}><Printer size={16} /> In hóa đơn</button>
       <button type="button" className="inv-btn" onClick={resetAll}><RotateCcw size={16} /> Xóa trắng</button>
       <span className="inv-hint" title={vatBreakdown}>VAT = <b>{moneyUS(vat)}</b> · Tổng: <b>{moneyUS(total)}</b></span>
@@ -203,7 +204,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
         <table className="inv-table">
           <caption className="sr-only">Chi tiết hàng hóa 24 dòng - Mẫu số 02-VT</caption>
           <thead>
-            <tr><th scope="col" style={{ width: "4%" }}>STT</th><th scope="col" style={{ width: "9%" }}>Mã SP</th><th scope="col" style={{ width: "30%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "8%" }}>Số lượng</th><th scope="col" style={{ width: "12%" }}>Đơn giá</th><th scope="col" style={{ width: "15%" }}>Thành tiền</th><th scope="col" style={{ width: "14%" }}>Ghi chú</th></tr>
+            <tr><th scope="col" style={{ width: "4%" }}>STT</th><th scope="col" style={{ width: "11%" }}>Mã SP</th><th scope="col" style={{ width: "32%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "8%" }}>ĐVT</th><th scope="col" style={{ width: "7%" }}>Số lượng</th><th scope="col" style={{ width: "11%" }}>Đơn giá</th><th scope="col" style={{ width: "15%" }}>Thành tiền</th><th scope="col" style={{ width: "12%" }}>Ghi chú</th></tr>
           </thead>
           <tbody>
             {rows.map((r, i) => {
