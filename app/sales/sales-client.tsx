@@ -108,9 +108,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       const e = c[product.id];
       const nextQty = (e?.quantity || 0) + 1;
       const unitName = e?.unitName || "";
-      if (nextQty * piecesPer(product, unitName) > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name}: chỉ còn ${product.stock_quantity}. Server sẽ chặn khi thanh toán.`);
-      }
       return { ...c, [product.id]: { ...product, quantity: nextQty, unitName } };
     });
   }
@@ -120,10 +117,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     setCart(c => {
       const e = c[product.id];
       const nextQty = (e?.quantity || 0) + 1;
-      const pieces = nextQty * piecesPer(product, box.name);
-      if (pieces > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name}: cần ${pieces}, còn ${product.stock_quantity}. Server sẽ chặn khi thanh toán.`);
-      }
       return { ...c, [product.id]: { ...product, quantity: nextQty, unitName: box.name } };
     });
   }
@@ -133,11 +126,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
       if (!e) return c;
       const q = e.quantity + amount;
       if (q <= 0) { const n = { ...c }; delete n[product.id]; return n; }
-      if (q * piecesPer(e, e.unitName) > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name}: cần ${q * piecesPer(e, e.unitName)}, còn ${product.stock_quantity}.`);
-      } else {
-        setError("");
-      }
       return { ...c, [product.id]: { ...e, quantity: q } };
     });
   }
@@ -145,11 +133,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
     setCart(c => {
       const e = c[product.id];
       if (!e) return c;
-      if (e.quantity * piecesPer(e, unitName) > product.stock_quantity) {
-        setError(`Tồn kho không đủ cho ${product.name} khi bán theo ${unitName || "cái"}: cần ${e.quantity * piecesPer(e, unitName)}, còn ${product.stock_quantity}.`);
-      } else {
-        setError("");
-      }
       return { ...c, [product.id]: { ...e, unitName } };
     });
   }
@@ -172,12 +155,6 @@ export default function SalesClient({ profile, products, customers, pendingOrder
 
   async function pay() {
     if (!lines.length || saving) return;
-    // P0: client stock check before pay (server cũng check, nhưng báo sớm ở UI)
-    const outOfStock = lines.find(l => linePieces(l) > l.stock_quantity);
-    if (outOfStock) {
-      setError(`Tồn kho không đủ cho ${outOfStock.name}: yêu cầu ${linePieces(outOfStock)}, còn ${outOfStock.stock_quantity}. Vui lòng giảm số lượng.`);
-      return;
-    }
     if (isDelivery && (!receiverName || !receiverPhone)) { setError("Vui lòng nhập tên và số điện thoại người nhận."); return; }
     if (isDelivery && !area) { setError("Vui lòng chọn khu vực (Tỉnh/TP) giao hàng."); return; }
     setSaving(true); setError(""); setNotice(""); setLastOrder("");
