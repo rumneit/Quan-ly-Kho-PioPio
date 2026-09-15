@@ -99,7 +99,12 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     if (!el) return;
     const printableMm = paper === "a5-p" ? 198 : 138; // A5 dọc 210-12 / A5 ngang 148-10
     const availPx = (printableMm / 25.4) * 96;
-    const scale = Math.min(1, availPx / Math.max(1, el.scrollHeight));
+    // Bỏ min-height 280mm của khung xem trước khi đo, nếu không scrollHeight luôn phình to -> zoom luôn 0.85 -> chữ in ra bị nhỏ/mờ
+    const prevMin = el.style.minHeight;
+    el.style.minHeight = "0px";
+    const contentPx = el.scrollHeight;
+    el.style.minHeight = prevMin;
+    const scale = Math.min(1, availPx / Math.max(1, contentPx));
     const rounded = Math.max(0.85, Math.floor(scale * 100) / 100);
     setFitScale((prev) => (Math.abs(prev - rounded) > 0.01 ? rounded : prev));
   });

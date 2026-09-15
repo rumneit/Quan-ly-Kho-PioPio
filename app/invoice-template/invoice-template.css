@@ -69,21 +69,22 @@
 
 /* ---------- A5 + tuong thich moi may in ---------- */
 .inv-paper-a5 .inv-sheet{font-size:10.5px;line-height:1.35}
-.inv-paper-a5 .inv-header-left,.inv-paper-a5 .inv-header-left p,.inv-paper-a5 .inv-header-left b{font-size:10px!important}
-.inv-paper-a5 .inv-header-right{font-size:8.5px!important}
+.inv-paper-a5 .inv-header-left,.inv-paper-a5 .inv-header-left p,.inv-paper-a5 .inv-header-left b{font-size:12px!important}
+.inv-paper-a5 .inv-header-right{font-size:9.5px!important}
 .inv-paper-a5 .inv-title{font-size:26px!important}
-.inv-paper-a5 .inv-info,.inv-paper-a5 .inv-date,.inv-paper-a5 .inv-words{font-size:10px}
+.inv-paper-a5 .inv-info,.inv-paper-a5 .inv-words{font-size:10px}
+.inv-paper-a5 .inv-date{font-size:12px}
 .inv-paper-a5 .inv-info p>b:nth-of-type(1){flex-basis:85px}
 .inv-paper-a5 .inv-info p>b:nth-of-type(2){flex-basis:70px}
 .inv-paper-a5 .sign-title{font-size:10px}
 .inv-paper-a5 .sign-space{height:9mm}
 /* Hàng hóa + giá tiền vẫn là phần to nhất trên A5 */
-.inv-paper-a5 .inv-table tbody td{font-size:12.5px}
+.inv-paper-a5 .inv-table tbody td{font-size:13.5px}
 .inv-paper-a5 .inv-table tbody td:nth-child(2){font-size:16px}
-.inv-paper-a5 .inv-table tbody td:nth-child(3){font-size:14.5px}
-.inv-paper-a5 .inv-table td.right{font-size:12.5px}
-.inv-paper-a5 .inv-table tr.vat-row td{font-size:13px}
-.inv-paper-a5 .inv-table tr.total-row td{font-size:15px}
+.inv-paper-a5 .inv-table tbody td:nth-child(3){font-size:15px}
+.inv-paper-a5 .inv-table td.right{font-size:13.5px}
+.inv-paper-a5 .inv-table tr.vat-row td{font-size:13.5px}
+.inv-paper-a5 .inv-table tr.total-row td{font-size:16px}
 .inv-paper-a5 .inv-table th,.inv-paper-a5 .inv-table td{padding:2px 3px!important}
 /* Preview theo chieu in */
 .inv-paper-a5.inv-landscape .inv-sheet{width:190mm}
@@ -101,12 +102,12 @@
 .inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(4){width:10%!important}
 .inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(5){width:15%!important}
 .inv-paper-a5:not(.inv-landscape) .inv-table th:nth-child(6){width:20%!important}
-.inv-paper-a5:not(.inv-landscape) .inv-table tbody td{font-size:11px;line-height:1.3}
+.inv-paper-a5:not(.inv-landscape) .inv-table tbody td{font-size:12px;line-height:1.3}
 .inv-paper-a5:not(.inv-landscape) .inv-table tbody td:nth-child(2){font-size:14.5px}
-.inv-paper-a5:not(.inv-landscape) .inv-table tbody td:nth-child(3){font-size:13px}
-.inv-paper-a5:not(.inv-landscape) .inv-table td.right{font-size:11px}
-.inv-paper-a5:not(.inv-landscape) .inv-table tr.vat-row td{font-size:11.5px}
-.inv-paper-a5:not(.inv-landscape) .inv-table tr.total-row td{font-size:13px}
+.inv-paper-a5:not(.inv-landscape) .inv-table tbody td:nth-child(3){font-size:13.5px}
+.inv-paper-a5:not(.inv-landscape) .inv-table td.right{font-size:12px}
+.inv-paper-a5:not(.inv-landscape) .inv-table tr.vat-row td{font-size:12px}
+.inv-paper-a5:not(.inv-landscape) .inv-table tr.total-row td{font-size:14px}
 .inv-paper-a5:not(.inv-landscape) .inv-table thead th{font-size:10.5px;padding:3px 2px!important}
 .inv-paper-a5:not(.inv-landscape) .inv-header-left{line-height:1.3}
 .inv-paper-a5:not(.inv-landscape) .w-kh{min-width:150px}
