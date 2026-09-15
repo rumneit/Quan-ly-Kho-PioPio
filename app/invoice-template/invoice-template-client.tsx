@@ -92,6 +92,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [orderMissing, setOrderMissing] = useState("");
   const sheetRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
+  const [sheetH, setSheetH] = useState(0);
 
   // Tự co tỷ lệ để TOÀN BỘ bill luôn gọn trong 1 mặt giấy (chỉ dùng như an toàn cuối, min 0.85)
   useLayoutEffect(() => {
@@ -99,11 +100,12 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     if (!el) return;
     const printableMm = paper === "a5-p" ? 198 : 138; // A5 dọc 210-12 / A5 ngang 148-10
     const availPx = (printableMm / 25.4) * 96;
-    // Bỏ min-height 280mm của khung xem trước khi đo, nếu không scrollHeight luôn phình to -> zoom luôn 0.85 -> chữ in ra bị nhỏ/mờ
+    // Bỏ min-height 280mm của khung xem trước khi đo, nếu không scrollHeight luôn phình to -> scale luôn 0.85 -> chữ in ra bị nhỏ/mờ
     const prevMin = el.style.minHeight;
     el.style.minHeight = "0px";
     const contentPx = el.scrollHeight;
     el.style.minHeight = prevMin;
+    setSheetH((prev) => (prev !== contentPx ? contentPx : prev));
     const scale = Math.min(1, availPx / Math.max(1, contentPx));
     const rounded = Math.max(0.85, Math.floor(scale * 100) / 100);
     setFitScale((prev) => (Math.abs(prev - rounded) > 0.01 ? rounded : prev));
@@ -131,9 +133,12 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
     if (!tag) { tag = document.createElement("style"); tag.id = "inv-page-size"; document.head.appendChild(tag); }
     const size = paper === "a5-p" ? "A5 portrait; margin:6mm" : "A5 landscape; margin:5mm";
-    tag.textContent = `@media print{ @page{ size:${size} } .inv-sheet{ zoom:${fitScale} !important } }`;
+    // Dùng transform scale (render vector, chữ sắc) thay cho zoom (bị raster khi in -> chữ gãy nét)
+    const s = fitScale;
+    const comp = Math.max(0, Math.round(sheetH * (1 - s)));
+    tag.textContent = `@media print{ @page{ size:${size} } .inv-sheet{ width:${(100 / s).toFixed(2)}% !important; transform:scale(${s}) !important; transform-origin:top left !important; margin-bottom:-${comp}px !important } }`;
     window.localStorage.setItem("piopio-inv-paper", paper);
-  }, [paper, fitScale]);
+  }, [paper, fitScale, sheetH]);
 
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
   const customerMap = useMemo(() => new Map(customers.map((c) => [c.name.trim().toUpperCase(), c])), [customers]);
