@@ -8,7 +8,7 @@ import "./invoice-template.css";
 
 type ProductRef = { sku: string; name: string; dvt: string; price: number; tax: number };
 type OrderRef = { code: string; createdAt: string; total: number; discount: number; vatPercent: number; vatAmount: number; shipFee: number; customer: string; phone: string; address: string; items: Array<{ sku: string; name: string; dvt: string; tax: number; qty: number; price: number }> };
-type CustomerRef = { name: string; phone: string; taxCode: string };
+type CustomerRef = { name: string; phone: string; taxCode: string; debt: number };
 type Row = { ma: string; ten: string; dvt: string; sl: string; dg: string; ghichu: string; tax: number };
 const emptyRow = (): Row => ({ ma: "", ten: "", dvt: "", sl: "", dg: "", ghichu: "", tax: 0 });
 
@@ -88,6 +88,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [feeVatAmount, setFeeVatAmount] = useState(0);
   const [feeShip, setFeeShip] = useState(0);
   const [paper, setPaper] = useState("a5-l");
+  const [debt, setDebt] = useState(0);
   const [orderMissing, setOrderMissing] = useState("");
   const sheetRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(1);
@@ -148,6 +149,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setMst(customerMap.get(order.customer.trim().toUpperCase())?.taxCode || "");
     setSdt(order.phone);
     setDiaChi(order.address);
+    setDebt(customerMap.get(order.customer.trim().toUpperCase())?.debt || 0);
     setFeeDiscount(order.discount || 0);
     setFeeVatPercent(order.vatPercent || 0);
     setFeeVatAmount(order.vatAmount || 0);
@@ -159,6 +161,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setKhach(v);
     const c = customerMap.get(v.trim().toUpperCase());
     if (c?.taxCode) setMst(c.taxCode);
+    setDebt(c?.debt || 0);
   }
 
   function applyNguoiMua(v: string) {
@@ -192,6 +195,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setNoiDung("Bán Hàng");
     setNgay(String(todayD.getDate())); setThang(todayMM); setNam(String(todayD.getFullYear()));
     setKhach(""); setMst(""); setNguoiMua(""); setSdt(""); setDiaChi("");
+    setDebt(0);
     setFeeDiscount(0); setFeeVatPercent(0); setFeeVatAmount(0); setFeeShip(0);
   }
 
@@ -262,13 +266,16 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
               );
             })}
             {feeVatAmount > 0 && <tr className="vat-row">
-              <td colSpan={2} /><td className="c"><b>VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}</b></td><td /><td /><td><b>{moneyVnd(feeVatAmount)}</b></td>
+              <td colSpan={2} /><td className="c">VAT{feeVatPercent ? ` (${feeVatPercent}%)` : ""}</td><td /><td /><td>{moneyVnd(feeVatAmount)}</td>
             </tr>}
             {feeShip > 0 && <tr className="vat-row">
-              <td colSpan={2} /><td className="c"><b>Phí ship</b></td><td /><td /><td><b>{moneyVnd(feeShip)}</b></td>
+              <td colSpan={2} /><td className="c">Phí ship</td><td /><td /><td>{moneyVnd(feeShip)}</td>
             </tr>}
             {feeDiscount > 0 && <tr className="vat-row">
-              <td colSpan={2} /><td className="c"><b>Chiết khấu</b></td><td /><td /><td><b>-{moneyVnd(feeDiscount)}</b></td>
+              <td colSpan={2} /><td className="c">Chiết khấu</td><td /><td /><td>-{moneyVnd(feeDiscount)}</td>
+            </tr>}
+            {debt > 0 && <tr className="vat-row debt-row">
+              <td colSpan={2} /><td className="c">Công nợ</td><td /><td /><td>{moneyVnd(debt)}</td>
             </tr>}
             <tr className="total-row">
               <td colSpan={2} style={{ whiteSpace: "nowrap" }}><b>Tổng cộng:</b></td>
@@ -278,15 +285,9 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
           </tbody>
         </table>
         <p className="inv-words"><b>Tổng số tiền viết bằng chữ:</b> {total ? <i>{totalWords}</i> : <span className="ph">.......................................................................................</span>}</p>
-        <div className="inv-date inv-date-footer">
-          <span>Ngày</span> <input className="inv-num" value={ngay} onChange={(e) => setNgay(e.target.value)} />
-          <span>Tháng</span> <input className="inv-num" value={thang} onChange={(e) => setThang(e.target.value)} />
-          <span>Năm</span> <input className="inv-num inv-num-year" value={nam} onChange={(e) => setNam(e.target.value)} />
-        </div>
         <div className="inv-signs">
           <div><p className="sign-title">Người nhận hàng<br />(Ký, Họ tên)</p><div className="sign-space" /></div>
-          <div><p className="sign-title">Thủ kho<br />(Ký, Họ tên)</p><div className="sign-space" /></div>
-          <div><p className="sign-title">Giám đốc<br />(Ký, Họ tên)</p><div className="sign-space" /></div>
+          <div><p className="sign-title">Người giao hàng<br />(Ký, Họ tên)</p><div className="sign-space" /></div>
         </div>
       </div>
     </main>
