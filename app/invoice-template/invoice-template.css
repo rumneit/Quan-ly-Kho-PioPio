@@ -13,11 +13,11 @@
 .inv-date{display:flex;justify-content:flex-end;align-items:baseline;gap:3px;margin:0 0 6px;font-size:13px}
 .inv-num{width:30px;border:0;border-bottom:1px solid #111;background:transparent;font-family:"Times New Roman",Times,serif!important;font-size:inherit;font-weight:400;text-align:center;outline:0;padding:0 0 1px;line-height:1.4}
 .inv-num-year{width:48px}
-.inv-info{font-size:13px}
+.inv-info{font-size:15px}
 .inv-info p{margin:0 0 3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px}
 /* Can deu cot thong tin: nhan cot co dinh, o gia trị gian deu — thang hang ca khi xem lan khi in */
-.inv-info p>b:nth-of-type(1){flex:0 0 105px}
-.inv-info p>b:nth-of-type(2){flex:0 0 85px}
+.inv-info p>b:nth-of-type(1){flex:0 0 115px}
+.inv-info p>b:nth-of-type(2){flex:0 0 92px}
 .inv-info .inv-line,.inv-info .print-value{flex:1 1 0;min-width:0}
 .inv-line{border:0;border-bottom:1px dotted #9aa4b0;background:transparent;font:inherit;outline:0;padding:0 2px;min-width:60px}
 .w-company{flex:1;min-width:200px}.w-mst{width:110px}.w-hotline{width:120px}.w-web{width:110px}
@@ -72,10 +72,11 @@
 .inv-paper-a5 .inv-header-left,.inv-paper-a5 .inv-header-left p,.inv-paper-a5 .inv-header-left b{font-size:12px!important}
 .inv-paper-a5 .inv-header-right{font-size:9.5px!important}
 .inv-paper-a5 .inv-title{font-size:26px!important}
-.inv-paper-a5 .inv-info,.inv-paper-a5 .inv-words{font-size:10px}
+.inv-paper-a5 .inv-info{font-size:12px}
+.inv-paper-a5 .inv-words{font-size:10px}
 .inv-paper-a5 .inv-date{font-size:12px}
-.inv-paper-a5 .inv-info p>b:nth-of-type(1){flex-basis:85px}
-.inv-paper-a5 .inv-info p>b:nth-of-type(2){flex-basis:70px}
+.inv-paper-a5 .inv-info p>b:nth-of-type(1){flex-basis:95px}
+.inv-paper-a5 .inv-info p>b:nth-of-type(2){flex-basis:78px}
 .inv-paper-a5 .sign-title{font-size:10px}
 .inv-paper-a5 .sign-space{height:9mm}
 /* Hàng hóa + giá tiền vẫn là phần to nhất trên A5 */
