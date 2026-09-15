@@ -238,7 +238,6 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
           <p><b>Địa chỉ:</b> <input className="inv-line w-kh" value={diaChi} onChange={(e) => setDiaChi(e.target.value)} /><span className="print-value">{diaChi}</span></p>
         </div>
         <table className="inv-table">
-          <caption className="sr-only">Chi tiết hàng hóa 24 dòng - Mẫu số 02-VT</caption>
           <thead>
             <tr><th scope="col" style={{ width: "5%" }}>STT</th><th scope="col" style={{ width: "40%" }}>Tên sản phẩm/hàng hóa</th><th scope="col" style={{ width: "11%" }}>ĐVT</th><th scope="col" style={{ width: "9%" }}>Số lượng</th><th scope="col" style={{ width: "15%" }}>Đơn giá</th><th scope="col" style={{ width: "20%" }}>Thành tiền</th></tr>
           </thead>

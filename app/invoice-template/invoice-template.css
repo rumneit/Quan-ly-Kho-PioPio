@@ -15,12 +15,16 @@
 .inv-num-year{width:48px}
 .inv-info{font-size:13px}
 .inv-info p{margin:0 0 3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px}
+/* Can deu cot thong tin: nhan cot co dinh, o gia trị gian deu — thang hang ca khi xem lan khi in */
+.inv-info p>b:nth-of-type(1){flex:0 0 105px}
+.inv-info p>b:nth-of-type(2){flex:0 0 85px}
+.inv-info .inv-line,.inv-info .print-value{flex:1 1 0;min-width:0}
 .inv-line{border:0;border-bottom:1px dotted #9aa4b0;background:transparent;font:inherit;outline:0;padding:0 2px;min-width:60px}
 .w-company{flex:1;min-width:200px}.w-mst{width:110px}.w-hotline{width:120px}.w-web{width:110px}
 .w-code{width:120px}.w-content{flex:1;min-width:120px}.w-kh{flex:1;min-width:200px}.w-mst2{width:130px}.w-sdt{width:120px}
 .inv-table{width:100%;border-collapse:collapse;margin:8px 0 6px}
 .inv-table th,.inv-table td{border:1px solid #333;padding:5px 6px;vertical-align:middle}
-.inv-table thead th{background:#fff;font-weight:400;text-align:center;font-size:11.5px}
+.inv-table thead th{background:#fff;font-weight:700;text-align:center;font-size:11.5px}
 .inv-table td.c{text-align:center}
 .inv-table td.right,.inv-cell.right{text-align:center}
 .inv-cell{width:100%;border:0;background:transparent;font:inherit;outline:0;padding:0;text-align:left}
@@ -69,6 +73,8 @@
 .inv-paper-a5 .inv-header-right{font-size:8.5px!important}
 .inv-paper-a5 .inv-title{font-size:26px!important}
 .inv-paper-a5 .inv-info,.inv-paper-a5 .inv-date,.inv-paper-a5 .inv-words{font-size:10px}
+.inv-paper-a5 .inv-info p>b:nth-of-type(1){flex-basis:85px}
+.inv-paper-a5 .inv-info p>b:nth-of-type(2){flex-basis:70px}
 .inv-paper-a5 .sign-title{font-size:10px}
 .inv-paper-a5 .sign-space{height:9mm}
 /* Hàng hóa + giá tiền vẫn là phần to nhất trên A5 */
