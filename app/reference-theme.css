@@ -114,8 +114,9 @@ textarea {
   background: var(--pio-neutral-50);
 }
 
-/* Final typography layer: legacy component rules must not override 14px. */
-body :where(
+/* Final typography layer: legacy component rules must not override 14px.
+   Trang mau in hoa don (.inv-sheet) duoc loai tru — no tu quan ly font-size de in dung co chu. */
+body:not(:has(.inv-sheet)) :where(
   h1,
   h2,
   h3,
