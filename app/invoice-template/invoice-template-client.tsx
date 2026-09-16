@@ -91,26 +91,27 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
   const [debt, setDebt] = useState(0);
   const [orderMissing, setOrderMissing] = useState("");
   const sheetRef = useRef<HTMLDivElement>(null);
-  const [fitScale, setFitScale] = useState(1);
-  const [sheetH, setSheetH] = useState(0);
+  const [density, setDensity] = useState(0);
 
-  // Tự co tỷ lệ để TOÀN BỘ bill luôn gọn trong 1 mặt giấy (chỉ dùng như an toàn cuối, min 0.85)
+  // Tự nén BỐ CỤC (font/padding) để gọn 1 mặt giấy — KHÔNG dùng transform/zoom vì bị raster hoá khi in -> chữ mờ
   useLayoutEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
-    const printableMm = paper === "a5-p" ? 198 : 138; // A5 dọc 210-12 / A5 ngang 148-10
-    const availPx = (printableMm / 25.4) * 96;
-    // Bỏ min-height 280mm của khung xem trước khi đo, nếu không scrollHeight luôn phình to -> scale luôn 0.85 -> chữ in ra bị nhỏ/mờ
+    const availMm = paper === "a5-p" ? 198 : 138; // chiều cao vùng in A5 dọc / A5 ngang
+    const availPx = (availMm / 25.4) * 96 * 0.96; // chừa biên an toàn 4%
     const prevMin = el.style.minHeight;
+    const prevPad = el.style.padding;
     el.style.minHeight = "0px";
+    el.style.padding = "0";
     const contentPx = el.scrollHeight;
     el.style.minHeight = prevMin;
-    setSheetH((prev) => (prev !== contentPx ? contentPx : prev));
-    const scale = Math.min(1, availPx / Math.max(1, contentPx));
-    const rounded = Math.max(0.85, Math.floor(scale * 100) / 100);
-    setFitScale((prev) => (Math.abs(prev - rounded) > 0.01 ? rounded : prev));
+    el.style.padding = prevPad;
+    setDensity((prev) => {
+      if (contentPx > availPx) return Math.min(2, prev + 1);
+      if (prev > 0 && contentPx < availPx * 0.8) return prev - 1;
+      return prev;
+    });
   });
-  const filledCount = rows.filter((r) => r.ma.trim() || r.ten.trim() || r.sl.trim() || r.dg.trim()).length;
 
   // Khổ giấy + chiều in: @page động theo lựa chọn, lưu lại cho lần sau
   useEffect(() => {
@@ -133,12 +134,10 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     let tag = document.getElementById("inv-page-size") as HTMLStyleElement | null;
     if (!tag) { tag = document.createElement("style"); tag.id = "inv-page-size"; document.head.appendChild(tag); }
     const size = paper === "a5-p" ? "A5 portrait; margin:6mm" : "A5 landscape; margin:5mm";
-    // Dùng transform scale (render vector, chữ sắc) thay cho zoom (bị raster khi in -> chữ gãy nét)
-    const s = fitScale;
-    const comp = Math.max(0, Math.round(sheetH * (1 - s)));
-    tag.textContent = `@media print{ @page{ size:${size} } .inv-sheet{ width:${(100 / s).toFixed(2)}% !important; transform:scale(${s}) !important; transform-origin:top left !important; margin-bottom:-${comp}px !important } }`;
+    // In vector 100%, KHÔNG scale/zoom -> chữ sắc nét; bố cục tự nén bằng class inv-dense/inv-xdense
+    tag.textContent = `@media print{ @page{ size:${size} } .inv-sheet{ width:100% !important; padding:0 !important; margin:0 !important; transform:none !important } }`;
     window.localStorage.setItem("piopio-inv-paper", paper);
-  }, [paper, fitScale, sheetH]);
+  }, [paper]);
 
   const orderMap = useMemo(() => new Map(orders.map((o) => [o.code.toUpperCase(), o])), [orders]);
   const customerMap = useMemo(() => new Map(customers.map((c) => [c.name.trim().toUpperCase(), c])), [customers]);
@@ -209,7 +208,7 @@ export default function InvoiceTemplateClient({ profile, products, orders, custo
     setFeeDiscount(0); setFeeVatPercent(0); setFeeVatAmount(0); setFeeShip(0);
   }
 
-  return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""} ${filledCount > 10 ? "inv-dense" : ""}`}>
+  return <div className={`kv-shell invoice-tpl-page inv-paper-a5 ${paper === "a5-l" ? "inv-landscape" : ""}${density >= 1 ? " inv-dense" : ""}${density >= 2 ? " inv-xdense" : ""}`}>
     <div className="no-print"><ManagementHeader profile={profile} active="invoices" /></div>
     {orderMissing && <div className="no-print" style={{ margin: "8px 16px 0", padding: "10px 14px", border: "1px solid #f0c3c3", borderRadius: 8, background: "#fff0f0", color: "#a33131", fontSize: 13 }}>Không tìm thấy hóa đơn <b>{orderMissing}</b> trong 200 hóa đơn đã thanh toán gần nhất. Hãy chọn lại mã ở ô "Đơn hàng" bên dưới rồi bấm In.</div>}
     <div className="inv-toolbar no-print">
