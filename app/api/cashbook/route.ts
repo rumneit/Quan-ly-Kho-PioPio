@@ -132,7 +132,7 @@ export async function POST(request: Request) {
   });
   if (error || !voucherId) { console.error("[api:cashbook:POST]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể lưu phiếu." }, { status: 400 }); }
   
-  // Tự động gạch nợ vận đơn khi thu nợ khách hàng nếu có shipment_id
+  // Thu nợ khách: có shipment_id -> gạch nợ COD vận đơn; không có -> trừ nợ trên đơn của khách
   if (type === "receipt" && kind === "debt_collection") {
     const shipmentId = String(body.shipment_id || "").trim();
     if (shipmentId && uuidPattern.test(shipmentId)) {
@@ -140,6 +140,9 @@ export async function POST(request: Request) {
         p_voucher_id: voucherId,
         p_shipment_id: shipmentId,
       });
+    } else if (partnerKind === "customer" && partnerId && uuidPattern.test(partnerId)) {
+      const collect = await supabase.rpc("collect_customer_debt", { p_customer_id: partnerId, p_amount: amount });
+      if (collect.error) console.error("[api:cashbook:POST] collect_customer_debt", collect.error);
     }
   }
 

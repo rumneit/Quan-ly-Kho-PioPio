@@ -3,7 +3,7 @@ import CustomersClient, { type CustomerGroup, type SourceCustomer } from "./cust
 
 export const dynamic = "force-dynamic";
 
-const customerSelect = "id,customer_number,name,phone,secondary_phone,email,birthday,gender,customer_type,facebook,address,area,ward,note,tax_code,identity_number,organization,buyer_name,invoice_address,invoice_email,bank_name,bank_account,total_spent,active,favorite,group_id,created_at,updated_at,created_by,creator:profiles!customers_created_by_fkey(full_name),customer_groups(id,name),orders(id,order_number,status,total,created_at,shipments(status,cod_amount,collected_cod),sales_returns(id,return_number,status,refund_amount,created_at))";
+const customerSelect = "id,customer_number,name,phone,secondary_phone,email,birthday,gender,customer_type,facebook,address,area,ward,note,tax_code,identity_number,organization,buyer_name,invoice_address,invoice_email,bank_name,bank_account,total_spent,debt,active,favorite,group_id,created_at,updated_at,created_by,creator:profiles!customers_created_by_fkey(full_name),customer_groups(id,name),orders(id,order_number,status,total,created_at,shipments(status,cod_amount,collected_cod),sales_returns(id,return_number,status,refund_amount,created_at))";
 const legacyCustomerSelect = "id,name,phone,email,total_spent,created_at,created_by,creator:profiles!customers_created_by_fkey(full_name),orders(id,order_number,status,total,created_at)";
 
 export default async function CustomersPage() {

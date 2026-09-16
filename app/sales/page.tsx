@@ -33,7 +33,7 @@ export default async function SalesPage({ searchParams }: { searchParams?: Promi
       .select("id,name,sku,price,stock_quantity,active,base_unit,units")
       .eq("active", true)
       .order("name"),
-    supabase.from("orders").select("id,order_number,status,total,created_at,customers(name)").in("status", ["draft", "pending"]).order("created_at", { ascending: false }).limit(20),
+    supabase.from("orders").select("id,order_number,status,total,created_at,customers(name)").in("status", ["draft"]).order("created_at", { ascending: false }).limit(20),
     supabase.from("customer_groups").select("id,name").order("name"),
   ]);
   const customers = await loadCustomers(supabase);

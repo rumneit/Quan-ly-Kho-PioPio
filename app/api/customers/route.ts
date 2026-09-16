@@ -5,7 +5,7 @@ import { provinceAcceptedNames } from "@/app/lib/vietnam-data";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const customerSelect = "id,customer_number,name,phone,secondary_phone,email,birthday,gender,customer_type,facebook,address,area,ward,note,tax_code,identity_number,organization,buyer_name,invoice_address,invoice_email,bank_name,bank_account,total_spent,active,favorite,group_id,created_at,updated_at,created_by,creator:profiles!customers_created_by_fkey(full_name),customer_groups(id,name),orders(id,order_number,status,total,created_at,shipments(status,cod_amount,collected_cod),sales_returns(id,return_number,status,refund_amount,created_at))";
+const customerSelect = "id,customer_number,name,phone,secondary_phone,email,birthday,gender,customer_type,facebook,address,area,ward,note,tax_code,identity_number,organization,buyer_name,invoice_address,invoice_email,bank_name,bank_account,total_spent,debt,active,favorite,group_id,created_at,updated_at,created_by,creator:profiles!customers_created_by_fkey(full_name),customer_groups(id,name),orders(id,order_number,status,total,created_at,shipments(status,cod_amount,collected_cod),sales_returns(id,return_number,status,refund_amount,created_at))";
 
 function escapePostgrestIlike(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_").replaceAll(",", "\\,");

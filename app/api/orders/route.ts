@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Dữ liệu đơn hàng không hợp lệ." }, { status: 400 });
   }
-  if (body.status !== "draft" && body.status !== "paid") return NextResponse.json({ error: "Trạng thái đơn hàng không hợp lệ." }, { status: 400 });
+  if (body.status !== "draft" && body.status !== "delivering" && body.status !== "paid") return NextResponse.json({ error: "Trạng thái đơn hàng không hợp lệ." }, { status: 400 });
   if (body.customer_id != null && body.customer_id !== "" && (typeof body.customer_id !== "string" || !uuidPattern.test(body.customer_id))) return NextResponse.json({ error: "Khách hàng không hợp lệ." }, { status: 400 });
   const items = Array.isArray(body.items) ? body.items : [];
   const validItems = items.every((item) => {
@@ -138,8 +138,10 @@ export async function PATCH(request: Request) {
   }
   const id = String(body.id || "");
   const status = body.status;
-  if (!uuidPattern.test(id) || (status !== "paid" && status !== "cancelled")) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
-  const { error } = await supabase.rpc("transition_sales_order", { p_order_id: id, p_status: status });
+  const paymentMethod = body.payment_method == null || body.payment_method === "" ? null : String(body.payment_method);
+  if (!uuidPattern.test(id) || (status !== "paid" && status !== "cancelled" && status !== "delivering")) return NextResponse.json({ error: "Dữ liệu cập nhật không hợp lệ." }, { status: 400 });
+  if (paymentMethod && paymentMethod !== "cash" && paymentMethod !== "debt" && paymentMethod !== "transfer") return NextResponse.json({ error: "Phương thức thanh toán không hợp lệ." }, { status: 400 });
+  const { error } = await supabase.rpc("transition_sales_order", { p_order_id: id, p_status: status, p_payment_method: paymentMethod });
   if (error) { console.error("[api:orders:PATCH]", error); return NextResponse.json({ error: isRaisedException(error) ? error.message : "Không thể cập nhật đơn hàng." }, { status: 400 }); }
   const result = await supabase.from("orders").select(orderSelect).eq("id", id).single();
   if (result.error) return NextResponse.json({ error: "Không thể tải lại đơn hàng." }, { status: 500 });
