@@ -15,6 +15,3 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Chỉ stage file đã sửa chủ đích; KHÔNG commit `supabase/full-001-015.sql` (file untracked của user).
 - Sau khi push, báo user URL kiểm tra.
 
-# Quy trình prompt (yêu cầu của user)
-
-- Khi user yêu cầu "viết prompt" cho một việc: dùng skill `prompt-master` để tạo prompt, nhưng KHÔNG chỉ đưa prompt — tự động thực thi luôn trong cùng lượt (sửa code, chạy kiểm tra, commit + push), rồi mới báo kết quả ngắn gọn.
