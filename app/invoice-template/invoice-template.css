@@ -65,6 +65,9 @@
   .inv-qd-note{color:#000!important}
   .inv-table th,.inv-table td{border-color:#000!important}
   .inv-words{color:#000!important}
+  /* Bảng sản phẩm: in đậm để rõ nét trên mọi loại máy in */
+  .inv-table tbody td{font-weight:700!important}
+  .inv-table tr.vat-row td{font-weight:700!important}
 }
 @media(max-width:820px){
   .inv-sheet{width:100%;padding:6mm 10mm}
@@ -139,25 +142,25 @@
 /* ---------- Nhieu hang: nen BANG BO CUC (khong transform/zoom -> in vector sac net) ---------- */
 /* Ap dung ca khi xem truoc de do chieu cao chinh xac, khong chi khi in */
 .inv-paper-a5.inv-dense .inv-table th,.inv-paper-a5.inv-dense .inv-table td{padding:1px 2px!important}
-.inv-paper-a5.inv-dense .inv-table tbody td{font-size:10.5px!important;line-height:1.2}
-.inv-paper-a5.inv-dense .inv-table tbody td:nth-child(2){font-size:11.5px!important}
-.inv-paper-a5.inv-dense .inv-table tbody td:nth-child(3){font-size:11px!important}
-.inv-paper-a5.inv-dense .inv-table td.right{font-size:10.5px!important}
-.inv-paper-a5.inv-dense .inv-table tr.vat-row td{font-size:11px!important}
-.inv-paper-a5.inv-dense .inv-table tr.total-row td{font-size:12.5px!important}
-.inv-paper-a5.inv-dense .inv-table thead th{font-size:9.5px!important;padding:1px 2px!important}
+.inv-paper-a5.inv-dense .inv-table tbody td{font-size:11px!important;line-height:1.2}
+.inv-paper-a5.inv-dense .inv-table tbody td:nth-child(2){font-size:12.5px!important}
+.inv-paper-a5.inv-dense .inv-table tbody td:nth-child(3){font-size:11.5px!important}
+.inv-paper-a5.inv-dense .inv-table td.right{font-size:11px!important}
+.inv-paper-a5.inv-dense .inv-table tr.vat-row td{font-size:11.5px!important}
+.inv-paper-a5.inv-dense .inv-table tr.total-row td{font-size:13px!important}
+.inv-paper-a5.inv-dense .inv-table thead th{font-size:10.5px!important;padding:1px 2px!important}
 .inv-paper-a5.inv-dense .inv-table tbody tr{min-height:0!important}
 .inv-paper-a5.inv-dense .inv-title{margin:4px 0 2px!important}
 .inv-paper-a5.inv-dense .sign-space{height:7mm!important}
 .inv-paper-a5.inv-dense .inv-signs{margin-top:3mm!important}
 .inv-paper-a5.inv-xdense .inv-table th,.inv-paper-a5.inv-xdense .inv-table td{padding:0 2px!important}
-.inv-paper-a5.inv-xdense .inv-table tbody td{font-size:9px!important;line-height:1.15}
-.inv-paper-a5.inv-xdense .inv-table tbody td:nth-child(2){font-size:10px!important}
-.inv-paper-a5.inv-xdense .inv-table tbody td:nth-child(3){font-size:9.5px!important}
-.inv-paper-a5.inv-xdense .inv-table td.right{font-size:9px!important}
-.inv-paper-a5.inv-xdense .inv-table tr.vat-row td{font-size:9.5px!important}
-.inv-paper-a5.inv-xdense .inv-table tr.total-row td{font-size:11px!important}
-.inv-paper-a5.inv-xdense .inv-table thead th{font-size:8.5px!important;padding:0 2px!important}
+.inv-paper-a5.inv-xdense .inv-table tbody td{font-size:10px!important;line-height:1.15}
+.inv-paper-a5.inv-xdense .inv-table tbody td:nth-child(2){font-size:11px!important}
+.inv-paper-a5.inv-xdense .inv-table tbody td:nth-child(3){font-size:10.5px!important}
+.inv-paper-a5.inv-xdense .inv-table td.right{font-size:10px!important}
+.inv-paper-a5.inv-xdense .inv-table tr.vat-row td{font-size:10px!important}
+.inv-paper-a5.inv-xdense .inv-table tr.total-row td{font-size:12px!important}
+.inv-paper-a5.inv-xdense .inv-table thead th{font-size:9.5px!important;padding:0 2px!important}
 .inv-paper-a5.inv-xdense .inv-table tbody tr{min-height:0!important}
 .inv-paper-a5.inv-xdense .inv-title{font-size:20px!important;margin:3px 0 2px!important}
 .inv-paper-a5.inv-xdense .inv-header-left,.inv-paper-a5.inv-xdense .inv-header-left p,.inv-paper-a5.inv-xdense .inv-header-left b{font-size:9px!important;line-height:1.3}

@@ -21,10 +21,11 @@ const fmtQty = (n: number) => Number.isInteger(n) ? moneyUS(n) : qtyUS(n);
 // Tiền luôn có chữ đ sau để khách dễ nhận diện
 const moneyVnd = (n: number) => `${moneyUS(n)}đ`;
 // Tên SP: càng ngắn càng to, càng dài càng nhỏ — luôn 1 dòng
+// Cỡ chữ làm tròn số nguyên (cỡ lẻ .5/.4 khi in dễ bị mờ nét), tối thiểu 10px để không quá nhỏ
 const nameFontPx = (ten: string, paper: string) => {
   const len = ten.trim().length;
-  const base = len <= 14 ? 20 : len <= 22 ? 18 : len <= 32 ? 16 : len <= 45 ? 14 : 12.5;
-  return `${(paper === "a5-p" ? base * 0.72 : base).toFixed(1)}px`;
+  const base = len <= 14 ? 20 : len <= 22 ? 18 : len <= 32 ? 16 : len <= 45 ? 14 : 13;
+  return `${paper === "a5-p" ? Math.max(10, Math.round(base * 0.75)) : base}px`;
 };
 // Nhận cả kiểu VN "1.000.000" lẫn kiểu US "1,000,000" — không âm thầm thành 1
 const parseNum = (v: string) => {
